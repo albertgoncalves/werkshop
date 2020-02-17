@@ -21,20 +21,30 @@ sedtrailing () {
 export -f sedtrailing
 
 jsall () {
-    find "$WD/src" -type f -name '*.html' -exec bash -c '
-        echo "$1"
-        tidy -config "$WD/.tidyrc" -q -m "$1"
-        sedtrailing "$1"
-    ' bash {} \;
+    find \
+        "$WD" \
+        -type f \
+        -name '*.html' \
+        -not -path "$WD/node_modules/*" \
+        -exec bash -c '
+            echo "$1"
+            tidy -config "$WD/.tidyrc" -q -m "$1"
+            sedtrailing "$1"
+        ' bash {} \;
     # shellcheck disable=SC1004
-    find "$WD/src" -type f -name '*.js' -exec bash -c '
-        echo "$1"
-        "$WD/node_modules/jshint/bin/jshint" \
-            --verbose \
-            -c "$WD/.jshintrc" \
-            "$1"
-        clang-format -i "$1"
-    ' bash {} \;
+    find \
+        "$WD" \
+        -type f \
+        -name '*.js' \
+        -not -path "$WD/node_modules/*" \
+        -exec bash -c '
+            echo "$1"
+            "$WD/node_modules/jshint/bin/jshint" \
+                --verbose \
+                -c "$WD/.jshintrc" \
+                "$1"
+            clang-format -i "$1"
+        ' bash {} \;
 }
 
 export -f jsall
