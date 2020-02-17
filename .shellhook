@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+export WD=$PWD
+
+if [ "$(uname -s)" = "Darwin" ]; then
+    alias ls="ls --color=auto"
+    alias ll="ls -l"
+else
+    alias open="xdg-open"
+fi
+
+if [ ! -f "$WD/.jsinit" ]; then
+    npm install --save-dev jshint
+    touch "$WD/.jsinit"
+fi
+
+sedtrailing () {
+    sed -i 's/[ \t]\+$//' "$1"
+}
+
+export -f sedtrailing
+
+jsall () {
+    find "$WD/src" -type f -name '*.html' -exec bash -c '
+        echo "$1"
+        tidy -config "$WD/.tidyrc" -q -m "$1"
+        sedtrailing "$1"
+    ' bash {} \;
+    # shellcheck disable=SC1004
+    find "$WD/src" -type f -name '*.js' -exec bash -c '
+        echo "$1"
+        "$WD/node_modules/jshint/bin/jshint" \
+            --verbose \
+            -c "$WD/.jshintrc" \
+            "$1"
+        clang-format -i "$1"
+    ' bash {} \;
+}
+
+export -f jsall

@@ -1,0 +1,17 @@
+body {
+    background-color: hsl(0, 0%, 98%);
+    font-family: "Lucida Console", Monaco, "Andale Mono", monospace;
+    font-size: 20px;
+    -webkit-text-size-adjust: 100%;
+}
+
+canvas {
+    background-color: hsl(0, 0%, 91%);
+    display: block;
+    margin-top: 75px;
+    margin-bottom: 75px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}

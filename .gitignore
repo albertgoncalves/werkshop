@@ -1,0 +1,11 @@
+*
+!.gitignore
+!shell.nix
+!.shellhook
+!.tidyrc
+!.clang-format
+!.jshintrc
+!src/
+!*.html
+!*.css
+!*.js
