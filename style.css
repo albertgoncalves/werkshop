@@ -6,7 +6,7 @@ body {
     font-family: "Lucida Console", Monaco, "Andale Mono", monospace;
     font-size: 14px;
     -webkit-text-size-adjust: 100%;
-    padding-bottom: 200px;
+    padding-bottom: 100px;
 }
 
 canvas {
