@@ -1,17 +1,67 @@
 body {
+    margin-top: 20px;
+    margin-bottom: 20px;
     background-color: hsl(0, 0%, 98%);
+    color: hsl(0, 0%, 20%);
     font-family: "Lucida Console", Monaco, "Andale Mono", monospace;
-    font-size: 20px;
+    font-size: 14px;
     -webkit-text-size-adjust: 100%;
+    padding-bottom: 200px;
 }
 
 canvas {
-    background-color: hsl(0, 0%, 91%);
+    margin-top: 20px;
+    margin-bottom: 20px;
     display: block;
-    margin-top: 75px;
-    margin-bottom: 75px;
     padding-left: 0;
     padding-right: 0;
     margin-left: auto;
     margin-right: auto;
+}
+
+div {
+    margin: auto;
+    width: 700px;
+}
+
+a {
+    color: hsl(0, 0%, 20%);
+}
+
+em {
+    background-color: hsl(0, 0%, 20%);
+    color: hsl(0, 0%, 98%);
+    padding: 3px;
+    padding: 3px;
+}
+
+table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 50px;
+}
+
+tr:hover {
+    background-color: hsl(0, 0%, 95%);
+}
+
+hr {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    color: hsl(0, 0%, 20%);
+    border: 1px solid;
+}
+
+pre {
+    background-color: hsl(0, 0%, 95%);
+}
+
+.center {
+    text-align: center;
 }

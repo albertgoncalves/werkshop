@@ -3,7 +3,7 @@
 function main() {
     var i;
     var canvas = document.getElementById("canvas");
-    var n = 5;
+    var n = (Math.floor(Math.random() * 4) + 3);
     var nodes = new Array(n);
     var nodeHeight = 40;
     var nodeWidth = 60;
@@ -26,10 +26,10 @@ function main() {
     {
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
-        var color = "hsl(0, 0%, 35%)";
+        var color = "hsl(0, 0%, 20%)";
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
-        ctx.lineWidth = 1.25;
+        ctx.lineWidth = 1.65;
         {
             var radius = 2.5;
             var piTimes2 = Math.PI * 2;

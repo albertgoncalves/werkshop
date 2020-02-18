@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../style.css">
+        <link rel="shortcut icon" href="#">
+    </head>
+    <body>
+        <div class="center">
+            <a href="../index.html">back</a>
+            <h2>
+                linked list
+            </h2>
+        </div>
+        <canvas id="canvas" height="125" width="650"></canvas>
+        <table>
+            <tr>
+                <td>
+                    <strong>construct()</strong>
+                </td>
+                <td>
+                    <strong>🡒 <em>list</em></strong>
+                </td>
+                <td></td>
+                <td>
+                    initialize <em>list</em> structure
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>push(<em>value</em>)</strong>
+                </td>
+                <td>
+                    <strong>🡒 <em>?</em></strong>
+                </td>
+                <td>
+                    O(1)
+                </td>
+                <td>
+                    append <em>value</em> to <strong>head</strong> of <em>list</em>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>pop()</strong>
+                </td>
+                <td>
+                    <strong>🡒 <em>value, ?</em></strong>
+                </td>
+                <td>
+                    O(1)
+                </td>
+                <td>
+                    remove <strong>first</strong> <em>value</em> from <em>list</em>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>pop_at(<em>n</em>)</strong>
+                </td>
+                <td>
+                    <strong>🡒 <em>value, ?</em></strong>
+                </td>
+                <td>
+                    O(n)
+                </td>
+                <td>
+                    remove <strong>nth</strong> <em>value</em> from <em>list</em>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>print()</strong>
+                </td>
+                <td>
+                    <strong>🡒 <em>()</em></strong>
+                </td>
+                <td>
+                    O(n)
+                </td>
+                <td>
+                    print <em>list</em> elements, from <strong>first</strong> to <strong>last</strong>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <hr>
+        </div>
+        <div>
+            <pre>
+# pseudo-code
+
+list = construct()
+list.print()
+# []
+
+list.push(0)
+list.push(1)
+list.print()
+# [1, 0]
+
+a = list.pop()
+print(a)
+# 1
+list.print()
+# [0]
+
+b = list.pop()
+print(b)
+# 0
+list.print()
+# []
+
+for i in 2..10 {
+    list.push(i)
+}
+list.print()
+# [9, 8, 7, 6, 5, 4, 3, 2]
+
+for _ in 2..4 {
+    print(list.pop())
+    list.print()
+}
+# 9
+# [8, 7, 6, 5, 4, 3, 2]
+# 8
+# [7, 6, 5, 4, 3, 2]
+# 7
+# [6, 5, 4, 3, 2]
+
+c = list.pop_at(2)
+print(c)
+# 4
+list.print()
+# [6, 5, 3, 2]
+</pre>
+        </div>
+        <div>
+            <hr>
+        </div>
+        <div>
+            <p>
+                Can <em>list.push()</em> <strong>fail</strong>?
+            </p>
+            <p>
+                How to handle <em>list.pop()</em> when <em>list</em> is <strong>empty</strong>?
+            </p>
+            <p>
+                How to handle <em>list.pop_at(n)</em> when <em>n</em> is <strong>out of range</strong>?
+            </p>
+            <p>
+                What are the <strong>performance implications</strong> of various implementations?
+            </p>
+            <p>
+                How do the various implementations differ in terms of <strong>memory layout</strong>?
+            </p>
+        </div>
+        <script src="script.js"></script>
+    </body>
+</html>
