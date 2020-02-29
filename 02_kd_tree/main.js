@@ -76,7 +76,7 @@ function drawPoints(ctx, points) {
 }
 
 window.onload = function() {
-    var n = 1000;
+    var n = 2000;
     var circle = {
         x: 0.5,
         y: 0.5,

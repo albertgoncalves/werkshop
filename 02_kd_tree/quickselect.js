@@ -9,6 +9,18 @@ function swap(array, i, j) {
 function quickSelect(array, k, left, right, compare) {
     /* NOTE: `https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm` */
     while (left < right) {
+        if (600 < (right - left)) {
+            var n = right - left + 1;
+            var m = k - left + 1;
+            var z = Math.log(n);
+            var s = 0.5 * Math.exp((2 * z) / 3);
+            var sd = 0.5 * Math.sqrt((z * s * (n - s)) / n) *
+                (m - (n / 2) < 0 ? -1 : 1);
+            var newLeft = Math.max(left, Math.floor(k - ((m * s) / n) + sd));
+            var newRight =
+                Math.min(right, Math.floor(k + (((n - m) * s) / n) + sd));
+            quickSelect(array, newLeft, newRight, k);
+        }
         var t = array[k];
         var i = left;
         var j = right;
