@@ -45,37 +45,51 @@ function drawCircle(ctx, circle) {
 function drawPoints(ctx, points) {
     var i, point;
     var n = points.length;
-    /* NOTE: Highlight points where `rectOverlap == true` */
-    ctx.beginPath();
-    for (i = 0; i < n; i++) {
-        point = points[i];
-        if (point.rectOverlap) {
-            drawArc(ctx, point.x, point.y, 0.035);
+    {
+        /* NOTE: Highlight points where `rectOverlap == true` */
+        ctx.beginPath();
+        for (i = 0; i < n; i++) {
+            point = points[i];
+            if (point.rectOverlap) {
+                drawArc(ctx, point.x, point.y, 0.035);
+            }
         }
+        ctx.fillStyle = randomColor(0.2);
+        ctx.fill();
     }
-    ctx.fillStyle = randomColor(0.2);
-    ctx.fill();
-    /* NOTE: Highlight points where `withinRadius == true` */
-    ctx.beginPath();
-    for (i = 0; i < n; i++) {
-        point = points[i];
-        if (point.withinRadius) {
-            drawArc(ctx, point.x, point.y, 0.0175);
+    {
+        /* NOTE: Highlight points where `withinRadius == true` */
+        ctx.beginPath();
+        for (i = 0; i < n; i++) {
+            point = points[i];
+            if (point.withinRadius) {
+                drawArc(ctx, point.x, point.y, 0.0175);
+            }
         }
+        ctx.fillStyle = randomColor(0.4);
+        ctx.fill();
     }
-    ctx.fillStyle = randomColor(0.4);
-    ctx.fill();
-    /* NOTE: Draw all points */
-    ctx.beginPath();
-    for (i = 0; i < n; i++) {
-        point = points[i];
-        drawArc(ctx, point.x, point.y, 0.0025);
+    {
+        /* NOTE: Draw all points */
+        ctx.beginPath();
+        for (i = 0; i < n; i++) {
+            point = points[i];
+            drawArc(ctx, point.x, point.y, 0.0025);
+        }
+        ctx.fillStyle = DARK_GRAY;
+        ctx.fill();
     }
-    ctx.fillStyle = DARK_GRAY;
-    ctx.fill();
 }
 
 window.onload = function() {
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    {
+        ctx.scale(canvas.width, canvas.width);
+        ctx.translate(0, 0);
+        ctx.lineWidth = 0.002;
+        ctx.strokeStyle = DARK_GRAY;
+    }
     var n = 2000;
     var circle = {
         x: 0.5,
@@ -98,14 +112,7 @@ window.onload = function() {
         tree = makeTree(points, 0, 0, 1, 0, 1);
         console.timeEnd("makeTree()");
     }
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
-    {
-        ctx.scale(canvas.width, canvas.width);
-        ctx.translate(0, 0);
-        ctx.lineWidth = 0.002;
-        ctx.strokeStyle = DARK_GRAY;
-    }
+    drawPoints(ctx, points);
     canvas.addEventListener("click", function(event) {
         circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
         circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
@@ -133,5 +140,4 @@ window.onload = function() {
         drawPoints(ctx, points);
         drawCircle(ctx, circle);
     });
-    drawPoints(ctx, points);
 };
