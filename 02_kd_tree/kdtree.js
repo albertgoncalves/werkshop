@@ -46,16 +46,16 @@ function rectCircleOverlap(rectangle, circle) {
         Math.max(rectangle.xLower, Math.min(circle.x, rectangle.xUpper));
     var y = circle.y -
         Math.max(rectangle.yLower, Math.min(circle.y, rectangle.yUpper));
-    return ((x * x) + (y * y)) < (circle.radius * circle.radius);
+    return ((x * x) + (y * y)) < circle.radiusSquared;
 }
 
 function pointInCircle(point, circle) {
     var x = point.x - circle.x;
     var y = point.y - circle.y;
-    return ((x * x) + (y * y)) < (circle.radius * circle.radius);
+    return ((x * x) + (y * y)) < circle.radiusSquared;
 }
 
-function rangeQuery(tree, circle, callback) {
+function radiusSearch(tree, circle, callback) {
     if (tree === null) {
         return;
     }

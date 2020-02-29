@@ -1,4 +1,4 @@
-/* global makeTree, pointInCircle, rangeQuery */
+/* global makeTree, pointInCircle, radiusSearch */
 
 "use strict";
 
@@ -82,6 +82,7 @@ window.onload = function() {
         y: 0.5,
         radius: 0.3,
     };
+    circle.radiusSquared = circle.radius * circle.radius;
     var points = new Array(n);
     for (var i = 0; i < n; i++) {
         points[i] = {
@@ -116,8 +117,8 @@ window.onload = function() {
         }
         {
             /* NOTE: Search tree for points within `circle.radius` */
-            console.time("rangeQuery()");
-            rangeQuery(tree, circle, function(point) {
+            console.time("radiusSearch()");
+            radiusSearch(tree, circle, function(point) {
                 /* NOTE: When tree node rect intersects with `circle`, test
                  * `tree.point` for intersection with `circle`
                  */
@@ -126,7 +127,7 @@ window.onload = function() {
                     point.withinRadius = true;
                 }
             });
-            console.timeEnd("rangeQuery()");
+            console.timeEnd("radiusSearch()");
         }
         ctx.clearRect(0, 0, 1, 1);
         drawPoints(ctx, points);
