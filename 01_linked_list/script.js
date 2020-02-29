@@ -11,7 +11,7 @@ function main() {
     var canvasHalfHeight = canvas.height / 2;
     var canvasWidthSlice = canvas.width / n;
     (function() {
-        /* Initialize `nodes` */
+        /* NOTE: Initialize `nodes` */
         var k = 15;
         var kHalf = k / 2;
         for (var i = 0; i < n; i++) {
@@ -25,7 +25,7 @@ function main() {
         }
     })();
     (function() {
-        /* Draw everything */
+        /* NOTE: Draw everything */
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = true;
         var color = "hsl(0, 0%, 20%)";
@@ -33,7 +33,7 @@ function main() {
         ctx.strokeStyle = color;
         ctx.lineWidth = 1.65;
         (function() {
-            /* Draw `nodes` surroundings */
+            /* NOTE: Draw `nodes` surroundings */
             var yOver = canvasHalfHeight - nodeHeight;
             var yUnder = canvasHalfHeight + nodeHeight;
             ctx.setLineDash([2.25, 3]);
@@ -53,7 +53,7 @@ function main() {
             ctx.stroke();
         })();
         (function() {
-            /* Draw `nodes` rects and pointers */
+            /* NOTE: Draw `nodes` rects and pointers */
             var radius = 2.5;
             var twicePi = Math.PI * 2;
             var nodeThreeQuarterWidth = nodeWidth * 0.75;
@@ -77,7 +77,7 @@ function main() {
             ctx.fill();
         })();
         (function() {
-            /* Draw `nodes` separator details */
+            /* NOTE: Draw `nodes` separator details */
             ctx.setLineDash([1, 2]);
             ctx.beginPath();
             var m = n - 1;
