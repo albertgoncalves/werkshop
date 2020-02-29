@@ -54,7 +54,7 @@ function drawPoints(ctx, points) {
                 drawArc(ctx, point.x, point.y, 0.035);
             }
         }
-        ctx.fillStyle = randomColor(0.2);
+        ctx.fillStyle = randomColor(0.175);
         ctx.fill();
     }
     {
@@ -66,7 +66,7 @@ function drawPoints(ctx, points) {
                 drawArc(ctx, point.x, point.y, 0.0175);
             }
         }
-        ctx.fillStyle = randomColor(0.4);
+        ctx.fillStyle = randomColor(0.325);
         ctx.fill();
     }
     {
@@ -85,9 +85,9 @@ window.onload = function() {
     var canvas = document.getElementById("canvas");
     var ctx = canvas.getContext("2d");
     {
-        ctx.scale(canvas.width, canvas.width);
+        ctx.scale(canvas.width, canvas.height);
         ctx.translate(0, 0);
-        ctx.lineWidth = 0.002;
+        ctx.lineWidth = 0.00325;
         ctx.strokeStyle = DARK_GRAY;
     }
     var n = 2000;
