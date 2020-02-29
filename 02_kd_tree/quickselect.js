@@ -1,3 +1,5 @@
+"use strict";
+
 /* NOTE: `https://github.com/mourner/quickselect/blob/master/index.js` */
 
 function swap(array, i, j) {
