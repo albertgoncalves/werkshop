@@ -25,6 +25,8 @@ function makeTree(points, axis, xLower, xUpper, yLower, yUpper) {
         xUpper: xUpper,
         yLower: yLower,
         yUpper: yUpper,
+        left: null,
+        right: null,
     };
     var left = points.slice(0, median);
     var right = points.slice(median + 1);

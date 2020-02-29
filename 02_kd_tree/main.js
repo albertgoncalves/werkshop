@@ -3,43 +3,22 @@
 "use strict";
 
 var TWICE_PI = Math.PI * 2;
-var DARK_GRAY = "hsl(0, 0%, 20%)";
 
 function drawArc(ctx, x, y, radius) {
     ctx.moveTo(x + radius, y);
     ctx.arc(x, y, radius, 0, TWICE_PI);
 }
 
-function drawCross(ctx, x, y, offset) {
-    var xA = x - offset;
-    var xB = x + offset;
-    var yA = y - offset;
-    var yB = y + offset;
-    ctx.moveTo(xA, yA);
-    ctx.lineTo(xB, yB);
-    ctx.moveTo(xA, yB);
-    ctx.lineTo(xB, yA);
+function drawCross(ctx, x, y, radius) {
+    ctx.moveTo(x, y - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.moveTo(x - radius, y);
+    ctx.lineTo(x + radius, y);
 }
 
 function randomColor(alpha) {
     return "hsla(" + Math.floor(Math.random() * 360).toString() +
         ", 65%, 50%, " + alpha.toString() + ")";
-}
-
-function drawCircle(ctx, circle) {
-    /* NOTE: Draw search region based on `circle` */
-    {
-        ctx.beginPath();
-        drawArc(ctx, circle.x, circle.y, circle.radius);
-        ctx.setLineDash([0.01, 0.01]);
-        ctx.stroke();
-    }
-    {
-        ctx.beginPath();
-        drawCross(ctx, circle.x, circle.y, 0.02);
-        ctx.setLineDash([]);
-        ctx.stroke();
-    }
 }
 
 function drawPoints(ctx, points) {
@@ -54,7 +33,7 @@ function drawPoints(ctx, points) {
                 drawArc(ctx, point.x, point.y, 0.035);
             }
         }
-        ctx.fillStyle = randomColor(0.175);
+        ctx.fillStyle = randomColor(0.25);
         ctx.fill();
     }
     {
@@ -66,7 +45,7 @@ function drawPoints(ctx, points) {
                 drawArc(ctx, point.x, point.y, 0.0175);
             }
         }
-        ctx.fillStyle = randomColor(0.325);
+        ctx.fillStyle = randomColor(0.5);
         ctx.fill();
     }
     {
@@ -76,7 +55,7 @@ function drawPoints(ctx, points) {
             point = points[i];
             drawArc(ctx, point.x, point.y, 0.0025);
         }
-        ctx.fillStyle = DARK_GRAY;
+        ctx.fillStyle = "hsl(0, 0%, 20%)";
         ctx.fill();
     }
 }
@@ -87,14 +66,15 @@ window.onload = function() {
     {
         ctx.scale(canvas.width, canvas.height);
         ctx.translate(0, 0);
-        ctx.lineWidth = 0.00325;
-        ctx.strokeStyle = DARK_GRAY;
+        ctx.lineWidth = 0.0065;
+        ctx.strokeStyle = "hsla(0, 0%, 100%, 0.875)";
     }
     var n = 2000;
     var circle = {
         x: 0.5,
         y: 0.5,
         radius: 0.3,
+        radiusSquared: null,
     };
     circle.radiusSquared = circle.radius * circle.radius;
     var points = new Array(n);
@@ -138,6 +118,12 @@ window.onload = function() {
         }
         ctx.clearRect(0, 0, 1, 1);
         drawPoints(ctx, points);
-        drawCircle(ctx, circle);
+        {
+            /* NOTE: Draw search region based on `circle` */
+            ctx.beginPath();
+            drawArc(ctx, circle.x, circle.y, circle.radius);
+            drawCross(ctx, circle.x, circle.y, 0.035);
+            ctx.stroke();
+        }
     });
 };
