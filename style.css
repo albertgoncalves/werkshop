@@ -65,3 +65,9 @@ pre {
 .center {
     text-align: center;
 }
+
+.dashed {
+    border-style: dashed;
+    border-width: 2px;
+    border-color: hsl(0, 0%, 20%);
+}
