@@ -20,7 +20,7 @@ sedtrailing () {
 
 export -f sedtrailing
 
-jsall () {
+htmlall () {
     find \
         "$WD" \
         -type f \
@@ -31,6 +31,9 @@ jsall () {
             tidy -config "$WD/.tidyrc" -q -m "$1"
             sedtrailing "$1"
         ' bash {} \;
+}
+
+jsall () {
     # shellcheck disable=SC1004
     find \
         "$WD" \
@@ -47,4 +50,5 @@ jsall () {
         ' bash {} \;
 }
 
+export -f htmlall
 export -f jsall
