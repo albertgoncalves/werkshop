@@ -21,7 +21,7 @@ function quickSelect(array, k, left, right, compare) {
             var newLeft = Math.max(left, Math.floor(k - ((m * s) / n) + sd));
             var newRight =
                 Math.min(right, Math.floor(k + (((n - m) * s) / n) + sd));
-            quickSelect(array, newLeft, newRight, k);
+            quickSelect(array, newLeft, newRight, k, compare);
         }
         var t = array[k];
         var i = left;
