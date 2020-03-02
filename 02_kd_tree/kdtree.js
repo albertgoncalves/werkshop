@@ -2,7 +2,7 @@
 
 "use strict";
 
-function makeTree(points, axis, xLower, xUpper, yLower, yUpper) {
+function makeTree(points, axis, rect) {
     var n = points.length;
     if (n === 0) {
         return null;
@@ -21,10 +21,7 @@ function makeTree(points, axis, xLower, xUpper, yLower, yUpper) {
     var node = {
         point: point,
         axis: axis,
-        xLower: xLower,
-        xUpper: xUpper,
-        yLower: yLower,
-        yUpper: yUpper,
+        rect: rect,
         left: null,
         right: null,
     };
@@ -33,21 +30,39 @@ function makeTree(points, axis, xLower, xUpper, yLower, yUpper) {
     var next;
     if (axis === 0) {
         next = 1;
-        node.left = makeTree(left, next, xLower, point.x, yLower, yUpper);
-        node.right = makeTree(right, next, point.x, xUpper, yLower, yUpper);
+        node.left = makeTree(left, next, {
+            xLower: rect.xLower,
+            xUpper: point.x,
+            yLower: rect.yLower,
+            yUpper: rect.yUpper,
+        });
+        node.right = makeTree(right, next, {
+            xLower: point.x,
+            xUpper: rect.xUpper,
+            yLower: rect.yLower,
+            yUpper: rect.yUpper,
+        });
     } else if (axis === 1) {
         next = 0;
-        node.left = makeTree(left, next, xLower, xUpper, yLower, point.y);
-        node.right = makeTree(right, next, xLower, xUpper, point.y, yUpper);
+        node.left = makeTree(left, next, {
+            xLower: rect.xLower,
+            xUpper: rect.xUpper,
+            yLower: rect.yLower,
+            yUpper: point.y,
+        });
+        node.right = makeTree(right, next, {
+            xLower: rect.xLower,
+            xUpper: rect.xUpper,
+            yLower: point.y,
+            yUpper: rect.yUpper,
+        });
     }
     return node;
 }
 
-function rectCircleOverlap(rectangle, circle) {
-    var x = circle.x -
-        Math.max(rectangle.xLower, Math.min(circle.x, rectangle.xUpper));
-    var y = circle.y -
-        Math.max(rectangle.yLower, Math.min(circle.y, rectangle.yUpper));
+function rectCircleOverlap(rect, circle) {
+    var x = circle.x - Math.max(rect.xLower, Math.min(circle.x, rect.xUpper));
+    var y = circle.y - Math.max(rect.yLower, Math.min(circle.y, rect.yUpper));
     return ((x * x) + (y * y)) < circle.radiusSquared;
 }
 
@@ -62,9 +77,9 @@ function radiusSearch(tree, circle, callback) {
         return;
     }
     var stack = [tree];
-    while (stack.length !== 0) {
-        var node = stack.pop();
-        if (rectCircleOverlap(node, circle)) {
+    var node = stack.pop();
+    while (node) {
+        if (rectCircleOverlap(node.rect, circle)) {
             callback(node.point);
             if (node.left !== null) {
                 stack.push(node.left);
@@ -73,5 +88,6 @@ function radiusSearch(tree, circle, callback) {
                 stack.push(node.right);
             }
         }
+        node = stack.pop();
     }
 }

@@ -89,7 +89,12 @@ window.onload = function() {
     var tree;
     {
         console.time("makeTree()");
-        tree = makeTree(points, 0, 0, 1, 0, 1);
+        tree = makeTree(points, 0, {
+            xLower: 0,
+            xUpper: 1,
+            yLower: 0,
+            yUpper: 1,
+        });
         console.timeEnd("makeTree()");
     }
     drawPoints(ctx, points);
