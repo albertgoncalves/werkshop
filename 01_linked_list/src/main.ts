@@ -1,6 +1,6 @@
 "use strict";
 
-interface Point {
+interface Node_ {
     xOrigin: number;
     x: number;
     y: number;
@@ -10,7 +10,7 @@ function main() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
     const n: number = (Math.floor(Math.random() * 4) + 3);
-    const nodes: Point[] = new Array(n);
+    const nodes: Node_[] = new Array(n);
     const nodeHeight: number = 45;
     const nodeWidth: number = 60;
     const nodeHalfHeight: number = nodeHeight / 2;
@@ -52,7 +52,7 @@ function main() {
                            yOver - yUnder);
             ctx.beginPath();
             for (let i: number = 1; i < n; i++) {
-                const node: Point = nodes[i];
+                const node: Node_ = nodes[i];
                 const xOriginOffset: number = node.xOrigin + nodeWidth;
                 ctx.moveTo(node.xOrigin, yOver);
                 ctx.lineTo(xOriginOffset, yOver);
@@ -69,8 +69,8 @@ function main() {
             ctx.setLineDash([]);
             ctx.beginPath();
             for (let i: number = 1; i < n; i++) {
-                const nodeFrom: Point = nodes[i - 1];
-                const nodeTo: Point = nodes[i];
+                const nodeFrom: Node_ = nodes[i - 1];
+                const nodeTo: Node_ = nodes[i];
                 const xFrom: number = nodeFrom.x + nodeThreeQuarterWidth;
                 const yFrom: number = nodeFrom.y + nodeHalfHeight;
                 const yTo: number = nodeTo.y + nodeHalfHeight;
@@ -91,7 +91,7 @@ function main() {
             ctx.beginPath();
             const m: number = n - 1;
             for (let i: number = 0; i < m; i++) {
-                const node: Point = nodes[i];
+                const node: Node_ = nodes[i];
                 const xSep: number = node.x + nodeHalfWidth;
                 ctx.moveTo(xSep, node.y);
                 ctx.lineTo(xSep, node.y + nodeHeight);

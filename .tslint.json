@@ -6,6 +6,7 @@
     "jsRules": {},
     "rules": {
         "ban-comma-operator": true,
+        "class-name": false,
         "no-any": true,
         "no-console": false,
         "no-import-side-effect": true,
