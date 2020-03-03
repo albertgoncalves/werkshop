@@ -1,4 +1,3 @@
-Language: JavaScript
 BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 79

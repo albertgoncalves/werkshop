@@ -93,7 +93,7 @@ window.onload = function() {
             x: Math.random(),
             y: Math.random(),
             rectOverlap: false,
-            withinRadius: false
+            withinRadius: false,
         };
     }
     console.time("makeTree()");

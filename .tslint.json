@@ -10,7 +10,15 @@
         "no-console": false,
         "no-import-side-effect": true,
         "no-parameter-reassignment": true,
-        "only-arrow-functions": false
+        "only-arrow-functions": false,
+        "semicolon": "always",
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "always",
+                "singleline": "never"
+            }
+        ]
     },
     "rulesDirectory": []
 }
