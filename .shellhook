@@ -10,7 +10,7 @@ else
 fi
 
 if [ ! -f "$WD/.jsinit" ]; then
-    npm install jshint typescript typescript-bundle tslint
+    npm install --no-save jshint typescript typescript-bundle tslint
     touch "$WD/.jsinit"
 fi
 
