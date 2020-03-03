@@ -10,7 +10,7 @@ else
 fi
 
 if [ ! -f "$WD/.jsinit" ]; then
-    npm install --save-dev jshint
+    npm install jshint typescript typescript-bundle tslint
     touch "$WD/.jsinit"
 fi
 
@@ -42,7 +42,7 @@ jsall () {
         -not -path "$WD/node_modules/*" \
         -exec bash -c '
             echo "$1"
-            "$WD/node_modules/jshint/bin/jshint" \
+            npx jshint \
                 --verbose \
                 -c "$WD/.jshintrc" \
                 "$1"
@@ -50,5 +50,20 @@ jsall () {
         ' bash {} \;
 }
 
+tsall () {
+    # shellcheck disable=SC1004
+    find \
+        "$WD" \
+        -type f \
+        -name '*.ts' \
+        -not -path "$WD/node_modules/*" \
+        -exec bash -c '
+            echo "$1"
+            clang-format -i "$1"
+            npx tslint -c "$WD/.tslint.json" "$1"
+        ' bash {} \;
+}
+
 export -f htmlall
 export -f jsall
+export -f tsall

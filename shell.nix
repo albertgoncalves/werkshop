@@ -3,6 +3,7 @@ mkShell {
     buildInputs = [
         clang-tools
         htmlTidy
+        jq
         nodejs
         shellcheck
     ];

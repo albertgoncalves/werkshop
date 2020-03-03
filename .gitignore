@@ -5,8 +5,12 @@
 !.tidyrc
 !.clang-format
 !.jshintrc
+!.tslint.json
 !*.html
 !*.css
 !*.js
+!*.ts
+!tsconfig.json
+!src/
 !01_linked_list/
 !02_kd_tree/

@@ -1,31 +1,33 @@
-"use strict";
-
 /* NOTE: `https://github.com/mourner/quickselect/blob/master/index.js` */
 
-function swap(array, i, j) {
-    var tmp = array[i];
+function swap<T>(array: T[], i: number, j: number) {
+    const tmp: T = array[i];
     array[i] = array[j];
     array[j] = tmp;
 }
 
-function quickSelect(array, k, left, right, compare) {
+export function quickSelect<T>(array: T[], k: number, l: number, r: number,
+                               compare: (a: T, b: T) => number) {
     /* NOTE: `https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm` */
+    let left: number = l;
+    let right: number = r;
     while (left < right) {
         if (600 < (right - left)) {
-            var n = right - left + 1;
-            var m = k - left + 1;
-            var z = Math.log(n);
-            var s = 0.5 * Math.exp((2 * z) / 3);
-            var sd = 0.5 * Math.sqrt((z * s * (n - s)) / n) *
+            const n: number = right - left + 1;
+            const m: number = k - left + 1;
+            const z: number = Math.log(n);
+            const s: number = 0.5 * Math.exp((2 * z) / 3);
+            const d: number = 0.5 * Math.sqrt((z * s * (n - s)) / n) *
                 (m - (n / 2) < 0 ? -1 : 1);
-            var newLeft = Math.max(left, Math.floor(k - ((m * s) / n) + sd));
-            var newRight =
-                Math.min(right, Math.floor(k + (((n - m) * s) / n) + sd));
+            const newLeft: number =
+                Math.max(left, Math.floor(k - ((m * s) / n) + d));
+            const newRight: number =
+                Math.min(right, Math.floor(k + (((n - m) * s) / n) + d));
             quickSelect(array, newLeft, newRight, k, compare);
         }
-        var t = array[k];
-        var i = left;
-        var j = right;
+        const t: T = array[k];
+        let i: number = left;
+        let j: number = right;
         swap(array, left, k);
         if (0 < compare(array[right], t)) {
             swap(array, left, right);

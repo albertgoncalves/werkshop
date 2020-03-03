@@ -1,29 +1,37 @@
-/* global makeTree, pointInCircle, radiusSearch */
+import {
+    Circle,
+    makeTree,
+    Point,
+    pointInCircle,
+    radiusSearch,
+    Tree,
+} from "./kdtree";
 
-"use strict";
+const TWICE_PI: number = Math.PI * 2;
 
-var TWICE_PI = Math.PI * 2;
-
-function drawArc(ctx, x, y, radius) {
+function drawArc(ctx: CanvasRenderingContext2D, x: number, y: number,
+                 radius: number) {
     ctx.moveTo(x + radius, y);
     ctx.arc(x, y, radius, 0, TWICE_PI);
 }
 
-function drawCross(ctx, x, y, radius) {
+function drawCross(ctx: CanvasRenderingContext2D, x: number, y: number,
+                   radius: number) {
     ctx.moveTo(x, y - radius);
     ctx.lineTo(x, y + radius);
     ctx.moveTo(x - radius, y);
     ctx.lineTo(x + radius, y);
 }
 
-function randomColor(alpha) {
+function randomColor(alpha: number) {
     return "hsla(" + Math.floor(Math.random() * 360).toString() +
         ", 65%, 50%, " + alpha.toString() + ")";
 }
 
-function drawPoints(ctx, points) {
-    var i, point;
-    var n = points.length;
+function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
+    let i: number;
+    let point: Point;
+    const n: number = points.length;
     {
         /* NOTE: Highlight points where `rectOverlap == true` */
         ctx.beginPath();
@@ -61,56 +69,55 @@ function drawPoints(ctx, points) {
 }
 
 window.onload = function() {
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
+    const canvas: HTMLCanvasElement =
+        document.getElementById("canvas") as HTMLCanvasElement;
+    const ctx: CanvasRenderingContext2D =
+        canvas.getContext("2d") as CanvasRenderingContext2D;
     {
         ctx.scale(canvas.width, canvas.height);
         ctx.translate(0, 0);
         ctx.lineWidth = 0.0065;
         ctx.strokeStyle = "hsla(0, 0%, 100%, 0.875)";
     }
-    var n = 2000;
-    var circle = {
+    const n: number = 2000;
+    const radius: number = 0.3;
+    const circle: Circle = {
         x: 0.5,
         y: 0.5,
-        radius: 0.3,
-        radiusSquared: null,
+        radius,
+        radiusSquared: radius * radius,
     };
-    circle.radiusSquared = circle.radius * circle.radius;
-    var points = new Array(n);
-    for (var i = 0; i < n; i++) {
+    const points: Point[] = new Array(n);
+    for (let i: number = 0; i < n; i++) {
         points[i] = {
             x: Math.random(),
             y: Math.random(),
             rectOverlap: false,
-            withinRadius: false,
+            withinRadius: false
         };
     }
-    var tree;
-    {
-        console.time("makeTree()");
-        tree = makeTree(points, 0, {
-            xLower: 0,
-            xUpper: 1,
-            yLower: 0,
-            yUpper: 1,
-        });
-        console.timeEnd("makeTree()");
-    }
+    console.time("makeTree()");
+    const tree: Tree|null = makeTree(points, true, {
+        xLower: 0,
+        xUpper: 1,
+        yLower: 0,
+        yUpper: 1,
+    });
+    console.timeEnd("makeTree()");
     drawPoints(ctx, points);
-    canvas.addEventListener("click", function(event) {
+    canvas.addEventListener("click", function(event: MouseEvent) {
         circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
         circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
         /* NOTE: Reset all points */
-        for (var i = 0; i < n; i++) {
-            var point = points[i];
+        for (let i: number = 0; i < n; i++) {
+            const point: Point = points[i];
             point.rectOverlap = false;
             point.withinRadius = false;
         }
         {
             /* NOTE: Search tree for points within `circle.radius` */
             console.time("radiusSearch()");
-            radiusSearch(tree, circle, function(point) {
+            radiusSearch(tree, circle, function(point: Point) {
                 /* NOTE: When tree node rect intersects with `circle`, test
                  * `tree.point` for intersection with `circle`
                  */
