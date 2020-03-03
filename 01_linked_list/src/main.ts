@@ -17,7 +17,7 @@ function main() {
     const nodeHalfWidth: number = nodeWidth / 2;
     const canvasHalfHeight: number = canvas.height / 2;
     const canvasWidthSlice: number = canvas.width / n;
-    (function() {
+    {
         /* NOTE: Initialize `nodes` */
         const k: number = 15;
         const kHalf: number = k / 2;
@@ -31,8 +31,8 @@ function main() {
                     kHalf,
             };
         }
-    })();
-    (function() {
+    }
+    {
         /* NOTE: Draw everything */
         const ctx: CanvasRenderingContext2D =
             canvas.getContext("2d") as CanvasRenderingContext2D;
@@ -41,7 +41,7 @@ function main() {
         ctx.fillStyle = color;
         ctx.strokeStyle = color;
         ctx.lineWidth = 1.65;
-        (function() {
+        {
             /* NOTE: Draw `nodes` surroundings */
             const yOver: number = canvasHalfHeight - nodeHeight;
             const yUnder: number = canvasHalfHeight + nodeHeight;
@@ -60,8 +60,8 @@ function main() {
                 ctx.lineTo(xOriginOffset, yUnder);
             }
             ctx.stroke();
-        })();
-        (function() {
+        }
+        {
             /* NOTE: Draw `nodes` rects and pointers */
             const radius: number = 2.5;
             const twicePi: number = Math.PI * 2;
@@ -84,8 +84,8 @@ function main() {
             }
             ctx.stroke();
             ctx.fill();
-        })();
-        (function() {
+        }
+        {
             /* NOTE: Draw `nodes` separator details */
             ctx.setLineDash([1, 2]);
             ctx.beginPath();
@@ -97,8 +97,8 @@ function main() {
                 ctx.lineTo(xSep, node.y + nodeHeight);
             }
             ctx.stroke();
-        })();
-    })();
+        }
+    }
 }
 
 main();

@@ -20,7 +20,7 @@
         var nodeHalfWidth = nodeWidth / 2;
         var canvasHalfHeight = canvas.height / 2;
         var canvasWidthSlice = canvas.width / n;
-        (function () {
+        {
             var k = 15;
             var kHalf = k / 2;
             for (var i = 0; i < n; i++) {
@@ -32,15 +32,15 @@
                         kHalf
                 };
             }
-        })();
-        (function () {
+        }
+        {
             var ctx = canvas.getContext("2d");
             ctx.imageSmoothingEnabled = true;
             var color = "hsl(0, 0%, 20%)";
             ctx.fillStyle = color;
             ctx.strokeStyle = color;
             ctx.lineWidth = 1.65;
-            (function () {
+            {
                 var yOver = canvasHalfHeight - nodeHeight;
                 var yUnder = canvasHalfHeight + nodeHeight;
                 ctx.setLineDash([2.25, 3]);
@@ -56,8 +56,8 @@
                     ctx.lineTo(xOriginOffset, yUnder);
                 }
                 ctx.stroke();
-            })();
-            (function () {
+            }
+            {
                 var radius = 2.5;
                 var twicePi = Math.PI * 2;
                 var nodeThreeQuarterWidth = nodeWidth * 0.75;
@@ -79,8 +79,8 @@
                 }
                 ctx.stroke();
                 ctx.fill();
-            })();
-            (function () {
+            }
+            {
                 ctx.setLineDash([1, 2]);
                 ctx.beginPath();
                 var m = n - 1;
@@ -91,8 +91,8 @@
                     ctx.lineTo(xSep, node.y + nodeHeight);
                 }
                 ctx.stroke();
-            })();
-        })();
+            }
+        }
     }
     main();
     

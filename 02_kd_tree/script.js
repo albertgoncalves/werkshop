@@ -172,13 +172,11 @@
                 ", 65%, 50%, " + alpha.toString() + ")";
         }
         function drawPoints(ctx, points) {
-            var i;
-            var point;
             var n = points.length;
             {
                 ctx.beginPath();
-                for (i = 0; i < n; i++) {
-                    point = points[i];
+                for (var i = 0; i < n; i++) {
+                    var point = points[i];
                     if (point.rectOverlap) {
                         drawArc(ctx, point.x, point.y, 0.035);
                     }
@@ -188,8 +186,8 @@
             }
             {
                 ctx.beginPath();
-                for (i = 0; i < n; i++) {
-                    point = points[i];
+                for (var i = 0; i < n; i++) {
+                    var point = points[i];
                     if (point.withinRadius) {
                         drawArc(ctx, point.x, point.y, 0.0175);
                     }
@@ -199,8 +197,8 @@
             }
             {
                 ctx.beginPath();
-                for (i = 0; i < n; i++) {
-                    point = points[i];
+                for (var i = 0; i < n; i++) {
+                    var point = points[i];
                     drawArc(ctx, point.x, point.y, 0.0025);
                 }
                 ctx.fillStyle = "hsl(0, 0%, 20%)";
