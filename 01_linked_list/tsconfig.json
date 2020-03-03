@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "diagnostics": false,
+        "lib": [
+            "dom",
+            "es5"
+        ],
+        "noEmitOnError": true,
+        "noErrorTruncation": true,
+        "outFile": "script.js",
+        "removeComments": true,
+        "strict": true,
+        "target": "es3"
+    },
+    "files": [
+        "src/main.ts"
+    ]
+}

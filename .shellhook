@@ -10,7 +10,7 @@ else
 fi
 
 if [ ! -f "$WD/.jsinit" ]; then
-    npm install --no-save jshint typescript typescript-bundle tslint
+    npm install --no-save typescript typescript-bundle tslint
     touch "$WD/.jsinit"
 fi
 
@@ -22,10 +22,10 @@ export -f sedtrailing
 
 htmlall () {
     find \
-        "$WD" \
+        . \
         -type f \
         -name '*.html' \
-        -not -path "$WD/node_modules/*" \
+        -not -path "./node_modules/*" \
         -exec bash -c '
             echo "$1"
             tidy -config "$WD/.tidyrc" -q -m "$1"
@@ -33,37 +33,18 @@ htmlall () {
         ' bash {} \;
 }
 
-jsall () {
-    # shellcheck disable=SC1004
-    find \
-        "$WD" \
-        -type f \
-        -name '*.js' \
-        -not -path "$WD/node_modules/*" \
-        -exec bash -c '
-            echo "$1"
-            npx jshint \
-                --verbose \
-                -c "$WD/.jshintrc" \
-                "$1"
-            clang-format -i "$1"
-        ' bash {} \;
-}
-
 tsall () {
     # shellcheck disable=SC1004
     find \
-        "$WD" \
+        . \
         -type f \
         -name '*.ts' \
-        -not -path "$WD/node_modules/*" \
+        -not -path "./node_modules/*" \
         -exec bash -c '
             echo "$1"
-            clang-format -i "$1"
-            npx tslint -c "$WD/.tslint.json" "$1"
+            npx tslint -c "$WD/.tslint.json" "$1" && clang-format -i "$1"
         ' bash {} \;
 }
 
 export -f htmlall
-export -f jsall
 export -f tsall
