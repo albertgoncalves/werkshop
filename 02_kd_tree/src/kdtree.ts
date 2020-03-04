@@ -3,7 +3,7 @@ import {quickSelect} from "./quickselect";
 export interface Point {
     x: number;
     y: number;
-    rectOverlap: boolean;
+    boundsOverlap: boolean;
     withinRadius: boolean;
 }
 
@@ -14,7 +14,7 @@ export interface Circle {
     radiusSquared: number;
 }
 
-export interface Rect {
+export interface Bounds {
     xLower: number;
     xUpper: number;
     yLower: number;
@@ -24,13 +24,13 @@ export interface Rect {
 export interface Tree {
     point: Point;
     horizontal: boolean;
-    rect: Rect;
+    bounds: Bounds;
     left: Tree|null;
     right: Tree|null;
 }
 
 export function makeTree(points: Point[], horizontal: boolean,
-                         rect: Rect): Tree|null {
+                         bounds: Bounds): Tree|null {
     const n: number = points.length;
     if (n === 0) {
         return null;
@@ -45,18 +45,18 @@ export function makeTree(points: Point[], horizontal: boolean,
         return {
             point,
             horizontal,
-            rect,
+            bounds,
             left: makeTree(points.slice(0, median), false, {
-                xLower: rect.xLower,
+                xLower: bounds.xLower,
                 xUpper: point.x,
-                yLower: rect.yLower,
-                yUpper: rect.yUpper,
+                yLower: bounds.yLower,
+                yUpper: bounds.yUpper,
             }),
             right: makeTree(points.slice(median + 1), false, {
                 xLower: point.x,
-                xUpper: rect.xUpper,
-                yLower: rect.yLower,
-                yUpper: rect.yUpper,
+                xUpper: bounds.xUpper,
+                yLower: bounds.yLower,
+                yUpper: bounds.yUpper,
             }),
         };
     } else {
@@ -68,28 +68,28 @@ export function makeTree(points: Point[], horizontal: boolean,
         return {
             point,
             horizontal,
-            rect,
+            bounds,
             left: makeTree(points.slice(0, median), true, {
-                xLower: rect.xLower,
-                xUpper: rect.xUpper,
-                yLower: rect.yLower,
+                xLower: bounds.xLower,
+                xUpper: bounds.xUpper,
+                yLower: bounds.yLower,
                 yUpper: point.y,
             }),
             right: makeTree(points.slice(median + 1), true, {
-                xLower: rect.xLower,
-                xUpper: rect.xUpper,
+                xLower: bounds.xLower,
+                xUpper: bounds.xUpper,
                 yLower: point.y,
-                yUpper: rect.yUpper,
+                yUpper: bounds.yUpper,
             }),
         };
     }
 }
 
-function rectCircleOverlap(rect: Rect, circle: Circle): boolean {
+function boundsCircleOverlap(bounds: Bounds, circle: Circle): boolean {
     const x: number =
-        circle.x - Math.max(rect.xLower, Math.min(circle.x, rect.xUpper));
+        circle.x - Math.max(bounds.xLower, Math.min(circle.x, bounds.xUpper));
     const y: number =
-        circle.y - Math.max(rect.yLower, Math.min(circle.y, rect.yUpper));
+        circle.y - Math.max(bounds.yLower, Math.min(circle.y, bounds.yUpper));
     return ((x * x) + (y * y)) < circle.radiusSquared;
 }
 
@@ -107,7 +107,7 @@ export function radiusSearch(tree: Tree|null, circle: Circle,
     const stack: Tree[] = [tree];
     let node: Tree|undefined = stack.pop();
     while (node) {
-        if (rectCircleOverlap(node.rect, circle)) {
+        if (boundsCircleOverlap(node.bounds, circle)) {
             callback(node.point);
             if (node.left !== null) {
                 stack.push(node.left);

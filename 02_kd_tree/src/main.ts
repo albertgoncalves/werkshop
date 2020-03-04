@@ -31,11 +31,11 @@ function randomColor(alpha: number) {
 function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
     const n: number = points.length;
     {
-        /* NOTE: Highlight points where `rectOverlap == true` */
+        /* NOTE: Highlight points where `boundsOverlap == true` */
         ctx.beginPath();
         for (let i: number = 0; i < n; i++) {
             const point: Point = points[i];
-            if (point.rectOverlap) {
+            if (point.boundsOverlap) {
                 drawArc(ctx, point.x, point.y, 0.035);
             }
         }
@@ -90,7 +90,7 @@ window.onload = function() {
         points[i] = {
             x: Math.random(),
             y: Math.random(),
-            rectOverlap: false,
+            boundsOverlap: false,
             withinRadius: false,
         };
     }
@@ -109,17 +109,17 @@ window.onload = function() {
         /* NOTE: Reset all points */
         for (let i: number = 0; i < n; i++) {
             const point: Point = points[i];
-            point.rectOverlap = false;
+            point.boundsOverlap = false;
             point.withinRadius = false;
         }
         {
             /* NOTE: Search tree for points within `circle.radius` */
             console.time("radiusSearch()");
             radiusSearch(tree, circle, function(point: Point) {
-                /* NOTE: When tree node rect intersects with `circle`, test
+                /* NOTE: When tree node bounds intersects with `circle`, test
                  * `tree.point` for intersection with `circle`
                  */
-                point.rectOverlap = true;
+                point.boundsOverlap = true;
                 if (pointInCircle(point, circle)) {
                     point.withinRadius = true;
                 }

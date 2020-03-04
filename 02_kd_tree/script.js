@@ -70,7 +70,7 @@
     define("kdtree", ["require", "exports", "quickselect"], function (require, exports, quickselect_1) {
         "use strict";
         exports.__esModule = true;
-        function makeTree(points, horizontal, rect) {
+        function makeTree(points, horizontal, bounds) {
             var n = points.length;
             if (n === 0) {
                 return null;
@@ -84,18 +84,18 @@
                 return {
                     point: point,
                     horizontal: horizontal,
-                    rect: rect,
+                    bounds: bounds,
                     left: makeTree(points.slice(0, median), false, {
-                        xLower: rect.xLower,
+                        xLower: bounds.xLower,
                         xUpper: point.x,
-                        yLower: rect.yLower,
-                        yUpper: rect.yUpper
+                        yLower: bounds.yLower,
+                        yUpper: bounds.yUpper
                     }),
                     right: makeTree(points.slice(median + 1), false, {
                         xLower: point.x,
-                        xUpper: rect.xUpper,
-                        yLower: rect.yLower,
-                        yUpper: rect.yUpper
+                        xUpper: bounds.xUpper,
+                        yLower: bounds.yLower,
+                        yUpper: bounds.yUpper
                     })
                 };
             }
@@ -107,26 +107,26 @@
                 return {
                     point: point,
                     horizontal: horizontal,
-                    rect: rect,
+                    bounds: bounds,
                     left: makeTree(points.slice(0, median), true, {
-                        xLower: rect.xLower,
-                        xUpper: rect.xUpper,
-                        yLower: rect.yLower,
+                        xLower: bounds.xLower,
+                        xUpper: bounds.xUpper,
+                        yLower: bounds.yLower,
                         yUpper: point.y
                     }),
                     right: makeTree(points.slice(median + 1), true, {
-                        xLower: rect.xLower,
-                        xUpper: rect.xUpper,
+                        xLower: bounds.xLower,
+                        xUpper: bounds.xUpper,
                         yLower: point.y,
-                        yUpper: rect.yUpper
+                        yUpper: bounds.yUpper
                     })
                 };
             }
         }
         exports.makeTree = makeTree;
-        function rectCircleOverlap(rect, circle) {
-            var x = circle.x - Math.max(rect.xLower, Math.min(circle.x, rect.xUpper));
-            var y = circle.y - Math.max(rect.yLower, Math.min(circle.y, rect.yUpper));
+        function boundsCircleOverlap(bounds, circle) {
+            var x = circle.x - Math.max(bounds.xLower, Math.min(circle.x, bounds.xUpper));
+            var y = circle.y - Math.max(bounds.yLower, Math.min(circle.y, bounds.yUpper));
             return ((x * x) + (y * y)) < circle.radiusSquared;
         }
         function pointInCircle(point, circle) {
@@ -142,7 +142,7 @@
             var stack = [tree];
             var node = stack.pop();
             while (node) {
-                if (rectCircleOverlap(node.rect, circle)) {
+                if (boundsCircleOverlap(node.bounds, circle)) {
                     callback(node.point);
                     if (node.left !== null) {
                         stack.push(node.left);
@@ -180,7 +180,7 @@
                 ctx.beginPath();
                 for (var i = 0; i < n; i++) {
                     var point = points[i];
-                    if (point.rectOverlap) {
+                    if (point.boundsOverlap) {
                         drawArc(ctx, point.x, point.y, 0.035);
                     }
                 }
@@ -230,7 +230,7 @@
                 points[i] = {
                     x: Math.random(),
                     y: Math.random(),
-                    rectOverlap: false,
+                    boundsOverlap: false,
                     withinRadius: false
                 };
             }
@@ -248,13 +248,13 @@
                 circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
                 for (var i = 0; i < n; i++) {
                     var point = points[i];
-                    point.rectOverlap = false;
+                    point.boundsOverlap = false;
                     point.withinRadius = false;
                 }
                 {
                     console.time("radiusSearch()");
                     kdtree_1.radiusSearch(tree, circle, function (point) {
-                        point.rectOverlap = true;
+                        point.boundsOverlap = true;
                         if (kdtree_1.pointInCircle(point, circle)) {
                             point.withinRadius = true;
                         }
