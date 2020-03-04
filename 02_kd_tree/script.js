@@ -80,45 +80,48 @@
                 quickselect_1.quickSelect(points, median, 0, n - 1, function (a, b) {
                     return a.x - b.x;
                 });
+                var point = points[median];
+                return {
+                    point: point,
+                    horizontal: horizontal,
+                    rect: rect,
+                    left: makeTree(points.slice(0, median), false, {
+                        xLower: rect.xLower,
+                        xUpper: point.x,
+                        yLower: rect.yLower,
+                        yUpper: rect.yUpper
+                    }),
+                    right: makeTree(points.slice(median + 1), false, {
+                        xLower: point.x,
+                        xUpper: rect.xUpper,
+                        yLower: rect.yLower,
+                        yUpper: rect.yUpper
+                    })
+                };
             }
             else {
                 quickselect_1.quickSelect(points, median, 0, n - 1, function (a, b) {
                     return a.y - b.y;
                 });
+                var point = points[median];
+                return {
+                    point: point,
+                    horizontal: horizontal,
+                    rect: rect,
+                    left: makeTree(points.slice(0, median), true, {
+                        xLower: rect.xLower,
+                        xUpper: rect.xUpper,
+                        yLower: rect.yLower,
+                        yUpper: point.y
+                    }),
+                    right: makeTree(points.slice(median + 1), true, {
+                        xLower: rect.xLower,
+                        xUpper: rect.xUpper,
+                        yLower: point.y,
+                        yUpper: rect.yUpper
+                    })
+                };
             }
-            var point = points[median];
-            var node = { point: point, horizontal: horizontal, rect: rect, left: null, right: null };
-            var left = points.slice(0, median);
-            var right = points.slice(median + 1);
-            if (horizontal) {
-                node.left = makeTree(left, false, {
-                    xLower: rect.xLower,
-                    xUpper: point.x,
-                    yLower: rect.yLower,
-                    yUpper: rect.yUpper
-                });
-                node.right = makeTree(right, false, {
-                    xLower: point.x,
-                    xUpper: rect.xUpper,
-                    yLower: rect.yLower,
-                    yUpper: rect.yUpper
-                });
-            }
-            else {
-                node.left = makeTree(left, true, {
-                    xLower: rect.xLower,
-                    xUpper: rect.xUpper,
-                    yLower: rect.yLower,
-                    yUpper: point.y
-                });
-                node.right = makeTree(right, true, {
-                    xLower: rect.xLower,
-                    xUpper: rect.xUpper,
-                    yLower: point.y,
-                    yUpper: rect.yUpper
-                });
-            }
-            return node;
         }
         exports.makeTree = makeTree;
         function rectCircleOverlap(rect, circle) {

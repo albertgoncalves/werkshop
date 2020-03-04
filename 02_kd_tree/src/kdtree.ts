@@ -41,44 +41,48 @@ export function makeTree(points: Point[], horizontal: boolean,
                     function(a: Point, b: Point): number {
                         return a.x - b.x;
                     });
+        const point = points[median];
+        return {
+            point,
+            horizontal,
+            rect,
+            left: makeTree(points.slice(0, median), false, {
+                xLower: rect.xLower,
+                xUpper: point.x,
+                yLower: rect.yLower,
+                yUpper: rect.yUpper,
+            }),
+            right: makeTree(points.slice(median + 1), false, {
+                xLower: point.x,
+                xUpper: rect.xUpper,
+                yLower: rect.yLower,
+                yUpper: rect.yUpper,
+            }),
+        };
     } else {
         quickSelect(points, median, 0, n - 1,
                     function(a: Point, b: Point): number {
                         return a.y - b.y;
                     });
+        const point = points[median];
+        return {
+            point,
+            horizontal,
+            rect,
+            left: makeTree(points.slice(0, median), true, {
+                xLower: rect.xLower,
+                xUpper: rect.xUpper,
+                yLower: rect.yLower,
+                yUpper: point.y,
+            }),
+            right: makeTree(points.slice(median + 1), true, {
+                xLower: rect.xLower,
+                xUpper: rect.xUpper,
+                yLower: point.y,
+                yUpper: rect.yUpper,
+            }),
+        };
     }
-    const point: Point = points[median];
-    const node: Tree = {point, horizontal, rect, left: null, right: null};
-    const left: Point[] = points.slice(0, median);
-    const right: Point[] = points.slice(median + 1);
-    if (horizontal) {
-        node.left = makeTree(left, false, {
-            xLower: rect.xLower,
-            xUpper: point.x,
-            yLower: rect.yLower,
-            yUpper: rect.yUpper,
-        });
-        node.right = makeTree(right, false, {
-            xLower: point.x,
-            xUpper: rect.xUpper,
-            yLower: rect.yLower,
-            yUpper: rect.yUpper,
-        });
-    } else {
-        node.left = makeTree(left, true, {
-            xLower: rect.xLower,
-            xUpper: rect.xUpper,
-            yLower: rect.yLower,
-            yUpper: point.y,
-        });
-        node.right = makeTree(right, true, {
-            xLower: rect.xLower,
-            xUpper: rect.xUpper,
-            yLower: point.y,
-            yUpper: rect.yUpper,
-        });
-    }
-    return node;
 }
 
 function rectCircleOverlap(rect: Rect, circle: Circle): boolean {
