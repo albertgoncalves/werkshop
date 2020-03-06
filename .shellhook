@@ -9,9 +9,9 @@ else
     alias open="xdg-open"
 fi
 
-if [ ! -f "$WD/.jsinit" ]; then
+if [ ! -f "$WD/.init" ]; then
     npm install --no-save typescript typescript-bundle tslint
-    touch "$WD/.jsinit"
+    touch "$WD/.init"
 fi
 
 sedtrailing () {
