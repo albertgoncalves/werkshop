@@ -1,5 +1,3 @@
-"use strict";
-
 interface Node_ {
     xOrigin: number;
     x: number;
