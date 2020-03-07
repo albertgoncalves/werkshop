@@ -17,7 +17,7 @@
         var height = canvas.height;
         var buffer = ctx.createImageData(width, height);
         function loop(t) {
-            var offset = Math.floor(t / 16);
+            var offset = Math.floor(t / 32);
             for (var x = 0; x < width; x++) {
                 for (var y = 0; y < height; y++) {
                     var index = ((y * width) + x) * 4;

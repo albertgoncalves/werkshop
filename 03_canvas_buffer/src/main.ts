@@ -11,7 +11,7 @@ window.onload = function() {
     const height: number = canvas.height;
     const buffer: ImageData = ctx.createImageData(width, height);
     function loop(t: number) {
-        const offset: number = Math.floor(t / 16);
+        const offset: number = Math.floor(t / 32);
         for (let x: number = 0; x < width; x++) {
             for (let y: number = 0; y < height; y++) {
                 const index: number = ((y * width) + x) * 4;
