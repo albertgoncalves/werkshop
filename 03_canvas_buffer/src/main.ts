@@ -14,16 +14,17 @@ window.onload = function() {
         const offset: number = Math.floor(t / 16);
         for (let x: number = 0; x < width; x++) {
             for (let y: number = 0; y < height; y++) {
-                const red = ((x + offset) % 256) ^ ((y + offset) % 256);
-                const green =
+                const index: number = ((y * width) + x) * 4;
+                const red: number =
+                    ((x + offset) % 256) ^ ((y + offset) % 256);
+                const green: number =
                     (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
-                const blue =
+                const blue: number =
                     (((4 * x) + offset) % 256) ^ (((4 * y) + offset) % 256);
-                const i = ((y * width) + x) * 4;
-                buffer.data[i] = red;
-                buffer.data[i + 1] = green;
-                buffer.data[i + 2] = blue;
-                buffer.data[i + 3] = 255;
+                buffer.data[index] = red;
+                buffer.data[index + 1] = green;
+                buffer.data[index + 2] = blue;
+                buffer.data[index + 3] = 255;
             }
         }
         ctx.putImageData(buffer, 0, 0);

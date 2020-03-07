@@ -20,14 +20,14 @@
             var offset = Math.floor(t / 16);
             for (var x = 0; x < width; x++) {
                 for (var y = 0; y < height; y++) {
+                    var index = ((y * width) + x) * 4;
                     var red = ((x + offset) % 256) ^ ((y + offset) % 256);
                     var green = (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
                     var blue = (((4 * x) + offset) % 256) ^ (((4 * y) + offset) % 256);
-                    var i = ((y * width) + x) * 4;
-                    buffer.data[i] = red;
-                    buffer.data[i + 1] = green;
-                    buffer.data[i + 2] = blue;
-                    buffer.data[i + 3] = 255;
+                    buffer.data[index] = red;
+                    buffer.data[index + 1] = green;
+                    buffer.data[index + 2] = blue;
+                    buffer.data[index + 3] = 255;
                 }
             }
             ctx.putImageData(buffer, 0, 0);
