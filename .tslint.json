@@ -8,6 +8,7 @@
         "ban-comma-operator": true,
         "class-name": false,
         "no-any": true,
+        "no-bitwise": false,
         "no-console": false,
         "no-import-side-effect": true,
         "no-parameter-reassignment": true,
