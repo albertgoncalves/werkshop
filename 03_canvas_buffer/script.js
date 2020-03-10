@@ -18,15 +18,15 @@
         var buffer = ctx.createImageData(width, height);
         function loop(t) {
             window.requestAnimationFrame(loop);
-            var offset = Math.floor(t / 16);
+            var offset = Math.floor(t >>> 4);
             for (var y = 0; y < height; y++) {
                 var yWidth = y * width;
-                var yOffset = y + offset;
+                var yOffset = (y + offset) % 256;
                 for (var x = 0; x < width; x++) {
-                    var index = (yWidth + x) * 4;
-                    var red = ((x + offset) % 256) ^ (yOffset % 256);
-                    var green = (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
-                    var blue = (((4 * x) + offset) % 256) ^ (((4 * y) + offset) % 256);
+                    var index = (yWidth + x) << 2;
+                    var red = ((x + offset) % 256) ^ yOffset;
+                    var green = (((x << 1) + offset) % 256) ^ (((y << 1) + offset) % 256);
+                    var blue = (((x << 2) + offset) % 256) ^ (((y << 2) + offset) % 256);
                     buffer.data[index] = red;
                     buffer.data[index + 1] = green;
                     buffer.data[index + 2] = blue;

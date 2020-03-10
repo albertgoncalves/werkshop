@@ -12,17 +12,17 @@ window.onload = function() {
     const buffer: ImageData = ctx.createImageData(width, height);
     function loop(t: number) {
         window.requestAnimationFrame(loop);
-        const offset: number = Math.floor(t / 16);
+        const offset: number = Math.floor(t >>> 4);
         for (let y: number = 0; y < height; y++) {
             const yWidth: number = y * width;
-            const yOffset: number = y + offset;
+            const yOffset: number = (y + offset) % 256;
             for (let x: number = 0; x < width; x++) {
-                const index: number = (yWidth + x) * 4;
-                const red: number = ((x + offset) % 256) ^ (yOffset % 256);
+                const index: number = (yWidth + x) << 2;
+                const red: number = ((x + offset) % 256) ^ yOffset;
                 const green: number =
-                    (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
+                    (((x << 1) + offset) % 256) ^ (((y << 1) + offset) % 256);
                 const blue: number =
-                    (((4 * x) + offset) % 256) ^ (((4 * y) + offset) % 256);
+                    (((x << 2) + offset) % 256) ^ (((y << 2) + offset) % 256);
                 buffer.data[index] = red;
                 buffer.data[index + 1] = green;
                 buffer.data[index + 2] = blue;
