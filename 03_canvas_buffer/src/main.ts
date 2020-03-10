@@ -15,14 +15,14 @@ window.onload = function() {
         const offset: number = Math.floor(t >>> 4);
         for (let y: number = 0; y < height; y++) {
             const yWidth: number = y * width;
-            const yOffset: number = (y + offset) % 256;
+            const yOffset: number = (y + offset) & 255;
             for (let x: number = 0; x < width; x++) {
                 const index: number = (yWidth + x) << 2;
-                const red: number = ((x + offset) % 256) ^ yOffset;
+                const red: number = ((x + offset) & 255) ^ yOffset;
                 const green: number =
-                    (((x << 1) + offset) % 256) ^ (((y << 1) + offset) % 256);
+                    (((x << 1) + offset) & 255) ^ (((y << 1) + offset) & 255);
                 const blue: number =
-                    (((x << 2) + offset) % 256) ^ (((y << 2) + offset) % 256);
+                    (((x << 2) + offset) & 255) ^ (((y << 2) + offset) & 255);
                 buffer.data[index] = red;
                 buffer.data[index + 1] = green;
                 buffer.data[index + 2] = blue;

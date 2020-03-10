@@ -21,12 +21,12 @@
             var offset = Math.floor(t >>> 4);
             for (var y = 0; y < height; y++) {
                 var yWidth = y * width;
-                var yOffset = (y + offset) % 256;
+                var yOffset = (y + offset) & 255;
                 for (var x = 0; x < width; x++) {
                     var index = (yWidth + x) << 2;
-                    var red = ((x + offset) % 256) ^ yOffset;
-                    var green = (((x << 1) + offset) % 256) ^ (((y << 1) + offset) % 256);
-                    var blue = (((x << 2) + offset) % 256) ^ (((y << 2) + offset) % 256);
+                    var red = ((x + offset) & 255) ^ yOffset;
+                    var green = (((x << 1) + offset) & 255) ^ (((y << 1) + offset) & 255);
+                    var blue = (((x << 2) + offset) & 255) ^ (((y << 2) + offset) & 255);
                     buffer.data[index] = red;
                     buffer.data[index + 1] = green;
                     buffer.data[index + 2] = blue;
