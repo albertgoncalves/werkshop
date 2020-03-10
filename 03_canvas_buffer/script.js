@@ -17,11 +17,14 @@
         var height = canvas.height;
         var buffer = ctx.createImageData(width, height);
         function loop(t) {
-            var offset = Math.floor(t / 32);
-            for (var x = 0; x < width; x++) {
-                for (var y = 0; y < height; y++) {
-                    var index = ((y * width) + x) * 4;
-                    var red = ((x + offset) % 256) ^ ((y + offset) % 256);
+            window.requestAnimationFrame(loop);
+            var offset = Math.floor(t / 16);
+            for (var y = 0; y < height; y++) {
+                var yWidth = y * width;
+                var yOffset = y + offset;
+                for (var x = 0; x < width; x++) {
+                    var index = (yWidth + x) * 4;
+                    var red = ((x + offset) % 256) ^ (yOffset % 256);
                     var green = (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
                     var blue = (((4 * x) + offset) % 256) ^ (((4 * y) + offset) % 256);
                     buffer.data[index] = red;
@@ -31,7 +34,6 @@
                 }
             }
             ctx.putImageData(buffer, 0, 0);
-            window.requestAnimationFrame(loop);
         }
         loop(0);
     };

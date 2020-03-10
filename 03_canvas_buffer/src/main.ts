@@ -11,12 +11,14 @@ window.onload = function() {
     const height: number = canvas.height;
     const buffer: ImageData = ctx.createImageData(width, height);
     function loop(t: number) {
-        const offset: number = Math.floor(t / 32);
-        for (let x: number = 0; x < width; x++) {
-            for (let y: number = 0; y < height; y++) {
-                const index: number = ((y * width) + x) * 4;
-                const red: number =
-                    ((x + offset) % 256) ^ ((y + offset) % 256);
+        window.requestAnimationFrame(loop);
+        const offset: number = Math.floor(t / 16);
+        for (let y: number = 0; y < height; y++) {
+            const yWidth: number = y * width;
+            const yOffset: number = y + offset;
+            for (let x: number = 0; x < width; x++) {
+                const index: number = (yWidth + x) * 4;
+                const red: number = ((x + offset) % 256) ^ (yOffset % 256);
                 const green: number =
                     (((2 * x) + offset) % 256) ^ (((2 * y) + offset) % 256);
                 const blue: number =
@@ -28,7 +30,6 @@ window.onload = function() {
             }
         }
         ctx.putImageData(buffer, 0, 0);
-        window.requestAnimationFrame(loop);
     }
     loop(0);
 };
