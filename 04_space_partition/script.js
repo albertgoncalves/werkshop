@@ -35,32 +35,63 @@
             buffer.data[index + 2] = WHITE;
         }
     }
-    function setPartitions(buffer, width, xLower, xUpper, yLower, yUpper, horizontal) {
-        if (horizontal) {
-            var yDelta = yUpper - yLower;
-            if (MIN_DELTA < yDelta) {
+    function setPartitions(buffer, width, _partition) {
+        var stack = [_partition];
+        var partition = stack.pop();
+        while (partition) {
+            if (partition.horizontal) {
+                var yDelta = partition.yUpper - partition.yLower;
                 var y = void 0;
-                y = Math.floor(Math.random() * yDelta) + yLower;
-                while (((y - MIN_SPLIT) < yLower) || (yUpper < (y + MIN_SPLIT))) {
-                    y = Math.floor(Math.random() * yDelta) + yLower;
+                y = Math.floor(Math.random() * yDelta) + partition.yLower;
+                while (((y - MIN_SPLIT) < partition.yLower) ||
+                    (partition.yUpper < (y + MIN_SPLIT))) {
+                    y = Math.floor(Math.random() * yDelta) + partition.yLower;
                 }
-                setHorizontalLine(buffer, width, xLower, xUpper, y);
-                setPartitions(buffer, width, xLower, xUpper, yLower, y, false);
-                setPartitions(buffer, width, xLower, xUpper, y, yUpper, false);
+                setHorizontalLine(buffer, width, partition.xLower, partition.xUpper, y);
+                if (MIN_DELTA < (partition.xUpper - partition.xLower)) {
+                    stack.push({
+                        xLower: partition.xLower,
+                        xUpper: partition.xUpper,
+                        yLower: partition.yLower,
+                        yUpper: y,
+                        horizontal: false
+                    });
+                    stack.push({
+                        xLower: partition.xLower,
+                        xUpper: partition.xUpper,
+                        yLower: y,
+                        yUpper: partition.yUpper,
+                        horizontal: false
+                    });
+                }
             }
-        }
-        else {
-            var xDelta = xUpper - xLower;
-            if (MIN_DELTA < xDelta) {
+            else {
+                var xDelta = partition.xUpper - partition.xLower;
                 var x = void 0;
-                x = Math.floor(Math.random() * xDelta) + xLower;
-                while (((x - MIN_SPLIT) < xLower) || (xUpper < (x + MIN_SPLIT))) {
-                    x = Math.floor(Math.random() * xDelta) + xLower;
+                x = Math.floor(Math.random() * xDelta) + partition.xLower;
+                while (((x - MIN_SPLIT) < partition.xLower) ||
+                    (partition.xUpper < (x + MIN_SPLIT))) {
+                    x = Math.floor(Math.random() * xDelta) + partition.xLower;
                 }
-                setVerticalLine(buffer, width, x, yLower, yUpper);
-                setPartitions(buffer, width, xLower, x, yLower, yUpper, true);
-                setPartitions(buffer, width, x, xUpper, yLower, yUpper, true);
+                setVerticalLine(buffer, width, x, partition.yLower, partition.yUpper);
+                if (MIN_DELTA < (partition.yUpper - partition.yLower)) {
+                    stack.push({
+                        xLower: partition.xLower,
+                        xUpper: x,
+                        yLower: partition.yLower,
+                        yUpper: partition.yUpper,
+                        horizontal: true
+                    });
+                    stack.push({
+                        xLower: x,
+                        xUpper: partition.xUpper,
+                        yLower: partition.yLower,
+                        yUpper: partition.yUpper,
+                        horizontal: true
+                    });
+                }
             }
+            partition = stack.pop();
         }
     }
     window.onload = function () {
@@ -80,7 +111,13 @@
         }
         console.timeEnd("for (let i: num...");
         console.time("setPartitions(...)");
-        setPartitions(buffer, width, 0, width, 0, height, true);
+        setPartitions(buffer, width, {
+            xLower: 0,
+            xUpper: width,
+            yLower: 0,
+            yUpper: height,
+            horizontal: true
+        });
         console.timeEnd("setPartitions(...)");
         ctx.putImageData(buffer, 0, 0);
         console.log("Done!");
