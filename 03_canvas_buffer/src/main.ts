@@ -7,11 +7,11 @@ window.onload = function() {
         document.getElementById("canvas") as HTMLCanvasElement;
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
+    ctx.imageSmoothingEnabled = false;
     const width: number = canvas.width;
     const height: number = canvas.height;
     const buffer: ImageData = ctx.createImageData(width, height);
     function loop(t: number) {
-        window.requestAnimationFrame(loop);
         const offset: number = Math.floor(t >>> 4);
         for (let y: number = 0; y < height; y++) {
             const yT0: number = (y + offset) & 255;
@@ -30,6 +30,7 @@ window.onload = function() {
             }
         }
         ctx.putImageData(buffer, 0, 0);
+        window.requestAnimationFrame(loop);
     }
     loop(0);
 };

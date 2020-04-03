@@ -13,11 +13,11 @@
     window.onload = function () {
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
         var width = canvas.width;
         var height = canvas.height;
         var buffer = ctx.createImageData(width, height);
         function loop(t) {
-            window.requestAnimationFrame(loop);
             var offset = Math.floor(t >>> 4);
             for (var y = 0; y < height; y++) {
                 var yT0 = (y + offset) & 255;
@@ -36,6 +36,7 @@
                 }
             }
             ctx.putImageData(buffer, 0, 0);
+            window.requestAnimationFrame(loop);
         }
         loop(0);
     };
