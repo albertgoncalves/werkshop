@@ -16,9 +16,10 @@
     var COLOR_R = 75;
     var COLOR_G = 155;
     var COLOR_B = 250;
-    var MIN_DELTA = 32;
-    var MIN_SPLIT = 8;
-    var PAD = 3;
+    var MIN_DELTA = 1 << 5;
+    var MIN_SPLIT = 1 << 3;
+    var PAD = (MIN_SPLIT >> 1) - 1;
+    var PAD_DOUBLE = PAD << 1;
     var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = ((yStart + 1) * width) + x;
@@ -169,55 +170,7 @@
         var edges = [];
         for (var i = preEdges.length - 1; 0 <= i; i--) {
             var edge = preEdges[i];
-            if (edge.y1 === edge.y2) {
-                var y = edge.y1;
-                var neighbors = [edge.x1, edge.x2];
-                for (var j = preEdges.length - 1; 0 < j; j--) {
-                    if (i === j) {
-                        continue;
-                    }
-                    var candidate = preEdges[j];
-                    if ((candidate.x1 === candidate.x2) &&
-                        ((candidate.y1 === y) || (candidate.y2 === y))) {
-                        neighbors.push(candidate.x1);
-                    }
-                }
-                neighbors.sort(function (a, b) {
-                    return a - b;
-                });
-                for (var k = neighbors.length - 1; 0 < k; k--) {
-                    var x1 = neighbors[k - 1];
-                    var x2 = neighbors[k];
-                    var xDelta = x2 - x1;
-                    if (xDelta !== 0) {
-                        if (xDelta <= MIN_SPLIT) {
-                            edges.push({
-                                x1: x1,
-                                y1: y,
-                                x2: x2,
-                                y2: y
-                            });
-                        }
-                        else {
-                            var xSplit = Math.floor(Math.random() * (xDelta - (2 * PAD))) +
-                                x1 + PAD;
-                            edges.push({
-                                x1: x1,
-                                y1: y,
-                                x2: xSplit - PAD,
-                                y2: y
-                            });
-                            edges.push({
-                                x1: xSplit + PAD,
-                                y1: y,
-                                x2: x2,
-                                y2: y
-                            });
-                        }
-                    }
-                }
-            }
-            else if (edge.x1 === edge.x2) {
+            if (edge.x1 === edge.x2) {
                 var x = edge.x1;
                 var neighbors = [edge.y1, edge.y2];
                 for (var j = preEdges.length - 1; 0 < j; j--) {
@@ -247,7 +200,8 @@
                             });
                         }
                         else {
-                            var ySplit = Math.floor(Math.random() * (yDelta - (2 * PAD)) + y1 + PAD);
+                            var ySplit = Math.floor(Math.random() * (yDelta - PAD_DOUBLE)) +
+                                y1 + PAD;
                             edges.push({
                                 x1: x,
                                 y1: y1,
@@ -264,6 +218,54 @@
                     }
                 }
             }
+            else if (edge.y1 === edge.y2) {
+                var y = edge.y1;
+                var neighbors = [edge.x1, edge.x2];
+                for (var j = preEdges.length - 1; 0 < j; j--) {
+                    if (i === j) {
+                        continue;
+                    }
+                    var candidate = preEdges[j];
+                    if ((candidate.x1 === candidate.x2) &&
+                        ((candidate.y1 === y) || (candidate.y2 === y))) {
+                        neighbors.push(candidate.x1);
+                    }
+                }
+                neighbors.sort(function (a, b) {
+                    return a - b;
+                });
+                for (var k = neighbors.length - 1; 0 < k; k--) {
+                    var x1 = neighbors[k - 1];
+                    var x2 = neighbors[k];
+                    var xDelta = x2 - x1;
+                    if (xDelta !== 0) {
+                        if (xDelta <= MIN_SPLIT) {
+                            edges.push({
+                                x1: x1,
+                                y1: y,
+                                x2: x2,
+                                y2: y
+                            });
+                        }
+                        else {
+                            var xSplit = Math.floor(Math.random() * (xDelta - PAD_DOUBLE)) +
+                                x1 + PAD;
+                            edges.push({
+                                x1: x1,
+                                y1: y,
+                                x2: xSplit - PAD,
+                                y2: y
+                            });
+                            edges.push({
+                                x1: xSplit + PAD,
+                                y1: y,
+                                x2: x2,
+                                y2: y
+                            });
+                        }
+                    }
+                }
+            }
         }
         return edges;
     }
@@ -274,34 +276,44 @@
         var width = canvas.width;
         var height = canvas.height;
         var buffer = ctx.createImageData(width, height);
-        console.time("for (let i: num...");
-        for (var i = (width * height) - 1; 0 <= i; i--) {
-            var index = i << 2;
-            buffer.data[index] = DARK_GRAY;
-            buffer.data[index + 1] = DARK_GRAY;
-            buffer.data[index + 2] = DARK_GRAY;
-            buffer.data[index + 3] = 255;
-        }
-        console.timeEnd("for (let i: num...");
-        console.time("setPartitions(...)");
-        var edges = getSplitEdges(getPartitions([{
-                xLower: 0,
-                xUpper: width - 1,
-                yLower: 0,
-                yUpper: height - 1,
-                horizontal: false
-            }]));
-        for (var i = edges.length - 1; 0 <= i; i--) {
-            var edge = edges[i];
-            if (edge.x1 === edge.x2) {
-                setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
+        {
+            console.time("for (let i: num...");
+            for (var i = (width * height) - 1; 0 <= i; i--) {
+                var index = i << 2;
+                buffer.data[index] = DARK_GRAY;
+                buffer.data[index + 1] = DARK_GRAY;
+                buffer.data[index + 2] = DARK_GRAY;
+                buffer.data[index + 3] = 255;
             }
-            else if (edge.y1 === edge.y2) {
-                setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
-            }
+            console.timeEnd("for (let i: num...");
         }
-        console.timeEnd("setPartitions(...)");
-        ctx.putImageData(buffer, 0, 0);
+        {
+            console.time("getSplitEdges(...)");
+            var edges = getSplitEdges(getPartitions([{
+                    xLower: 0,
+                    xUpper: width - 1,
+                    yLower: 0,
+                    yUpper: height - 1,
+                    horizontal: false
+                }]));
+            console.timeEnd("getSplitEdges(...)");
+            console.time("for (let i: num...");
+            for (var i = edges.length - 1; 0 <= i; i--) {
+                var edge = edges[i];
+                if (edge.x1 === edge.x2) {
+                    setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
+                }
+                else if (edge.y1 === edge.y2) {
+                    setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
+                }
+            }
+            console.timeEnd("for (let i: num...");
+        }
+        {
+            console.time("ctx.putImageDat...");
+            ctx.putImageData(buffer, 0, 0);
+            console.timeEnd("ctx.putImageDat...");
+        }
         console.log("Done!");
     };
     

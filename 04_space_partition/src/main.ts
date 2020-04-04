@@ -6,9 +6,10 @@ const COLOR_R: number = 75;
 const COLOR_G: number = 155;
 const COLOR_B: number = 250;
 
-const MIN_DELTA: number = 32;
-const MIN_SPLIT: number = 8;
-const PAD: number = 3;
+const MIN_DELTA: number = 1 << 5;
+const MIN_SPLIT: number = 1 << 3;
+const PAD: number = (MIN_SPLIT >> 1) - 1;
+const PAD_DOUBLE: number = PAD << 1;
 const N: number = 100;
 
 interface Partition {
@@ -177,7 +178,54 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
     const edges: Edge[] = [];
     for (let i: number = preEdges.length - 1; 0 <= i; i--) {
         const edge: Edge = preEdges[i];
-        if (edge.y1 === edge.y2) {
+        if (edge.x1 === edge.x2) {
+            const x: number = edge.x1;
+            const neighbors: number[] = [edge.y1, edge.y2];
+            for (let j: number = preEdges.length - 1; 0 < j; j--) {
+                if (i === j) {
+                    continue;
+                }
+                const candidate: Edge = preEdges[j];
+                if ((candidate.y1 === candidate.y2) &&
+                    ((candidate.x1 === x) || (candidate.x2 === x))) {
+                    neighbors.push(candidate.y1);
+                }
+            }
+            neighbors.sort(function(a, b) {
+                return a - b;
+            });
+            for (let k: number = neighbors.length - 1; 0 < k; k--) {
+                const y1: number = neighbors[k - 1];
+                const y2: number = neighbors[k];
+                const yDelta = y2 - y1;
+                if (yDelta !== 0) {
+                    if (yDelta <= MIN_SPLIT) {
+                        edges.push({
+                            x1: x,
+                            y1,
+                            x2: x,
+                            y2,
+                        });
+                    } else {
+                        const ySplit: number =
+                            Math.floor(Math.random() * (yDelta - PAD_DOUBLE)) +
+                            y1 + PAD;
+                        edges.push({
+                            x1: x,
+                            y1,
+                            x2: x,
+                            y2: ySplit - PAD,
+                        });
+                        edges.push({
+                            x1: x,
+                            y1: ySplit + PAD,
+                            x2: x,
+                            y2,
+                        });
+                    }
+                }
+            }
+        } else if (edge.y1 === edge.y2) {
             const y: number = edge.y1;
             const neighbors: number[] = [edge.x1, edge.x2];
             for (let j: number = preEdges.length - 1; 0 < j; j--) {
@@ -207,7 +255,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                         });
                     } else {
                         const xSplit: number =
-                            Math.floor(Math.random() * (xDelta - (2 * PAD))) +
+                            Math.floor(Math.random() * (xDelta - PAD_DOUBLE)) +
                             x1 + PAD;
                         edges.push({
                             x1,
@@ -220,52 +268,6 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                             y1: y,
                             x2,
                             y2: y,
-                        });
-                    }
-                }
-            }
-        } else if (edge.x1 === edge.x2) {
-            const x: number = edge.x1;
-            const neighbors: number[] = [edge.y1, edge.y2];
-            for (let j: number = preEdges.length - 1; 0 < j; j--) {
-                if (i === j) {
-                    continue;
-                }
-                const candidate: Edge = preEdges[j];
-                if ((candidate.y1 === candidate.y2) &&
-                    ((candidate.x1 === x) || (candidate.x2 === x))) {
-                    neighbors.push(candidate.y1);
-                }
-            }
-            neighbors.sort(function(a, b) {
-                return a - b;
-            });
-            for (let k: number = neighbors.length - 1; 0 < k; k--) {
-                const y1: number = neighbors[k - 1];
-                const y2: number = neighbors[k];
-                const yDelta = y2 - y1;
-                if (yDelta !== 0) {
-                    if (yDelta <= MIN_SPLIT) {
-                        edges.push({
-                            x1: x,
-                            y1,
-                            x2: x,
-                            y2,
-                        });
-                    } else {
-                        const ySplit: number = Math.floor(
-                            Math.random() * (yDelta - (2 * PAD)) + y1 + PAD);
-                        edges.push({
-                            x1: x,
-                            y1,
-                            x2: x,
-                            y2: ySplit - PAD,
-                        });
-                        edges.push({
-                            x1: x,
-                            y1: ySplit + PAD,
-                            x2: x,
-                            y2,
                         });
                     }
                 }
@@ -284,32 +286,42 @@ window.onload = function() {
     const width: number = canvas.width;
     const height: number = canvas.height;
     const buffer: ImageData = ctx.createImageData(width, height);
-    console.time("for (let i: num...");
-    for (let i: number = (width * height) - 1; 0 <= i; i--) {
-        const index: number = i << 2;
-        buffer.data[index] = DARK_GRAY;
-        buffer.data[index + 1] = DARK_GRAY;
-        buffer.data[index + 2] = DARK_GRAY;
-        buffer.data[index + 3] = 255;
-    }
-    console.timeEnd("for (let i: num...");
-    console.time("setPartitions(...)");
-    const edges: Edge[] = getSplitEdges(getPartitions([{
-        xLower: 0,
-        xUpper: width - 1,
-        yLower: 0,
-        yUpper: height - 1,
-        horizontal: false,
-    }]));
-    for (let i: number = edges.length - 1; 0 <= i; i--) {
-        const edge: Edge = edges[i];
-        if (edge.x1 === edge.x2) {
-            setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
-        } else if (edge.y1 === edge.y2) {
-            setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
+    {
+        console.time("for (let i: num...");
+        for (let i: number = (width * height) - 1; 0 <= i; i--) {
+            const index: number = i << 2;
+            buffer.data[index] = DARK_GRAY;
+            buffer.data[index + 1] = DARK_GRAY;
+            buffer.data[index + 2] = DARK_GRAY;
+            buffer.data[index + 3] = 255;
         }
+        console.timeEnd("for (let i: num...");
     }
-    console.timeEnd("setPartitions(...)");
-    ctx.putImageData(buffer, 0, 0);
+    {
+        console.time("getSplitEdges(...)");
+        const edges: Edge[] = getSplitEdges(getPartitions([{
+            xLower: 0,
+            xUpper: width - 1,
+            yLower: 0,
+            yUpper: height - 1,
+            horizontal: false,
+        }]));
+        console.timeEnd("getSplitEdges(...)");
+        console.time("for (let i: num...");
+        for (let i: number = edges.length - 1; 0 <= i; i--) {
+            const edge: Edge = edges[i];
+            if (edge.x1 === edge.x2) {
+                setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
+            } else if (edge.y1 === edge.y2) {
+                setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
+            }
+        }
+        console.timeEnd("for (let i: num...");
+    }
+    {
+        console.time("ctx.putImageDat...");
+        ctx.putImageData(buffer, 0, 0);
+        console.timeEnd("ctx.putImageDat...");
+    }
     console.log("Done!");
 };
