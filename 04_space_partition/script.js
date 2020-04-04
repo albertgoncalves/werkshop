@@ -10,6 +10,7 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
+    var DEBUG = false;
     var DARK_GRAY = 64;
     var WHITE = 255;
     var COLOR_R = 75;
@@ -30,15 +31,29 @@
         }
         {
             var index = ((yStart * width) + x) << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            if (DEBUG) {
+                buffer.data[index] = COLOR_R;
+                buffer.data[index + 1] = COLOR_G;
+                buffer.data[index + 2] = COLOR_B;
+            }
+            else {
+                buffer.data[index] = WHITE;
+                buffer.data[index + 1] = WHITE;
+                buffer.data[index + 2] = WHITE;
+            }
         }
         {
             var index = end << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            if (DEBUG) {
+                buffer.data[index] = COLOR_R;
+                buffer.data[index + 1] = COLOR_G;
+                buffer.data[index + 2] = COLOR_B;
+            }
+            else {
+                buffer.data[index] = WHITE;
+                buffer.data[index + 1] = WHITE;
+                buffer.data[index + 2] = WHITE;
+            }
         }
     }
     function setHorizontalLine(buffer, width, xStart, xEnd, y) {
@@ -53,15 +68,29 @@
         }
         {
             var index = start << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            if (DEBUG) {
+                buffer.data[index] = COLOR_R;
+                buffer.data[index + 1] = COLOR_G;
+                buffer.data[index + 2] = COLOR_B;
+            }
+            else {
+                buffer.data[index] = WHITE;
+                buffer.data[index + 1] = WHITE;
+                buffer.data[index + 2] = WHITE;
+            }
         }
         {
             var index = end << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            if (DEBUG) {
+                buffer.data[index] = COLOR_R;
+                buffer.data[index + 1] = COLOR_G;
+                buffer.data[index + 2] = COLOR_B;
+            }
+            else {
+                buffer.data[index] = WHITE;
+                buffer.data[index + 1] = WHITE;
+                buffer.data[index + 2] = WHITE;
+            }
         }
     }
     function getPartitions(stack) {

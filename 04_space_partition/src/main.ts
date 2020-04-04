@@ -1,3 +1,5 @@
+const DEBUG: boolean = false;
+
 const DARK_GRAY: number = 64;
 const WHITE: number = 255;
 const COLOR_R: number = 75;
@@ -36,15 +38,27 @@ function setVerticalLine(buffer: ImageData, width: number, x: number,
     }
     {
         const index: number = ((yStart * width) + x) << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
+        if (DEBUG) {
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        } else {
+            buffer.data[index] = WHITE;
+            buffer.data[index + 1] = WHITE;
+            buffer.data[index + 2] = WHITE;
+        }
     }
     {
         const index: number = end << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
+        if (DEBUG) {
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        } else {
+            buffer.data[index] = WHITE;
+            buffer.data[index + 1] = WHITE;
+            buffer.data[index + 2] = WHITE;
+        }
     }
 }
 
@@ -61,15 +75,27 @@ function setHorizontalLine(buffer: ImageData, width: number, xStart: number,
     }
     {
         const index: number = start << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
+        if (DEBUG) {
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        } else {
+            buffer.data[index] = WHITE;
+            buffer.data[index + 1] = WHITE;
+            buffer.data[index + 2] = WHITE;
+        }
     }
     {
         const index: number = end << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
+        if (DEBUG) {
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        } else {
+            buffer.data[index] = WHITE;
+            buffer.data[index + 1] = WHITE;
+            buffer.data[index + 2] = WHITE;
+        }
     }
 }
 
