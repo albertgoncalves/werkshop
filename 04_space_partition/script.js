@@ -17,6 +17,7 @@
     var COLOR_B = 250;
     var MIN_DELTA = 32;
     var MIN_SPLIT = 8;
+    var PAD = 3;
     var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = ((yStart + 1) * width) + x;
@@ -158,13 +159,32 @@
                 for (var k = neighbors.length - 1; 0 < k; k--) {
                     var x1 = neighbors[k - 1];
                     var x2 = neighbors[k];
-                    if (x1 !== x2) {
-                        edges.push({
-                            x1: x1,
-                            y1: y,
-                            x2: x2,
-                            y2: y
-                        });
+                    var xDelta = x2 - x1;
+                    if (xDelta !== 0) {
+                        if (xDelta <= MIN_SPLIT) {
+                            edges.push({
+                                x1: x1,
+                                y1: y,
+                                x2: x2,
+                                y2: y
+                            });
+                        }
+                        else {
+                            var xSplit = Math.floor(Math.random() * (xDelta - (2 * PAD))) +
+                                x1 + PAD;
+                            edges.push({
+                                x1: x1,
+                                y1: y,
+                                x2: xSplit - PAD,
+                                y2: y
+                            });
+                            edges.push({
+                                x1: xSplit + PAD,
+                                y1: y,
+                                x2: x2,
+                                y2: y
+                            });
+                        }
                     }
                 }
             }
@@ -187,13 +207,31 @@
                 for (var k = neighbors.length - 1; 0 < k; k--) {
                     var y1 = neighbors[k - 1];
                     var y2 = neighbors[k];
-                    if (y1 !== y2) {
-                        edges.push({
-                            x1: x,
-                            y1: y1,
-                            x2: x,
-                            y2: y2
-                        });
+                    var yDelta = y2 - y1;
+                    if (yDelta !== 0) {
+                        if (yDelta <= MIN_SPLIT) {
+                            edges.push({
+                                x1: x,
+                                y1: y1,
+                                x2: x,
+                                y2: y2
+                            });
+                        }
+                        else {
+                            var ySplit = Math.floor(Math.random() * (yDelta - (2 * PAD)) + y1 + PAD);
+                            edges.push({
+                                x1: x,
+                                y1: y1,
+                                x2: x,
+                                y2: ySplit - PAD
+                            });
+                            edges.push({
+                                x1: x,
+                                y1: ySplit + PAD,
+                                x2: x,
+                                y2: y2
+                            });
+                        }
                     }
                 }
             }

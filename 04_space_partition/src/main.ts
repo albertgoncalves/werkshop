@@ -6,6 +6,7 @@ const COLOR_B: number = 250;
 
 const MIN_DELTA: number = 32;
 const MIN_SPLIT: number = 8;
+const PAD: number = 3;
 const N: number = 100;
 
 interface Partition {
@@ -169,13 +170,32 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             for (let k: number = neighbors.length - 1; 0 < k; k--) {
                 const x1: number = neighbors[k - 1];
                 const x2: number = neighbors[k];
-                if (x1 !== x2) {
-                    edges.push({
-                        x1,
-                        y1: y,
-                        x2,
-                        y2: y,
-                    });
+                const xDelta = x2 - x1;
+                if (xDelta !== 0) {
+                    if (xDelta <= MIN_SPLIT) {
+                        edges.push({
+                            x1,
+                            y1: y,
+                            x2,
+                            y2: y,
+                        });
+                    } else {
+                        const xSplit: number =
+                            Math.floor(Math.random() * (xDelta - (2 * PAD))) +
+                            x1 + PAD;
+                        edges.push({
+                            x1,
+                            y1: y,
+                            x2: xSplit - PAD,
+                            y2: y,
+                        });
+                        edges.push({
+                            x1: xSplit + PAD,
+                            y1: y,
+                            x2,
+                            y2: y,
+                        });
+                    }
                 }
             }
         } else if (edge.x1 === edge.x2) {
@@ -197,13 +217,31 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             for (let k: number = neighbors.length - 1; 0 < k; k--) {
                 const y1: number = neighbors[k - 1];
                 const y2: number = neighbors[k];
-                if (y1 !== y2) {
-                    edges.push({
-                        x1: x,
-                        y1,
-                        x2: x,
-                        y2,
-                    });
+                const yDelta = y2 - y1;
+                if (yDelta !== 0) {
+                    if (yDelta <= MIN_SPLIT) {
+                        edges.push({
+                            x1: x,
+                            y1,
+                            x2: x,
+                            y2,
+                        });
+                    } else {
+                        const ySplit: number = Math.floor(
+                            Math.random() * (yDelta - (2 * PAD)) + y1 + PAD);
+                        edges.push({
+                            x1: x,
+                            y1,
+                            x2: x,
+                            y2: ySplit - PAD,
+                        });
+                        edges.push({
+                            x1: x,
+                            y1: ySplit + PAD,
+                            x2: x,
+                            y2,
+                        });
+                    }
                 }
             }
         }
