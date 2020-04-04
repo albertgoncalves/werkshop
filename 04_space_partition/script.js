@@ -10,13 +10,29 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
-    var DARK_GRAY = 32;
+    var DARK_GRAY = 64;
     var WHITE = 255;
-    var MIN_DELTA = 64;
-    var MIN_SPLIT = 8;
+    var COLOR_R = 255;
+    var COLOR_G = 75;
+    var COLOR_B = 10;
+    var MIN_DELTA = 32;
+    var MIN_SPLIT = 4;
+    var N = 128;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
-        var start = (yStart * width) + x;
-        var end = (yEnd * width) + x;
+        {
+            var index = (((yStart + 1) * width) + x) << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
+        {
+            var index = (((yEnd - 1) * width) + x) << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
+        var start = ((yStart + 2) * width) + x;
+        var end = ((yEnd - 1) * width) + x;
         for (var i = start; i < end; i += width) {
             var index = i << 2;
             buffer.data[index] = WHITE;
@@ -26,73 +42,98 @@
     }
     function setHorizontalLine(buffer, width, xStart, xEnd, y) {
         var yWidth = y * width;
-        var start = yWidth + xStart;
-        var end = yWidth + xEnd;
-        for (var i = start; i < end; i++) {
+        var start = (yWidth + xStart) + 1;
+        var end = (yWidth + xEnd) - 1;
+        {
+            var index = start << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
+        {
+            var index = end << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
+        for (var i = start + 1; i < end; i++) {
             var index = i << 2;
             buffer.data[index] = WHITE;
             buffer.data[index + 1] = WHITE;
             buffer.data[index + 2] = WHITE;
         }
     }
-    function setPartitions(buffer, width, _partition) {
-        var stack = [_partition];
+    function getPartitions(stack) {
+        var edges = [];
         var partition = stack.pop();
         while (partition) {
             if (partition.horizontal) {
                 var yDelta = partition.yUpper - partition.yLower;
-                var y = void 0;
-                y = Math.floor(Math.random() * yDelta) + partition.yLower;
-                while (((y - MIN_SPLIT) < partition.yLower) ||
-                    (partition.yUpper < (y + MIN_SPLIT))) {
-                    y = Math.floor(Math.random() * yDelta) + partition.yLower;
-                }
-                setHorizontalLine(buffer, width, partition.xLower, partition.xUpper, y);
-                if (MIN_DELTA < (partition.xUpper - partition.xLower)) {
-                    stack.push({
-                        xLower: partition.xLower,
-                        xUpper: partition.xUpper,
-                        yLower: partition.yLower,
-                        yUpper: y,
-                        horizontal: false
-                    });
-                    stack.push({
-                        xLower: partition.xLower,
-                        xUpper: partition.xUpper,
-                        yLower: y,
-                        yUpper: partition.yUpper,
-                        horizontal: false
-                    });
+                for (var i = N; 0 < i; i--) {
+                    var y = Math.floor(Math.random() * yDelta) + partition.yLower;
+                    if (!(((y - MIN_SPLIT) < partition.yLower) ||
+                        (partition.yUpper < (y + MIN_SPLIT)))) {
+                        edges.push({
+                            x1: partition.xLower,
+                            y1: y,
+                            x2: partition.xUpper,
+                            y2: y
+                        });
+                        if (MIN_DELTA < (partition.xUpper - partition.xLower)) {
+                            stack.push({
+                                xLower: partition.xLower,
+                                xUpper: partition.xUpper,
+                                yLower: partition.yLower,
+                                yUpper: y,
+                                horizontal: false
+                            });
+                            stack.push({
+                                xLower: partition.xLower,
+                                xUpper: partition.xUpper,
+                                yLower: y,
+                                yUpper: partition.yUpper,
+                                horizontal: false
+                            });
+                        }
+                        break;
+                    }
                 }
             }
             else {
                 var xDelta = partition.xUpper - partition.xLower;
-                var x = void 0;
-                x = Math.floor(Math.random() * xDelta) + partition.xLower;
-                while (((x - MIN_SPLIT) < partition.xLower) ||
-                    (partition.xUpper < (x + MIN_SPLIT))) {
-                    x = Math.floor(Math.random() * xDelta) + partition.xLower;
-                }
-                setVerticalLine(buffer, width, x, partition.yLower, partition.yUpper);
-                if (MIN_DELTA < (partition.yUpper - partition.yLower)) {
-                    stack.push({
-                        xLower: partition.xLower,
-                        xUpper: x,
-                        yLower: partition.yLower,
-                        yUpper: partition.yUpper,
-                        horizontal: true
-                    });
-                    stack.push({
-                        xLower: x,
-                        xUpper: partition.xUpper,
-                        yLower: partition.yLower,
-                        yUpper: partition.yUpper,
-                        horizontal: true
-                    });
+                for (var i = N; 0 < i; i--) {
+                    var x = Math.floor(Math.random() * xDelta) + partition.xLower;
+                    if (!(((x - MIN_SPLIT) < partition.xLower) ||
+                        (partition.xUpper < (x + MIN_SPLIT)))) {
+                        edges.push({
+                            x1: x,
+                            y1: partition.yLower,
+                            x2: x,
+                            y2: partition.yUpper
+                        });
+                        if (MIN_DELTA < (partition.yUpper - partition.yLower)) {
+                            stack.push({
+                                xLower: partition.xLower,
+                                xUpper: x,
+                                yLower: partition.yLower,
+                                yUpper: partition.yUpper,
+                                horizontal: true
+                            });
+                            stack.push({
+                                xLower: x,
+                                xUpper: partition.xUpper,
+                                yLower: partition.yLower,
+                                yUpper: partition.yUpper,
+                                horizontal: true
+                            });
+                        }
+                        break;
+                    }
                 }
             }
             partition = stack.pop();
         }
+        return edges;
     }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
@@ -102,7 +143,7 @@
         var height = canvas.height;
         var buffer = ctx.createImageData(width, height);
         console.time("for (let i: num...");
-        for (var i = width * height; 0 <= i; i--) {
+        for (var i = (width * height) - 1; 0 <= i; i--) {
             var index = i << 2;
             buffer.data[index] = DARK_GRAY;
             buffer.data[index + 1] = DARK_GRAY;
@@ -111,13 +152,22 @@
         }
         console.timeEnd("for (let i: num...");
         console.time("setPartitions(...)");
-        setPartitions(buffer, width, {
-            xLower: 0,
-            xUpper: width,
-            yLower: 0,
-            yUpper: height,
-            horizontal: true
-        });
+        var edges = getPartitions([{
+                xLower: -1,
+                xUpper: width,
+                yLower: -1,
+                yUpper: height,
+                horizontal: true
+            }]);
+        for (var i = edges.length - 1; 0 <= i; i--) {
+            var edge = edges[i];
+            if (edge.x1 === edge.x2) {
+                setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
+            }
+            else if (edge.y1 === edge.y2) {
+                setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
+            }
+        }
         console.timeEnd("setPartitions(...)");
         ctx.putImageData(buffer, 0, 0);
         console.log("Done!");
