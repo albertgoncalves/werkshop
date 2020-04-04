@@ -1,12 +1,12 @@
 const DARK_GRAY: number = 64;
 const WHITE: number = 255;
-const COLOR_R: number = 255;
-const COLOR_G: number = 75;
-const COLOR_B: number = 10;
+const COLOR_R: number = 75;
+const COLOR_G: number = 155;
+const COLOR_B: number = 250;
 
 const MIN_DELTA: number = 32;
-const MIN_SPLIT: number = 4;
-const N: number = 128;
+const MIN_SPLIT: number = 8;
+const N: number = 100;
 
 interface Partition {
     xLower: number;
@@ -25,33 +25,39 @@ interface Edge {
 
 function setVerticalLine(buffer: ImageData, width: number, x: number,
                          yStart: number, yEnd: number) {
-    {
-        const index: number = (((yStart + 1) * width) + x) << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
-    }
-    {
-        const index: number = (((yEnd - 1) * width) + x) << 2;
-        buffer.data[index] = COLOR_R;
-        buffer.data[index + 1] = COLOR_G;
-        buffer.data[index + 2] = COLOR_B;
-    }
-    const start: number = ((yStart + 2) * width) + x;
-    const end: number = ((yEnd - 1) * width) + x;
+    const start: number = ((yStart + 1) * width) + x;
+    const end: number = (yEnd * width) + x;
     for (let i: number = start; i < end; i += width) {
         const index: number = i << 2;
         buffer.data[index] = WHITE;
         buffer.data[index + 1] = WHITE;
         buffer.data[index + 2] = WHITE;
     }
+    {
+        const index: number = ((yStart * width) + x) << 2;
+        buffer.data[index] = COLOR_R;
+        buffer.data[index + 1] = COLOR_G;
+        buffer.data[index + 2] = COLOR_B;
+    }
+    {
+        const index: number = end << 2;
+        buffer.data[index] = COLOR_R;
+        buffer.data[index + 1] = COLOR_G;
+        buffer.data[index + 2] = COLOR_B;
+    }
 }
 
 function setHorizontalLine(buffer: ImageData, width: number, xStart: number,
                            xEnd: number, y: number) {
     const yWidth: number = y * width;
-    const start: number = (yWidth + xStart) + 1;
-    const end: number = (yWidth + xEnd) - 1;
+    const start: number = yWidth + xStart;
+    const end: number = yWidth + xEnd;
+    for (let i: number = start + 1; i < end; i++) {
+        const index: number = i << 2;
+        buffer.data[index] = WHITE;
+        buffer.data[index + 1] = WHITE;
+        buffer.data[index + 2] = WHITE;
+    }
     {
         const index: number = start << 2;
         buffer.data[index] = COLOR_R;
@@ -63,12 +69,6 @@ function setHorizontalLine(buffer: ImageData, width: number, xStart: number,
         buffer.data[index] = COLOR_R;
         buffer.data[index + 1] = COLOR_G;
         buffer.data[index + 2] = COLOR_B;
-    }
-    for (let i: number = start + 1; i < end; i++) {
-        const index: number = i << 2;
-        buffer.data[index] = WHITE;
-        buffer.data[index + 1] = WHITE;
-        buffer.data[index + 2] = WHITE;
     }
 }
 
@@ -146,6 +146,71 @@ function getPartitions(stack: Partition[]): Edge[] {
     return edges;
 }
 
+function getSplitEdges(preEdges: Edge[]): Edge[] {
+    const edges: Edge[] = [];
+    for (let i: number = preEdges.length - 1; 0 <= i; i--) {
+        const edge: Edge = preEdges[i];
+        if (edge.y1 === edge.y2) {
+            const y: number = edge.y1;
+            const neighbors: number[] = [edge.x1, edge.x2];
+            for (let j: number = preEdges.length - 1; 0 < j; j--) {
+                if (i === j) {
+                    continue;
+                }
+                const candidate: Edge = preEdges[j];
+                if ((candidate.x1 === candidate.x2) &&
+                    ((candidate.y1 === y) || (candidate.y2 === y))) {
+                    neighbors.push(candidate.x1);
+                }
+            }
+            neighbors.sort(function(a, b) {
+                return a - b;
+            });
+            for (let k: number = neighbors.length - 1; 0 < k; k--) {
+                const x1: number = neighbors[k - 1];
+                const x2: number = neighbors[k];
+                if (x1 !== x2) {
+                    edges.push({
+                        x1,
+                        y1: y,
+                        x2,
+                        y2: y,
+                    });
+                }
+            }
+        } else if (edge.x1 === edge.x2) {
+            const x: number = edge.x1;
+            const neighbors: number[] = [edge.y1, edge.y2];
+            for (let j: number = preEdges.length - 1; 0 < j; j--) {
+                if (i === j) {
+                    continue;
+                }
+                const candidate: Edge = preEdges[j];
+                if ((candidate.y1 === candidate.y2) &&
+                    ((candidate.x1 === x) || (candidate.x2 === x))) {
+                    neighbors.push(candidate.y1);
+                }
+            }
+            neighbors.sort(function(a, b) {
+                return a - b;
+            });
+            for (let k: number = neighbors.length - 1; 0 < k; k--) {
+                const y1: number = neighbors[k - 1];
+                const y2: number = neighbors[k];
+                if (y1 !== y2) {
+                    edges.push({
+                        x1: x,
+                        y1,
+                        x2: x,
+                        y2,
+                    });
+                }
+            }
+        }
+    }
+    return edges;
+}
+
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
@@ -165,13 +230,13 @@ window.onload = function() {
     }
     console.timeEnd("for (let i: num...");
     console.time("setPartitions(...)");
-    const edges: Edge[] = getPartitions([{
-        xLower: -1,
-        xUpper: width,
-        yLower: -1,
-        yUpper: height,
-        horizontal: true,
-    }]);
+    const edges: Edge[] = getSplitEdges(getPartitions([{
+        xLower: 0,
+        xUpper: width - 1,
+        yLower: 0,
+        yUpper: height - 1,
+        horizontal: false,
+    }]));
     for (let i: number = edges.length - 1; 0 <= i; i--) {
         const edge: Edge = edges[i];
         if (edge.x1 === edge.x2) {

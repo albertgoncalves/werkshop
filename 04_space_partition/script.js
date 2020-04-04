@@ -12,38 +12,44 @@
     "use strict";
     var DARK_GRAY = 64;
     var WHITE = 255;
-    var COLOR_R = 255;
-    var COLOR_G = 75;
-    var COLOR_B = 10;
+    var COLOR_R = 75;
+    var COLOR_G = 155;
+    var COLOR_B = 250;
     var MIN_DELTA = 32;
-    var MIN_SPLIT = 4;
-    var N = 128;
+    var MIN_SPLIT = 8;
+    var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
-        {
-            var index = (((yStart + 1) * width) + x) << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
-        }
-        {
-            var index = (((yEnd - 1) * width) + x) << 2;
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
-        }
-        var start = ((yStart + 2) * width) + x;
-        var end = ((yEnd - 1) * width) + x;
+        var start = ((yStart + 1) * width) + x;
+        var end = (yEnd * width) + x;
         for (var i = start; i < end; i += width) {
             var index = i << 2;
             buffer.data[index] = WHITE;
             buffer.data[index + 1] = WHITE;
             buffer.data[index + 2] = WHITE;
         }
+        {
+            var index = ((yStart * width) + x) << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
+        {
+            var index = end << 2;
+            buffer.data[index] = COLOR_R;
+            buffer.data[index + 1] = COLOR_G;
+            buffer.data[index + 2] = COLOR_B;
+        }
     }
     function setHorizontalLine(buffer, width, xStart, xEnd, y) {
         var yWidth = y * width;
-        var start = (yWidth + xStart) + 1;
-        var end = (yWidth + xEnd) - 1;
+        var start = yWidth + xStart;
+        var end = yWidth + xEnd;
+        for (var i = start + 1; i < end; i++) {
+            var index = i << 2;
+            buffer.data[index] = WHITE;
+            buffer.data[index + 1] = WHITE;
+            buffer.data[index + 2] = WHITE;
+        }
         {
             var index = start << 2;
             buffer.data[index] = COLOR_R;
@@ -55,12 +61,6 @@
             buffer.data[index] = COLOR_R;
             buffer.data[index + 1] = COLOR_G;
             buffer.data[index + 2] = COLOR_B;
-        }
-        for (var i = start + 1; i < end; i++) {
-            var index = i << 2;
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
         }
     }
     function getPartitions(stack) {
@@ -135,6 +135,71 @@
         }
         return edges;
     }
+    function getSplitEdges(preEdges) {
+        var edges = [];
+        for (var i = preEdges.length - 1; 0 <= i; i--) {
+            var edge = preEdges[i];
+            if (edge.y1 === edge.y2) {
+                var y = edge.y1;
+                var neighbors = [edge.x1, edge.x2];
+                for (var j = preEdges.length - 1; 0 < j; j--) {
+                    if (i === j) {
+                        continue;
+                    }
+                    var candidate = preEdges[j];
+                    if ((candidate.x1 === candidate.x2) &&
+                        ((candidate.y1 === y) || (candidate.y2 === y))) {
+                        neighbors.push(candidate.x1);
+                    }
+                }
+                neighbors.sort(function (a, b) {
+                    return a - b;
+                });
+                for (var k = neighbors.length - 1; 0 < k; k--) {
+                    var x1 = neighbors[k - 1];
+                    var x2 = neighbors[k];
+                    if (x1 !== x2) {
+                        edges.push({
+                            x1: x1,
+                            y1: y,
+                            x2: x2,
+                            y2: y
+                        });
+                    }
+                }
+            }
+            else if (edge.x1 === edge.x2) {
+                var x = edge.x1;
+                var neighbors = [edge.y1, edge.y2];
+                for (var j = preEdges.length - 1; 0 < j; j--) {
+                    if (i === j) {
+                        continue;
+                    }
+                    var candidate = preEdges[j];
+                    if ((candidate.y1 === candidate.y2) &&
+                        ((candidate.x1 === x) || (candidate.x2 === x))) {
+                        neighbors.push(candidate.y1);
+                    }
+                }
+                neighbors.sort(function (a, b) {
+                    return a - b;
+                });
+                for (var k = neighbors.length - 1; 0 < k; k--) {
+                    var y1 = neighbors[k - 1];
+                    var y2 = neighbors[k];
+                    if (y1 !== y2) {
+                        edges.push({
+                            x1: x,
+                            y1: y1,
+                            x2: x,
+                            y2: y2
+                        });
+                    }
+                }
+            }
+        }
+        return edges;
+    }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
@@ -152,13 +217,13 @@
         }
         console.timeEnd("for (let i: num...");
         console.time("setPartitions(...)");
-        var edges = getPartitions([{
-                xLower: -1,
-                xUpper: width,
-                yLower: -1,
-                yUpper: height,
-                horizontal: true
-            }]);
+        var edges = getSplitEdges(getPartitions([{
+                xLower: 0,
+                xUpper: width - 1,
+                yLower: 0,
+                yUpper: height - 1,
+                horizontal: false
+            }]));
         for (var i = edges.length - 1; 0 <= i; i--) {
             var edge = edges[i];
             if (edge.x1 === edge.x2) {
