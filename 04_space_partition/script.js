@@ -10,15 +10,17 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
-    var DEBUG = false;
+    var DEBUG = true;
     var DARK_GRAY = 64;
+    var GRAY = 128;
     var WHITE = 255;
     var COLOR_R = 75;
     var COLOR_G = 155;
     var COLOR_B = 250;
     var MIN_DELTA = 1 << 5;
-    var MIN_SPLIT = 1 << 3;
-    var PAD = (MIN_SPLIT >> 1) - 1;
+    var MIN_SPLIT = (1 << 3) + 1;
+    var PAD = MIN_SPLIT >> 1;
+    var PAD_HALF = PAD >> 1;
     var PAD_DOUBLE = PAD << 1;
     var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
@@ -173,12 +175,13 @@
             if (edge.x1 === edge.x2) {
                 var x = edge.x1;
                 var neighbors = [edge.y1, edge.y2];
-                for (var j = preEdges.length - 1; 0 < j; j--) {
+                for (var j = preEdges.length - 1; 0 <= j; j--) {
                     if (i === j) {
                         continue;
                     }
                     var candidate = preEdges[j];
                     if ((candidate.y1 === candidate.y2) &&
+                        ((edge.y1 < candidate.y1) && (candidate.y1 < edge.y2)) &&
                         ((candidate.x1 === x) || (candidate.x2 === x))) {
                         neighbors.push(candidate.y1);
                     }
@@ -221,12 +224,13 @@
             else if (edge.y1 === edge.y2) {
                 var y = edge.y1;
                 var neighbors = [edge.x1, edge.x2];
-                for (var j = preEdges.length - 1; 0 < j; j--) {
+                for (var j = preEdges.length - 1; 0 <= j; j--) {
                     if (i === j) {
                         continue;
                     }
                     var candidate = preEdges[j];
                     if ((candidate.x1 === candidate.x2) &&
+                        ((edge.x1 < candidate.x1) && (candidate.x1 < edge.x2)) &&
                         ((candidate.y1 === y) || (candidate.y2 === y))) {
                         neighbors.push(candidate.x1);
                     }
