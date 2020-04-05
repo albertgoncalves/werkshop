@@ -20,7 +20,6 @@
     var MIN_DELTA = 1 << 5;
     var MIN_SPLIT = (1 << 3) + 1;
     var PAD = MIN_SPLIT >> 1;
-    var PAD_HALF = PAD >> 1;
     var PAD_DOUBLE = PAD << 1;
     var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
