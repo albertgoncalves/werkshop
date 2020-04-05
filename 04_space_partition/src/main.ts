@@ -188,8 +188,9 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                     continue;
                 }
                 const candidate: Edge = preEdges[j];
-                /* NOTE: `y1` *should* always be lower than `y2`! */
                 if ((candidate.y1 === candidate.y2) &&
+                    /* NOTE: `edge.y1` *should* always be lower than `edge.y2`!
+                     */
                     ((edge.y1 < candidate.y1) && (candidate.y1 < edge.y2)) &&
                     ((candidate.x1 === x) || (candidate.x2 === x))) {
                     neighbors.push(candidate.y1);
@@ -237,8 +238,9 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                     continue;
                 }
                 const candidate: Edge = preEdges[j];
-                /* NOTE: `x1` *should* always be lower than `x2`! */
                 if ((candidate.x1 === candidate.x2) &&
+                    /* NOTE: `edge.x1` *should* always be lower than `edge.x2`!
+                     */
                     ((edge.x1 < candidate.x1) && (candidate.x1 < edge.x2)) &&
                     ((candidate.y1 === y) || (candidate.y2 === y))) {
                     neighbors.push(candidate.x1);
