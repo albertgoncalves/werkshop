@@ -1,7 +1,6 @@
 const DEBUG: boolean = true;
 
 const DARK_GRAY: number = 64;
-const GRAY: number = 128;
 const WHITE: number = 255;
 const COLOR_R: number = 75;
 const COLOR_G: number = 155;
