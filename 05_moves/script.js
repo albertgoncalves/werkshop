@@ -13,9 +13,14 @@
     var CANVAS_SCALE = 4;
     var DARK_GRAY = 32;
     var GRAY = 208;
-    var OPAQUE = 255;
+    var OPAQUE_1 = 255;
+    var OPAQUE_2 = 215;
+    var OPAQUE_3 = 175;
+    var OPAQUE_4 = 135;
     var TRANSPARENT = 0;
-    var RADIUS_SQUARED = 144;
+    var RADIUS = 12;
+    var RADIUS_SQUARED = RADIUS * RADIUS;
+    var K = 0.495;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = (yStart * width) + x;
         var end = (yEnd * width) + x;
@@ -42,19 +47,108 @@
         }
         ctx.putImageData(image, 0, 0);
     }
-    function setMask(mask, position, width, height) {
-        mask.fill(TRANSPARENT);
-        for (var y = height - 1; 0 <= y; y--) {
+    function setMaskColRow(mask, position, octal, width, height) {
+        for (var dY = octal.yStart; dY < RADIUS; dY++) {
+            var y = position.y + (dY * octal.yMult);
+            if ((y < 0) || (height < y)) {
+                break;
+            }
             var yWidth = y * width;
             var yDelta = y - position.y;
             var yDeltaSquared = yDelta * yDelta;
-            for (var x = width - 1; 0 <= x; x--) {
+            for (var dX = octal.xStart; dX <= dY; dX++) {
+                var x = position.x + (dX * octal.xMult);
+                if ((x < 0) || (width <= x)) {
+                    break;
+                }
                 var xDelta = x - position.x;
                 if (((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) {
-                    mask[yWidth + x] = OPAQUE;
+                    if (octal.xMult === 1) {
+                        mask[yWidth + x] = OPAQUE_1;
+                    }
+                    else {
+                        mask[yWidth + x] = OPAQUE_2;
+                    }
                 }
             }
         }
+    }
+    function setMaskRowCol(mask, position, octal, width, height) {
+        for (var dX = octal.xStart; dX < RADIUS; dX++) {
+            var x = position.x + (dX * octal.xMult);
+            if ((x < 0) || (width <= x)) {
+                break;
+            }
+            var xDelta = x - position.x;
+            for (var dY = octal.yStart; dY <= dX; dY++) {
+                var y = position.y + (dY * octal.yMult);
+                if ((y < 0) || (height < y)) {
+                    break;
+                }
+                var yWidth = y * width;
+                var yDelta = y - position.y;
+                if (((xDelta * xDelta) + (yDelta * yDelta)) < RADIUS_SQUARED) {
+                    if (octal.yMult === 1) {
+                        mask[yWidth + x] = OPAQUE_3;
+                    }
+                    else {
+                        mask[yWidth + x] = OPAQUE_4;
+                    }
+                }
+            }
+        }
+    }
+    function setMask(mask, position, width, height) {
+        mask.fill(TRANSPARENT);
+        mask[(position.y * width) + position.x] = OPAQUE_1;
+        setMaskColRow(mask, position, {
+            xMult: 1,
+            yMult: 1,
+            xStart: 0,
+            yStart: 1
+        }, width, height);
+        setMaskColRow(mask, position, {
+            xMult: 1,
+            yMult: -1,
+            xStart: 0,
+            yStart: 1
+        }, width, height);
+        setMaskColRow(mask, position, {
+            xMult: -1,
+            yMult: 1,
+            xStart: 0,
+            yStart: 1
+        }, width, height);
+        setMaskColRow(mask, position, {
+            xMult: -1,
+            yMult: -1,
+            xStart: 0,
+            yStart: 1
+        }, width, height);
+        setMaskRowCol(mask, position, {
+            xMult: 1,
+            yMult: 1,
+            xStart: 1,
+            yStart: 0
+        }, width, height);
+        setMaskRowCol(mask, position, {
+            xMult: 1,
+            yMult: -1,
+            xStart: 1,
+            yStart: 0
+        }, width, height);
+        setMaskRowCol(mask, position, {
+            xMult: -1,
+            yMult: 1,
+            xStart: 1,
+            yStart: 0
+        }, width, height);
+        setMaskRowCol(mask, position, {
+            xMult: -1,
+            yMult: -1,
+            xStart: 1,
+            yStart: 0
+        }, width, height);
     }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
@@ -89,6 +183,8 @@
                 buffer[index] = DARK_GRAY;
                 position.x = x;
                 position.y = y;
+                mask.fill(TRANSPARENT);
+                mask[(position.y * width) + position.x] = OPAQUE_1;
                 setMask(mask, position, width, height);
                 setImage(ctx, image, buffer, mask);
             }
