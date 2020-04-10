@@ -90,15 +90,10 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
             const x: number = position.x + (dX * octal.xMult);
             const xDelta: number = x - position.x;
-            if (((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) {
-                if ((0 <= x) && (x < position.width) && (0 <= y) &&
-                    (y < position.height)) {
-                    if (octal.xMult === 1) {
-                        mask[yWidth + x] = OPAQUE;
-                    } else {
-                        mask[yWidth + x] = OPAQUE;
-                    }
-                }
+            if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
+                (0 <= x) && (x < position.width) && (0 <= y) &&
+                (y < position.height)) {
+                mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {
                 if (getBlocked(buffer, position, x, y)) {
@@ -154,15 +149,10 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             const y: number = position.y + (dY * octal.yMult);
             const yDelta: number = y - position.y;
             const yWidth: number = y * position.width;
-            if ((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) {
-                if ((0 <= x) && (x < position.width) && (0 <= y) &&
-                    (y < position.height)) {
-                    if (octal.yMult === 1) {
-                        mask[yWidth + x] = OPAQUE;
-                    } else {
-                        mask[yWidth + x] = OPAQUE;
-                    }
-                }
+            if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
+                (0 <= x) && (x < position.width) && (0 <= y) &&
+                (y < position.height)) {
+                mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {
                 if (getBlocked(buffer, position, x, y)) {

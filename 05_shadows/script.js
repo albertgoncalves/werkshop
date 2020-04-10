@@ -73,16 +73,10 @@
                 }
                 var x = position.x + (dX * octal.xMult);
                 var xDelta = x - position.x;
-                if (((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) {
-                    if ((0 <= x) && (x < position.width) && (0 <= y) &&
-                        (y < position.height)) {
-                        if (octal.xMult === 1) {
-                            mask[yWidth + x] = OPAQUE;
-                        }
-                        else {
-                            mask[yWidth + x] = OPAQUE;
-                        }
-                    }
+                if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
+                    (0 <= x) && (x < position.width) && (0 <= y) &&
+                    (y < position.height)) {
+                    mask[yWidth + x] = OPAQUE;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, position, x, y)) {
@@ -138,16 +132,10 @@
                 var y = position.y + (dY * octal.yMult);
                 var yDelta = y - position.y;
                 var yWidth = y * position.width;
-                if ((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) {
-                    if ((0 <= x) && (x < position.width) && (0 <= y) &&
-                        (y < position.height)) {
-                        if (octal.yMult === 1) {
-                            mask[yWidth + x] = OPAQUE;
-                        }
-                        else {
-                            mask[yWidth + x] = OPAQUE;
-                        }
-                    }
+                if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
+                    (0 <= x) && (x < position.width) && (0 <= y) &&
+                    (y < position.height)) {
+                    mask[yWidth + x] = OPAQUE;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, position, x, y)) {
