@@ -18,7 +18,7 @@
     var TRANSPARENT = 0;
     var RADIUS = 47;
     var RADIUS_SQUARED = RADIUS * RADIUS;
-    var K = 0.375;
+    var APERTURE = 0.375;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = (yStart * width) + x;
         var end = (yEnd * width) + x;
@@ -63,11 +63,11 @@
             var yDeltaSquared = yDelta * yDelta;
             var yWidth = y * position.width;
             for (var dX = dY - 1; dX < 1; dX++) {
-                var rSlope = (dX + K) / (dY - K);
+                var rSlope = (dX + APERTURE) / (dY - APERTURE);
                 if (octal.slopeStart < rSlope) {
                     continue;
                 }
-                var lSlope = (dX - K) / (dY + K);
+                var lSlope = (dX - APERTURE) / (dY + APERTURE);
                 if (lSlope < octal.slopeEnd) {
                     break;
                 }
@@ -121,11 +121,11 @@
             var xDelta = x - position.x;
             var xDeltaSquared = xDelta * xDelta;
             for (var dY = dX - 1; dY < 1; dY++) {
-                var rSlope = (dY + K) / (dX - K);
+                var rSlope = (dY + APERTURE) / (dX - APERTURE);
                 if (octal.slopeStart < rSlope) {
                     continue;
                 }
-                var lSlope = (dY - K) / (dX + K);
+                var lSlope = (dY - APERTURE) / (dX + APERTURE);
                 if (lSlope < octal.slopeEnd) {
                     break;
                 }

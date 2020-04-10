@@ -10,7 +10,7 @@ const TRANSPARENT: number = 0;
 const RADIUS: number = 47;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
-const K: number = 0.375;
+const APERTURE: number = 0.375;
 
 interface Position_ {
     x: number;
@@ -80,11 +80,11 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         const yDeltaSquared: number = yDelta * yDelta;
         const yWidth: number = y * position.width;
         for (let dX: number = dY - 1; dX < 1; dX++) {
-            const rSlope: number = (dX + K) / (dY - K);
+            const rSlope: number = (dX + APERTURE) / (dY - APERTURE);
             if (octal.slopeStart < rSlope) {
                 continue;
             }
-            const lSlope: number = (dX - K) / (dY + K);
+            const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
             if (lSlope < octal.slopeEnd) {
                 break;
             }
@@ -138,11 +138,11 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         const xDelta: number = x - position.x;
         const xDeltaSquared: number = xDelta * xDelta;
         for (let dY: number = dX - 1; dY < 1; dY++) {
-            const rSlope: number = (dY + K) / (dX - K);
+            const rSlope: number = (dY + APERTURE) / (dX - APERTURE);
             if (octal.slopeStart < rSlope) {
                 continue;
             }
-            const lSlope: number = (dY - K) / (dX + K);
+            const lSlope: number = (dY - APERTURE) / (dX + APERTURE);
             if (lSlope < octal.slopeEnd) {
                 break;
             }
