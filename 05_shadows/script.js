@@ -10,6 +10,7 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
+    var DEBUG = false;
     var CANVAS_SCALE = 4;
     var DARK_GRAY = 112;
     var LIGHT_GRAY = 224;
@@ -228,6 +229,24 @@
             slopeEnd: 0.0
         });
     }
+    function doMove(ctx, image, mask, buffer, position, x, y) {
+        var index = (y * position.width) + x;
+        if (buffer[index] === WHITE) {
+            buffer[(position.y * position.width) + position.x] = WHITE;
+            buffer[index] = LIGHT_GRAY;
+            position.x = x;
+            position.y = y;
+            if (DEBUG) {
+                console.time("setMask(mask, buffer, position)");
+                setMask(mask, buffer, position);
+                console.timeEnd("setMask(mask, buffer, position)");
+            }
+            else {
+                setMask(mask, buffer, position);
+            }
+            setImage(ctx, image, buffer, mask);
+        }
+    }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
@@ -251,24 +270,57 @@
             setHorizontalLine(buffer, position.width, 7, 24, 26);
             setHorizontalLine(buffer, position.width, 10, 20, 17);
             buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
-            console.time("setMask(mask, buffer, position)");
-            setMask(mask, buffer, position);
-            console.timeEnd("setMask(mask, buffer, position)");
+            if (DEBUG) {
+                console.time("setMask(mask, buffer, position)");
+                setMask(mask, buffer, position);
+                console.timeEnd("setMask(mask, buffer, position)");
+            }
+            else {
+                setMask(mask, buffer, position);
+            }
             setImage(ctx, image, buffer, mask);
         }
         canvas.addEventListener("mousedown", function (event) {
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-            var index = (y * position.width) + x;
-            if (buffer[index] === WHITE) {
-                buffer[(position.y * position.width) + position.x] = WHITE;
-                buffer[index] = LIGHT_GRAY;
-                position.x = x;
-                position.y = y;
-                console.time("setMask(mask, buffer, position)");
-                setMask(mask, buffer, position);
-                console.timeEnd("setMask(mask, buffer, position)");
-                setImage(ctx, image, buffer, mask);
+            doMove(ctx, image, mask, buffer, position, x, y);
+        });
+        canvas.setAttribute("tabindex", "0");
+        canvas.focus();
+        canvas.addEventListener("keydown", function (event) {
+            switch (event.code) {
+                case "ArrowUp": {
+                    event.preventDefault();
+                    var y = position.y - 1;
+                    if (0 <= y) {
+                        doMove(ctx, image, mask, buffer, position, position.x, y);
+                    }
+                    break;
+                }
+                case "ArrowDown": {
+                    event.preventDefault();
+                    var y = position.y + 1;
+                    if (y < position.height) {
+                        doMove(ctx, image, mask, buffer, position, position.x, y);
+                    }
+                    break;
+                }
+                case "ArrowLeft": {
+                    event.preventDefault();
+                    var x = position.x - 1;
+                    if (0 <= x) {
+                        doMove(ctx, image, mask, buffer, position, x, position.y);
+                    }
+                    break;
+                }
+                case "ArrowRight": {
+                    event.preventDefault();
+                    var x = position.x + 1;
+                    if (x < position.width) {
+                        doMove(ctx, image, mask, buffer, position, x, position.y);
+                    }
+                    break;
+                }
             }
         });
     };

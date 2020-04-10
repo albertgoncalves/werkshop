@@ -1,3 +1,5 @@
+const DEBUG: boolean = false;
+
 const CANVAS_SCALE: number = 4;
 
 const DARK_GRAY: number = 112;
@@ -246,6 +248,26 @@ function setMask(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     });
 }
 
+function doMove(ctx: CanvasRenderingContext2D, image: ImageData,
+                mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+                position: Position_, x: number, y: number) {
+    const index: number = (y * position.width) + x;
+    if (buffer[index] === WHITE) {
+        buffer[(position.y * position.width) + position.x] = WHITE;
+        buffer[index] = LIGHT_GRAY;
+        position.x = x;
+        position.y = y;
+        if (DEBUG) {
+            console.time("setMask(mask, buffer, position)");
+            setMask(mask, buffer, position);
+            console.timeEnd("setMask(mask, buffer, position)");
+        } else {
+            setMask(mask, buffer, position);
+        }
+        setImage(ctx, image, buffer, mask);
+    }
+}
+
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
@@ -272,9 +294,13 @@ window.onload = function() {
         setHorizontalLine(buffer, position.width, 7, 24, 26);
         setHorizontalLine(buffer, position.width, 10, 20, 17);
         buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
-        console.time("setMask(mask, buffer, position)");
-        setMask(mask, buffer, position);
-        console.timeEnd("setMask(mask, buffer, position)");
+        if (DEBUG) {
+            console.time("setMask(mask, buffer, position)");
+            setMask(mask, buffer, position);
+            console.timeEnd("setMask(mask, buffer, position)");
+        } else {
+            setMask(mask, buffer, position);
+        }
         setImage(ctx, image, buffer, mask);
     }
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
@@ -282,16 +308,44 @@ window.onload = function() {
             (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-        const index: number = (y * position.width) + x;
-        if (buffer[index] === WHITE) {
-            buffer[(position.y * position.width) + position.x] = WHITE;
-            buffer[index] = LIGHT_GRAY;
-            position.x = x;
-            position.y = y;
-            console.time("setMask(mask, buffer, position)");
-            setMask(mask, buffer, position);
-            console.timeEnd("setMask(mask, buffer, position)");
-            setImage(ctx, image, buffer, mask);
+        doMove(ctx, image, mask, buffer, position, x, y);
+    });
+    canvas.setAttribute("tabindex", "0");
+    canvas.focus();
+    canvas.addEventListener("keydown", function(event: KeyboardEvent) {
+        switch (event.code) {
+        case "ArrowUp": {
+            event.preventDefault();
+            const y: number = position.y - 1;
+            if (0 <= y) {
+                doMove(ctx, image, mask, buffer, position, position.x, y);
+            }
+            break;
+        }
+        case "ArrowDown": {
+            event.preventDefault();
+            const y: number = position.y + 1;
+            if (y < position.height) {
+                doMove(ctx, image, mask, buffer, position, position.x, y);
+            }
+            break;
+        }
+        case "ArrowLeft": {
+            event.preventDefault();
+            const x: number = position.x - 1;
+            if (0 <= x) {
+                doMove(ctx, image, mask, buffer, position, x, position.y);
+            }
+            break;
+        }
+        case "ArrowRight": {
+            event.preventDefault();
+            const x: number = position.x + 1;
+            if (x < position.width) {
+                doMove(ctx, image, mask, buffer, position, x, position.y);
+            }
+            break;
+        }
         }
     });
 };
