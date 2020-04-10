@@ -94,12 +94,14 @@
                     }
                 }
                 else {
-                    if ((getBlocked(buffer, position, x, y)) && (-dY < RADIUS)) {
+                    var yCurrent = -dY;
+                    if ((getBlocked(buffer, position, x, y)) &&
+                        (yCurrent < RADIUS)) {
                         blocked = true;
                         setMaskColRow(mask, buffer, position, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: -dY + 1,
+                            start: yCurrent + 1,
                             slopeStart: nextStart,
                             slopeEnd: lSlope
                         });
@@ -157,12 +159,14 @@
                     }
                 }
                 else {
-                    if ((getBlocked(buffer, position, x, y)) && (-dX < RADIUS)) {
+                    var xCurrent = -dX;
+                    if ((getBlocked(buffer, position, x, y)) &&
+                        (xCurrent < RADIUS)) {
                         blocked = true;
                         setMaskRowCol(mask, buffer, position, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: -dX + 1,
+                            start: xCurrent + 1,
                             slopeStart: octal.slopeStart,
                             slopeEnd: lSlope
                         });
@@ -253,10 +257,14 @@
         {
             setVerticalLine(buffer, position.width, 6, 10, 20);
             setVerticalLine(buffer, position.width, 25, 10, 20);
+            setVerticalLine(buffer, position.width, 18, 8, 21);
             setHorizontalLine(buffer, position.width, 7, 24, 5);
             setHorizontalLine(buffer, position.width, 7, 24, 26);
+            setHorizontalLine(buffer, position.width, 10, 20, 17);
             buffer[(position.y * position.width) + position.x] = DARK_GRAY;
+            console.time("setMask(mask, buffer, position)");
             setMask(mask, buffer, position);
+            console.timeEnd("setMask(mask, buffer, position)");
             setImage(ctx, image, buffer, mask);
         }
         canvas.addEventListener("mousedown", function (event) {
@@ -268,7 +276,9 @@
                 buffer[index] = DARK_GRAY;
                 position.x = x;
                 position.y = y;
+                console.time("setMask(mask, buffer, position)");
                 setMask(mask, buffer, position);
+                console.timeEnd("setMask(mask, buffer, position)");
                 setImage(ctx, image, buffer, mask);
             }
         });
