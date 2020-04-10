@@ -1,6 +1,7 @@
 const CANVAS_SCALE: number = 4;
 
-const DARK_GRAY: number = 128;
+const DARK_GRAY: number = 112;
+const LIGHT_GRAY: number = 224;
 const WHITE: number = 255;
 
 const OPAQUE: number = 255;
@@ -9,7 +10,7 @@ const TRANSPARENT: number = 0;
 const RADIUS: number = 47;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
-const K: number = 0.4;
+const K: number = 0.375;
 
 interface Position_ {
     x: number;
@@ -280,7 +281,7 @@ window.onload = function() {
         setHorizontalLine(buffer, position.width, 7, 24, 5);
         setHorizontalLine(buffer, position.width, 7, 24, 26);
         setHorizontalLine(buffer, position.width, 10, 20, 17);
-        buffer[(position.y * position.width) + position.x] = DARK_GRAY;
+        buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
         console.time("setMask(mask, buffer, position)");
         setMask(mask, buffer, position);
         console.timeEnd("setMask(mask, buffer, position)");
@@ -294,7 +295,7 @@ window.onload = function() {
         const index: number = (y * position.width) + x;
         if (buffer[index] === WHITE) {
             buffer[(position.y * position.width) + position.x] = WHITE;
-            buffer[index] = DARK_GRAY;
+            buffer[index] = LIGHT_GRAY;
             position.x = x;
             position.y = y;
             console.time("setMask(mask, buffer, position)");

@@ -11,13 +11,14 @@
     });
     "use strict";
     var CANVAS_SCALE = 4;
-    var DARK_GRAY = 128;
+    var DARK_GRAY = 112;
+    var LIGHT_GRAY = 224;
     var WHITE = 255;
     var OPAQUE = 255;
     var TRANSPARENT = 0;
     var RADIUS = 47;
     var RADIUS_SQUARED = RADIUS * RADIUS;
-    var K = 0.4;
+    var K = 0.375;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = (yStart * width) + x;
         var end = (yEnd * width) + x;
@@ -261,7 +262,7 @@
             setHorizontalLine(buffer, position.width, 7, 24, 5);
             setHorizontalLine(buffer, position.width, 7, 24, 26);
             setHorizontalLine(buffer, position.width, 10, 20, 17);
-            buffer[(position.y * position.width) + position.x] = DARK_GRAY;
+            buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
             console.time("setMask(mask, buffer, position)");
             setMask(mask, buffer, position);
             console.timeEnd("setMask(mask, buffer, position)");
@@ -273,7 +274,7 @@
             var index = (y * position.width) + x;
             if (buffer[index] === WHITE) {
                 buffer[(position.y * position.width) + position.x] = WHITE;
-                buffer[index] = DARK_GRAY;
+                buffer[index] = LIGHT_GRAY;
                 position.x = x;
                 position.y = y;
                 console.time("setMask(mask, buffer, position)");
