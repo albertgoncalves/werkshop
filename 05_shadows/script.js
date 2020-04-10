@@ -11,15 +11,15 @@
     });
     "use strict";
     var DEBUG = false;
-    var CANVAS_SCALE = 4;
+    var CANVAS_SCALE = 3;
     var DARK_GRAY = 112;
     var LIGHT_GRAY = 224;
     var WHITE = 255;
     var OPAQUE = 255;
     var TRANSPARENT = 0;
-    var RADIUS = 47;
+    var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
-    var APERTURE = 0.375;
+    var APERTURE = 0.499;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = (yStart * width) + x;
         var end = (yEnd * width) + x;
@@ -56,20 +56,20 @@
             return;
         }
         var nextStart = octal.slopeStart;
-        var yEnd = -RADIUS - 1;
-        for (var dY = -octal.start; yEnd < dY; dY--) {
+        var yEnd = RADIUS + 1;
+        for (var dY = octal.start; dY < yEnd; dY++) {
             var blocked = false;
             var y = position.y + (dY * octal.yMult);
             var yDelta = y - position.y;
             var yDeltaSquared = yDelta * yDelta;
             var yWidth = y * position.width;
-            for (var dX = dY - 1; dX < 1; dX++) {
-                var rSlope = (dX + APERTURE) / (dY - APERTURE);
-                if (octal.slopeStart < rSlope) {
+            for (var dX = dY + 1; -1 < dX; dX--) {
+                var lSlope = (dX - APERTURE) / (dY + APERTURE);
+                if (octal.slopeStart < lSlope) {
                     continue;
                 }
-                var lSlope = (dX - APERTURE) / (dY + APERTURE);
-                if (lSlope < octal.slopeEnd) {
+                var rSlope = (dX + APERTURE) / (dY - APERTURE);
+                if (rSlope < octal.slopeEnd) {
                     break;
                 }
                 var x = position.x + (dX * octal.xMult);
@@ -81,7 +81,7 @@
                 }
                 if (blocked) {
                     if (getBlocked(buffer, position, x, y)) {
-                        nextStart = rSlope;
+                        nextStart = lSlope;
                         continue;
                     }
                     else {
@@ -90,18 +90,16 @@
                     }
                 }
                 else {
-                    var yCurrent = -dY;
-                    if ((getBlocked(buffer, position, x, y)) &&
-                        (yCurrent < RADIUS)) {
+                    if ((getBlocked(buffer, position, x, y)) && (dY < RADIUS)) {
                         blocked = true;
                         setMaskColRow(mask, buffer, position, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: yCurrent + 1,
+                            start: dY + 1,
                             slopeStart: nextStart,
-                            slopeEnd: lSlope
+                            slopeEnd: rSlope
                         });
-                        nextStart = rSlope;
+                        nextStart = lSlope;
                     }
                 }
             }
@@ -115,19 +113,19 @@
             return;
         }
         var nextStart = octal.slopeStart;
-        var xEnd = -RADIUS - 1;
-        for (var dX = -octal.start; xEnd < dX; dX--) {
+        var xEnd = RADIUS + 1;
+        for (var dX = octal.start; dX < xEnd; dX++) {
             var blocked = false;
             var x = position.x + (dX * octal.xMult);
             var xDelta = x - position.x;
             var xDeltaSquared = xDelta * xDelta;
-            for (var dY = dX - 1; dY < 1; dY++) {
-                var rSlope = (dY + APERTURE) / (dX - APERTURE);
-                if (octal.slopeStart < rSlope) {
+            for (var dY = dX + 1; -1 < dY; dY--) {
+                var lSlope = (dY - APERTURE) / (dX + APERTURE);
+                if (octal.slopeStart < lSlope) {
                     continue;
                 }
-                var lSlope = (dY - APERTURE) / (dX + APERTURE);
-                if (lSlope < octal.slopeEnd) {
+                var rSlope = (dY + APERTURE) / (dX - APERTURE);
+                if (rSlope < octal.slopeEnd) {
                     break;
                 }
                 var y = position.y + (dY * octal.yMult);
@@ -140,7 +138,7 @@
                 }
                 if (blocked) {
                     if (getBlocked(buffer, position, x, y)) {
-                        nextStart = rSlope;
+                        nextStart = lSlope;
                         continue;
                     }
                     else {
@@ -149,18 +147,16 @@
                     }
                 }
                 else {
-                    var xCurrent = -dX;
-                    if ((getBlocked(buffer, position, x, y)) &&
-                        (xCurrent < RADIUS)) {
+                    if ((getBlocked(buffer, position, x, y)) && (dX < RADIUS)) {
                         blocked = true;
                         setMaskRowCol(mask, buffer, position, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: xCurrent + 1,
+                            start: dX + 1,
                             slopeStart: octal.slopeStart,
-                            slopeEnd: lSlope
+                            slopeEnd: rSlope
                         });
-                        nextStart = rSlope;
+                        nextStart = lSlope;
                     }
                 }
             }
@@ -252,8 +248,8 @@
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
         var position = {
-            x: 15,
-            y: 15,
+            x: 0,
+            y: 0,
             width: canvas.width,
             height: canvas.height
         };
@@ -263,12 +259,25 @@
         var mask = new Uint8ClampedArray(n);
         buffer.fill(WHITE);
         {
-            setVerticalLine(buffer, position.width, 6, 10, 20);
+            setVerticalLine(buffer, position.width, 6, 10, 40);
             setVerticalLine(buffer, position.width, 25, 10, 20);
             setVerticalLine(buffer, position.width, 18, 8, 21);
+            setVerticalLine(buffer, position.width, 55, 3, 50);
+            setVerticalLine(buffer, position.width, 32, 30, 48);
             setHorizontalLine(buffer, position.width, 7, 24, 5);
-            setHorizontalLine(buffer, position.width, 7, 24, 26);
-            setHorizontalLine(buffer, position.width, 10, 20, 17);
+            setHorizontalLine(buffer, position.width, 10, 31, 17);
+            setHorizontalLine(buffer, position.width, 12, 44, 26);
+            setHorizontalLine(buffer, position.width, 3, 24, 54);
+            setHorizontalLine(buffer, position.width, 27, 59, 56);
+            for (var _ = 100; 0 < _; _--) {
+                var x = Math.floor(Math.random() * position.width);
+                var y = Math.floor(Math.random() * position.height);
+                if (buffer[(y * position.width) + x] === WHITE) {
+                    position.x = x;
+                    position.y = y;
+                    break;
+                }
+            }
             buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
             if (DEBUG) {
                 console.time("setMask(mask, buffer, position)");

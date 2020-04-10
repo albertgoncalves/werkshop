@@ -1,6 +1,6 @@
 const DEBUG: boolean = false;
 
-const CANVAS_SCALE: number = 4;
+const CANVAS_SCALE: number = 3;
 
 const DARK_GRAY: number = 112;
 const LIGHT_GRAY: number = 224;
@@ -9,10 +9,10 @@ const WHITE: number = 255;
 const OPAQUE: number = 255;
 const TRANSPARENT: number = 0;
 
-const RADIUS: number = 47;
+const RADIUS: number = 91;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
-const APERTURE: number = 0.375;
+const APERTURE: number = 0.499;
 
 interface Position_ {
     x: number;
@@ -74,20 +74,20 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         return;
     }
     let nextStart: number = octal.slopeStart;
-    const yEnd: number = -RADIUS - 1;
-    for (let dY: number = -octal.start; yEnd < dY; dY--) {
+    const yEnd: number = RADIUS + 1;
+    for (let dY: number = octal.start; dY < yEnd; dY++) {
         let blocked: boolean = false;
         const y: number = position.y + (dY * octal.yMult);
         const yDelta: number = y - position.y;
         const yDeltaSquared: number = yDelta * yDelta;
         const yWidth: number = y * position.width;
-        for (let dX: number = dY - 1; dX < 1; dX++) {
-            const rSlope: number = (dX + APERTURE) / (dY - APERTURE);
-            if (octal.slopeStart < rSlope) {
+        for (let dX: number = dY + 1; - 1 < dX; dX--) {
+            const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
+            if (octal.slopeStart < lSlope) {
                 continue;
             }
-            const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
-            if (lSlope < octal.slopeEnd) {
+            const rSlope: number = (dX + APERTURE) / (dY - APERTURE);
+            if (rSlope < octal.slopeEnd) {
                 break;
             }
             const x: number = position.x + (dX * octal.xMult);
@@ -99,25 +99,23 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
             if (blocked) {
                 if (getBlocked(buffer, position, x, y)) {
-                    nextStart = rSlope;
+                    nextStart = lSlope;
                     continue;
                 } else {
                     blocked = false;
                     octal.slopeStart = nextStart;
                 }
             } else {
-                const yCurrent: number = -dY;
-                if ((getBlocked(buffer, position, x, y)) &&
-                    (yCurrent < RADIUS)) {
+                if ((getBlocked(buffer, position, x, y)) && (dY < RADIUS)) {
                     blocked = true;
                     setMaskColRow(mask, buffer, position, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
-                        start: yCurrent + 1,
+                        start: dY + 1,
                         slopeStart: nextStart,
-                        slopeEnd: lSlope,
+                        slopeEnd: rSlope,
                     });
-                    nextStart = rSlope;
+                    nextStart = lSlope;
                 }
             }
         }
@@ -133,19 +131,19 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         return;
     }
     let nextStart: number = octal.slopeStart;
-    const xEnd: number = -RADIUS - 1;
-    for (let dX: number = -octal.start; xEnd < dX; dX--) {
+    const xEnd: number = RADIUS + 1;
+    for (let dX: number = octal.start; dX < xEnd; dX++) {
         let blocked: boolean = false;
         const x: number = position.x + (dX * octal.xMult);
         const xDelta: number = x - position.x;
         const xDeltaSquared: number = xDelta * xDelta;
-        for (let dY: number = dX - 1; dY < 1; dY++) {
-            const rSlope: number = (dY + APERTURE) / (dX - APERTURE);
-            if (octal.slopeStart < rSlope) {
+        for (let dY: number = dX + 1; - 1 < dY; dY--) {
+            const lSlope: number = (dY - APERTURE) / (dX + APERTURE);
+            if (octal.slopeStart < lSlope) {
                 continue;
             }
-            const lSlope: number = (dY - APERTURE) / (dX + APERTURE);
-            if (lSlope < octal.slopeEnd) {
+            const rSlope: number = (dY + APERTURE) / (dX - APERTURE);
+            if (rSlope < octal.slopeEnd) {
                 break;
             }
             const y: number = position.y + (dY * octal.yMult);
@@ -158,25 +156,23 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
             if (blocked) {
                 if (getBlocked(buffer, position, x, y)) {
-                    nextStart = rSlope;
+                    nextStart = lSlope;
                     continue;
                 } else {
                     blocked = false;
                     octal.slopeStart = nextStart;
                 }
             } else {
-                const xCurrent: number = -dX;
-                if ((getBlocked(buffer, position, x, y)) &&
-                    (xCurrent < RADIUS)) {
+                if ((getBlocked(buffer, position, x, y)) && (dX < RADIUS)) {
                     blocked = true;
                     setMaskRowCol(mask, buffer, position, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
-                        start: xCurrent + 1,
+                        start: dX + 1,
                         slopeStart: octal.slopeStart,
-                        slopeEnd: lSlope,
+                        slopeEnd: rSlope,
                     });
-                    nextStart = rSlope;
+                    nextStart = lSlope;
                 }
             }
         }
@@ -275,8 +271,8 @@ window.onload = function() {
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     const position: Position_ = {
-        x: 15,
-        y: 15,
+        x: 0,
+        y: 0,
         width: canvas.width,
         height: canvas.height,
     };
@@ -287,12 +283,25 @@ window.onload = function() {
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
     buffer.fill(WHITE);
     {
-        setVerticalLine(buffer, position.width, 6, 10, 20);
+        setVerticalLine(buffer, position.width, 6, 10, 40);
         setVerticalLine(buffer, position.width, 25, 10, 20);
         setVerticalLine(buffer, position.width, 18, 8, 21);
+        setVerticalLine(buffer, position.width, 55, 3, 50);
+        setVerticalLine(buffer, position.width, 32, 30, 48);
         setHorizontalLine(buffer, position.width, 7, 24, 5);
-        setHorizontalLine(buffer, position.width, 7, 24, 26);
-        setHorizontalLine(buffer, position.width, 10, 20, 17);
+        setHorizontalLine(buffer, position.width, 10, 31, 17);
+        setHorizontalLine(buffer, position.width, 12, 44, 26);
+        setHorizontalLine(buffer, position.width, 3, 24, 54);
+        setHorizontalLine(buffer, position.width, 27, 59, 56);
+        for (let _: number = 100; 0 < _; _--) {
+            const x: number = Math.floor(Math.random() * position.width);
+            const y: number = Math.floor(Math.random() * position.height);
+            if (buffer[(y * position.width) + x] === WHITE) {
+                position.x = x;
+                position.y = y;
+                break;
+            }
+        }
         buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
         if (DEBUG) {
             console.time("setMask(mask, buffer, position)");
