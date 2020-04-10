@@ -35,7 +35,7 @@
         }
     }
     function setImage(ctx, image, buffer, mask) {
-        for (var i = buffer.length; 0 <= i; i--) {
+        for (var i = buffer.length - 1; 0 <= i; i--) {
             var color = buffer[i];
             var index = i << 2;
             image.data[index] = color;

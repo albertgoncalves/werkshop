@@ -48,7 +48,7 @@ function setHorizontalLine(buffer: Uint8ClampedArray, width: number,
 
 function setImage(ctx: CanvasRenderingContext2D, image: ImageData,
                   buffer: Uint8ClampedArray, mask: Uint8ClampedArray) {
-    for (let i: number = buffer.length; 0 <= i; i--) {
+    for (let i: number = buffer.length - 1; 0 <= i; i--) {
         const color: number = buffer[i];
         const index: number = i << 2;
         image.data[index] = color;
