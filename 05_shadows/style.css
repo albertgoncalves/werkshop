@@ -1,0 +1,13 @@
+body {
+    background-color: hsl(0, 0%, 10%);
+    color: hsl(0, 0%, 98%);
+}
+
+a {
+    color: hsl(0, 0%, 98%);
+}
+
+canvas {
+    width: 512px;
+    height: 512px;
+}
