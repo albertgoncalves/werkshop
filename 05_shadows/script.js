@@ -15,7 +15,7 @@
     var LIGHT_GRAY = 224;
     var WHITE = 255;
     var OPAQUE = 255;
-    var TRANSPARENT = 0;
+    var TRANSPARENT = 40;
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
@@ -224,14 +224,79 @@
             slopeEnd: 0.0
         });
     }
-    function doJumpTo(canvas, mask, buffer, current, target) {
-        var index = (target.y * canvas.width) + target.x;
+    function doStep(canvas, mask, buffer, current, target, previous) {
+        if ((current.x === target.x) && (current.y === target.y)) {
+            return;
+        }
+        var nextA = {
+            x: current.x,
+            y: current.y
+        };
+        var nextB = {
+            x: current.x,
+            y: current.y
+        };
+        var xDelta = Math.abs(current.x - target.x);
+        var yDelta = Math.abs(current.y - target.y);
+        if (yDelta < xDelta) {
+            if (current.x < target.x) {
+                nextA.x += 1;
+            }
+            else {
+                nextA.x -= 1;
+            }
+            if (current.y < target.y) {
+                nextB.y += 1;
+            }
+            else {
+                nextB.y -= 1;
+            }
+        }
+        else {
+            if (current.x < target.x) {
+                nextB.x += 1;
+            }
+            else {
+                nextB.x -= 1;
+            }
+            if (current.y < target.y) {
+                nextA.y += 1;
+            }
+            else {
+                nextA.y -= 1;
+            }
+        }
+        if ((previous.x === nextA.x) && (previous.y === nextA.y)) {
+            target.x = current.x;
+            target.y = current.y;
+            return;
+        }
+        var index = (nextA.y * canvas.width) + nextA.x;
         if (buffer[index] === WHITE) {
             buffer[(current.y * canvas.width) + current.x] = WHITE;
             buffer[index] = LIGHT_GRAY;
-            setMask(canvas, mask, buffer, target);
-            current.x = target.x;
-            current.y = target.y;
+            setMask(canvas, mask, buffer, nextA);
+            previous.x = current.x;
+            previous.y = current.y;
+            current.x = nextA.x;
+            current.y = nextA.y;
+            return;
+        }
+        if ((previous.x === nextB.x) && (previous.y === nextB.y)) {
+            target.x = current.x;
+            target.y = current.y;
+            return;
+        }
+        index = (nextB.y * canvas.width) + nextB.x;
+        if (buffer[index] === WHITE) {
+            buffer[(current.y * canvas.width) + current.x] = WHITE;
+            buffer[index] = LIGHT_GRAY;
+            setMask(canvas, mask, buffer, nextB);
+            previous.x = current.x;
+            previous.y = current.y;
+            current.x = nextB.x;
+            current.y = nextB.y;
+            return;
         }
     }
     window.onload = function () {
@@ -255,11 +320,17 @@
             x: 0,
             y: 0
         };
+        var previous = {
+            x: 0,
+            y: 0
+        };
         canvas.addEventListener("mousedown", function (event) {
             target.x =
                 (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             target.y =
                 (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
+            previous.x = current.x;
+            previous.y = current.y;
         });
         {
             setVerticalLine(canvas, buffer, 6, 10, 40);
@@ -282,6 +353,8 @@
                     move.y = y;
                     target.x = x;
                     target.y = y;
+                    previous.x = x;
+                    previous.y = y;
                     break;
                 }
             }
@@ -290,7 +363,7 @@
             setImage(ctx, image, buffer, mask);
         }
         var loop = function () {
-            doJumpTo(canvas, mask, buffer, current, target);
+            doStep(canvas, mask, buffer, current, target, previous);
             setImage(ctx, image, buffer, mask);
             requestAnimationFrame(loop);
         };
