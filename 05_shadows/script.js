@@ -10,7 +10,6 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
-    var DEBUG = true;
     var CANVAS_SCALE = 3;
     var DARK_GRAY = 112;
     var LIGHT_GRAY = 224;
@@ -20,7 +19,6 @@
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
-    var SPEED = 0.35;
     function setVerticalLine(canvas, buffer, x, yStart, yEnd) {
         var start = (yStart * canvas.width) + x;
         var end = (yEnd * canvas.width) + x;
@@ -52,16 +50,16 @@
             (canvas.height <= y) ||
             (buffer[(canvas.width * y) + x] !== WHITE));
     }
-    function setMaskColRow(canvas, mask, buffer, position, octal) {
+    function setMaskColRow(canvas, mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
             return;
         }
         var nextStart = octal.slopeStart;
         var yEnd = RADIUS + 1;
-        for (var dY = octal.start; dY < yEnd; dY++) {
+        for (var dY = octal.loopStart; dY < yEnd; dY++) {
             var blocked = false;
-            var y = position.y + (dY * octal.yMult);
-            var yDelta = y - position.y;
+            var y = current.y + (dY * octal.yMult);
+            var yDelta = y - current.y;
             var yDeltaSquared = yDelta * yDelta;
             var yWidth = y * canvas.width;
             for (var dX = dY + 1; -1 < dX; dX--) {
@@ -73,8 +71,8 @@
                 if (rSlope < octal.slopeEnd) {
                     break;
                 }
-                var x = position.x + (dX * octal.xMult);
-                var xDelta = x - position.x;
+                var x = current.x + (dX * octal.xMult);
+                var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < canvas.width) && (0 <= y) &&
                     (y < canvas.height)) {
@@ -93,10 +91,10 @@
                 else {
                     if ((getBlocked(canvas, buffer, x, y)) && (dY < RADIUS)) {
                         blocked = true;
-                        setMaskColRow(canvas, mask, buffer, position, {
+                        setMaskColRow(canvas, mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: dY + 1,
+                            loopStart: dY + 1,
                             slopeStart: nextStart,
                             slopeEnd: rSlope
                         });
@@ -109,16 +107,16 @@
             }
         }
     }
-    function setMaskRowCol(canvas, mask, buffer, position, octal) {
+    function setMaskRowCol(canvas, mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
             return;
         }
         var nextStart = octal.slopeStart;
         var xEnd = RADIUS + 1;
-        for (var dX = octal.start; dX < xEnd; dX++) {
+        for (var dX = octal.loopStart; dX < xEnd; dX++) {
             var blocked = false;
-            var x = position.x + (dX * octal.xMult);
-            var xDelta = x - position.x;
+            var x = current.x + (dX * octal.xMult);
+            var xDelta = x - current.x;
             var xDeltaSquared = xDelta * xDelta;
             for (var dY = dX + 1; -1 < dY; dY--) {
                 var lSlope = (dY - APERTURE) / (dX + APERTURE);
@@ -129,8 +127,8 @@
                 if (rSlope < octal.slopeEnd) {
                     break;
                 }
-                var y = position.y + (dY * octal.yMult);
-                var yDelta = y - position.y;
+                var y = current.y + (dY * octal.yMult);
+                var yDelta = y - current.y;
                 var yWidth = y * canvas.width;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < canvas.width) && (0 <= y) &&
@@ -150,10 +148,10 @@
                 else {
                     if ((getBlocked(canvas, buffer, x, y)) && (dX < RADIUS)) {
                         blocked = true;
-                        setMaskRowCol(canvas, mask, buffer, position, {
+                        setMaskRowCol(canvas, mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
-                            start: dX + 1,
+                            loopStart: dX + 1,
                             slopeStart: octal.slopeStart,
                             slopeEnd: rSlope
                         });
@@ -166,99 +164,74 @@
             }
         }
     }
-    function setMask(canvas, mask, buffer, position) {
+    function setMask(canvas, mask, buffer, current) {
         mask.fill(TRANSPARENT);
-        mask[(position.y * canvas.width) + position.x] = OPAQUE;
-        setMaskColRow(canvas, mask, buffer, position, {
+        mask[(current.y * canvas.width) + current.x] = OPAQUE;
+        setMaskColRow(canvas, mask, buffer, current, {
             xMult: 1,
             yMult: 1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskColRow(canvas, mask, buffer, position, {
+        setMaskColRow(canvas, mask, buffer, current, {
             xMult: 1,
             yMult: -1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskColRow(canvas, mask, buffer, position, {
+        setMaskColRow(canvas, mask, buffer, current, {
             xMult: -1,
             yMult: 1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskColRow(canvas, mask, buffer, position, {
+        setMaskColRow(canvas, mask, buffer, current, {
             xMult: -1,
             yMult: -1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, position, {
+        setMaskRowCol(canvas, mask, buffer, current, {
             xMult: 1,
             yMult: 1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, position, {
+        setMaskRowCol(canvas, mask, buffer, current, {
             xMult: 1,
             yMult: -1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, position, {
+        setMaskRowCol(canvas, mask, buffer, current, {
             xMult: -1,
             yMult: 1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, position, {
+        setMaskRowCol(canvas, mask, buffer, current, {
             xMult: -1,
             yMult: -1,
-            start: 1,
+            loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
     }
-    function doStep(canvas, mask, buffer, position, target, move) {
-        if (move.x < target.x) {
-            move.x += SPEED;
-        }
-        else if (target.x < move.x) {
-            move.x -= SPEED;
-        }
-        if (move.y < target.y) {
-            move.y += SPEED;
-        }
-        else if (target.y < move.y) {
-            move.y -= SPEED;
-        }
-        var x = Math.round(move.x);
-        var y = Math.round(move.y);
-        var index = (y * canvas.width) + x;
+    function doJumpTo(canvas, mask, buffer, current, target) {
+        var index = (target.y * canvas.width) + target.x;
         if (buffer[index] === WHITE) {
-            buffer[(position.y * canvas.width) + position.x] = WHITE;
+            buffer[(current.y * canvas.width) + current.x] = WHITE;
             buffer[index] = LIGHT_GRAY;
-            position.x = x;
-            position.y = y;
-            if (DEBUG) {
-                console.time("setMask");
-                setMask(canvas, mask, buffer, position);
-                console.timeEnd("setMask");
-            }
-            else {
-                setMask(canvas, mask, buffer, position);
-            }
-        }
-        if (buffer[index] !== LIGHT_GRAY) {
-            target.x = position.x;
-            target.y = position.y;
+            setMask(canvas, mask, buffer, target);
+            current.x = target.x;
+            current.y = target.y;
         }
     }
     window.onload = function () {
@@ -270,10 +243,24 @@
         var buffer = new Uint8ClampedArray(n);
         var mask = new Uint8ClampedArray(n);
         buffer.fill(WHITE);
-        var position = {
+        var current = {
             x: 0,
             y: 0
         };
+        var move = {
+            x: 0,
+            y: 0
+        };
+        var target = {
+            x: 0,
+            y: 0
+        };
+        canvas.addEventListener("mousedown", function (event) {
+            target.x =
+                (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
+            target.y =
+                (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
+        });
         {
             setVerticalLine(canvas, buffer, 6, 10, 40);
             setVerticalLine(canvas, buffer, 25, 10, 20);
@@ -289,38 +276,21 @@
                 var x = Math.floor(Math.random() * canvas.width);
                 var y = Math.floor(Math.random() * canvas.height);
                 if (buffer[(y * canvas.width) + x] === WHITE) {
-                    position.x = x;
-                    position.y = y;
+                    current.x = x;
+                    current.y = y;
+                    move.x = x;
+                    move.y = y;
+                    target.x = x;
+                    target.y = y;
                     break;
                 }
             }
-            buffer[(position.y * canvas.width) + position.x] = LIGHT_GRAY;
-            if (DEBUG) {
-                console.time("setMask");
-                setMask(canvas, mask, buffer, position);
-                console.timeEnd("setMask");
-            }
-            else {
-                setMask(canvas, mask, buffer, position);
-            }
+            buffer[(current.y * canvas.width) + current.x] = LIGHT_GRAY;
+            setMask(canvas, mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
-        var target = {
-            x: position.x,
-            y: position.y
-        };
-        var move = {
-            x: position.x,
-            y: position.y
-        };
-        canvas.addEventListener("mousedown", function (event) {
-            target.x =
-                (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
-            target.y =
-                (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-        });
         var loop = function () {
-            doStep(canvas, mask, buffer, position, target, move);
+            doJumpTo(canvas, mask, buffer, current, target);
             setImage(ctx, image, buffer, mask);
             requestAnimationFrame(loop);
         };
