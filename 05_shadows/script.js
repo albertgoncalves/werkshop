@@ -233,14 +233,17 @@
             position.x = x;
             position.y = y;
             if (DEBUG) {
-                console.time("setMask(mask, buffer, position)");
+                console.time("setMask ");
                 setMask(mask, buffer, position);
-                console.timeEnd("setMask(mask, buffer, position)");
+                console.timeEnd("setMask ");
+                console.time("setImage");
+                setImage(ctx, image, buffer, mask);
+                console.timeEnd("setImage");
             }
             else {
                 setMask(mask, buffer, position);
+                setImage(ctx, image, buffer, mask);
             }
-            setImage(ctx, image, buffer, mask);
         }
     }
     window.onload = function () {
@@ -280,14 +283,17 @@
             }
             buffer[(position.y * position.width) + position.x] = LIGHT_GRAY;
             if (DEBUG) {
-                console.time("setMask(mask, buffer, position)");
+                console.time("setMask ");
                 setMask(mask, buffer, position);
-                console.timeEnd("setMask(mask, buffer, position)");
+                console.timeEnd("setMask ");
+                console.time("setImage");
+                setImage(ctx, image, buffer, mask);
+                console.timeEnd("setImage");
             }
             else {
                 setMask(mask, buffer, position);
+                setImage(ctx, image, buffer, mask);
             }
-            setImage(ctx, image, buffer, mask);
         }
         canvas.addEventListener("mousedown", function (event) {
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
