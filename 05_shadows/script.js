@@ -19,6 +19,7 @@
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
+    var SPEED = 0.75;
     function setVerticalLine(canvas, buffer, x, yStart, yEnd) {
         var start = (yStart * canvas.width) + x;
         var end = (yEnd * canvas.width) + x;
@@ -224,79 +225,34 @@
             slopeEnd: 0.0
         });
     }
-    function doStep(canvas, mask, buffer, current, target, previous) {
+    function doStep(canvas, mask, buffer, current, target, move, speed) {
         if ((current.x === target.x) && (current.y === target.y)) {
             return;
         }
-        var nextA = {
-            x: current.x,
-            y: current.y
+        move.x += speed.x;
+        move.y += speed.y;
+        var next = {
+            x: Math.round(move.x),
+            y: Math.round(move.y)
         };
-        var nextB = {
-            x: current.x,
-            y: current.y
-        };
-        var xDelta = Math.abs(current.x - target.x);
-        var yDelta = Math.abs(current.y - target.y);
-        if (yDelta < xDelta) {
-            if (current.x < target.x) {
-                nextA.x += 1;
-            }
-            else {
-                nextA.x -= 1;
-            }
-            if (current.y < target.y) {
-                nextB.y += 1;
-            }
-            else {
-                nextB.y -= 1;
-            }
+        if ((current.x === next.x) && (current.y === next.y)) {
+            return;
+        }
+        var index = (next.y * canvas.width) + next.x;
+        if (buffer[index] === WHITE) {
+            buffer[(current.y * canvas.width) + current.x] = WHITE;
+            buffer[index] = LIGHT_GRAY;
+            setMask(canvas, mask, buffer, next);
+            current.x = next.x;
+            current.y = next.y;
         }
         else {
-            if (current.x < target.x) {
-                nextB.x += 1;
-            }
-            else {
-                nextB.x -= 1;
-            }
-            if (current.y < target.y) {
-                nextA.y += 1;
-            }
-            else {
-                nextA.y -= 1;
-            }
-        }
-        if ((previous.x === nextA.x) && (previous.y === nextA.y)) {
-            target.x = current.x;
+            speed.x = 0;
+            speed.y = 0;
+            move.x = current.x;
+            move.y = current.y;
+            target.x = current.y;
             target.y = current.y;
-            return;
-        }
-        var index = (nextA.y * canvas.width) + nextA.x;
-        if (buffer[index] === WHITE) {
-            buffer[(current.y * canvas.width) + current.x] = WHITE;
-            buffer[index] = LIGHT_GRAY;
-            setMask(canvas, mask, buffer, nextA);
-            previous.x = current.x;
-            previous.y = current.y;
-            current.x = nextA.x;
-            current.y = nextA.y;
-            return;
-        }
-        if ((previous.x === nextB.x) && (previous.y === nextB.y)) {
-            target.x = current.x;
-            target.y = current.y;
-            return;
-        }
-        index = (nextB.y * canvas.width) + nextB.x;
-        if (buffer[index] === WHITE) {
-            buffer[(current.y * canvas.width) + current.x] = WHITE;
-            buffer[index] = LIGHT_GRAY;
-            setMask(canvas, mask, buffer, nextB);
-            previous.x = current.x;
-            previous.y = current.y;
-            current.x = nextB.x;
-            current.y = nextB.y;
-            return;
         }
     }
     window.onload = function () {
@@ -312,25 +268,70 @@
             x: 0,
             y: 0
         };
-        var move = {
-            x: 0,
-            y: 0
-        };
         var target = {
             x: 0,
             y: 0
         };
-        var previous = {
-            x: 0,
-            y: 0
+        var move = {
+            x: 0.0,
+            y: 0.0
+        };
+        var speed = {
+            x: 0.0,
+            y: 0.0
         };
         canvas.addEventListener("mousedown", function (event) {
-            target.x =
-                (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
-            target.y =
-                (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-            previous.x = current.x;
-            previous.y = current.y;
+            var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
+            var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
+            speed.x = 0.0;
+            speed.y = 0.0;
+            if ((current.x !== x) && (current.y !== y)) {
+                var xDelta = x - current.x;
+                var yDelta = y - current.y;
+                var slope = Math.abs(yDelta / xDelta);
+                var ySlope = slope / (slope + 1);
+                var xSlope = 1.0 - ySlope;
+                if (current.x < x) {
+                    speed.x = xSlope * SPEED;
+                }
+                else {
+                    speed.x = -xSlope * SPEED;
+                }
+                if (current.y < y) {
+                    speed.y = ySlope * SPEED;
+                }
+                else {
+                    speed.y = -ySlope * SPEED;
+                }
+            }
+            else if ((current.x === x) && (current.y !== y)) {
+                if (current.y < y) {
+                    speed.y = SPEED;
+                }
+                else {
+                    speed.y = -SPEED;
+                }
+            }
+            else if ((current.x !== x) && (current.y === y)) {
+                if (current.x < x) {
+                    speed.x = SPEED;
+                }
+                else {
+                    speed.x = -SPEED;
+                }
+            }
+            else {
+                return;
+            }
+            var index = (y * canvas.width) + x;
+            if (mask[index] === OPAQUE) {
+                target.x = x;
+                target.y = y;
+            }
+            else {
+                target.x = current.x;
+                target.y = current.y;
+            }
         });
         {
             setVerticalLine(canvas, buffer, 6, 10, 40);
@@ -349,12 +350,10 @@
                 if (buffer[(y * canvas.width) + x] === WHITE) {
                     current.x = x;
                     current.y = y;
-                    move.x = x;
-                    move.y = y;
                     target.x = x;
                     target.y = y;
-                    previous.x = x;
-                    previous.y = y;
+                    move.x = x;
+                    move.y = y;
                     break;
                 }
             }
@@ -363,7 +362,7 @@
             setImage(ctx, image, buffer, mask);
         }
         var loop = function () {
-            doStep(canvas, mask, buffer, current, target, previous);
+            doStep(canvas, mask, buffer, current, target, move, speed);
             setImage(ctx, image, buffer, mask);
             requestAnimationFrame(loop);
         };

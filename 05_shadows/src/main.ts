@@ -12,6 +12,8 @@ const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;
 
+const SPEED: number = 0.75;
+
 interface Coords {
     x: number;
     y: number;
@@ -245,74 +247,33 @@ function setMask(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
 
 function doStep(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
                 buffer: Uint8ClampedArray, current: Coords, target: Coords,
-                previous: Coords) {
+                move: Coords, speed: Coords) {
     if ((current.x === target.x) && (current.y === target.y)) {
         return;
     }
-    const nextA: Coords = {
-        x: current.x,
-        y: current.y,
+    move.x += speed.x;
+    move.y += speed.y;
+    const next: Coords = {
+        x: Math.round(move.x),
+        y: Math.round(move.y),
     };
-    const nextB: Coords = {
-        x: current.x,
-        y: current.y,
-    };
-    const xDelta: number = Math.abs(current.x - target.x);
-    const yDelta: number = Math.abs(current.y - target.y);
-    if (yDelta < xDelta) {
-        if (current.x < target.x) {
-            nextA.x += 1;
-        } else {
-            nextA.x -= 1;
-        }
-        if (current.y < target.y) {
-            nextB.y += 1;
-        } else {
-            nextB.y -= 1;
-        }
+    if ((current.x === next.x) && (current.y === next.y)) {
+        return;
+    }
+    const index: number = (next.y * canvas.width) + next.x;
+    if (buffer[index] === WHITE) {
+        buffer[(current.y * canvas.width) + current.x] = WHITE;
+        buffer[index] = LIGHT_GRAY;
+        setMask(canvas, mask, buffer, next);
+        current.x = next.x;
+        current.y = next.y;
     } else {
-        if (current.x < target.x) {
-            nextB.x += 1;
-        } else {
-            nextB.x -= 1;
-        }
-        if (current.y < target.y) {
-            nextA.y += 1;
-        } else {
-            nextA.y -= 1;
-        }
-    }
-    if ((previous.x === nextA.x) && (previous.y === nextA.y)) {
-        target.x = current.x;
+        speed.x = 0;
+        speed.y = 0;
+        move.x = current.x;
+        move.y = current.y;
+        target.x = current.y;
         target.y = current.y;
-        return;
-    }
-    let index: number = (nextA.y * canvas.width) + nextA.x;
-    if (buffer[index] === WHITE) {
-        buffer[(current.y * canvas.width) + current.x] = WHITE;
-        buffer[index] = LIGHT_GRAY;
-        setMask(canvas, mask, buffer, nextA);
-        previous.x = current.x;
-        previous.y = current.y;
-        current.x = nextA.x;
-        current.y = nextA.y;
-        return;
-    }
-    if ((previous.x === nextB.x) && (previous.y === nextB.y)) {
-        target.x = current.x;
-        target.y = current.y;
-        return;
-    }
-    index = (nextB.y * canvas.width) + nextB.x;
-    if (buffer[index] === WHITE) {
-        buffer[(current.y * canvas.width) + current.x] = WHITE;
-        buffer[index] = LIGHT_GRAY;
-        setMask(canvas, mask, buffer, nextB);
-        previous.x = current.x;
-        previous.y = current.y;
-        current.x = nextB.x;
-        current.y = nextB.y;
-        return;
     }
 }
 
@@ -331,25 +292,64 @@ window.onload = function() {
         x: 0,
         y: 0,
     };
-    const move: Coords = {
-        x: 0,
-        y: 0,
-    };
     const target: Coords = {
         x: 0,
         y: 0,
     };
-    const previous: Coords = {
-        x: 0,
-        y: 0,
+    const move: Coords = {
+        x: 0.0,
+        y: 0.0,
+    };
+    const speed: Coords = {
+        x: 0.0,
+        y: 0.0,
     };
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
-        target.x =
+        const x: number =
             (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
-        target.y =
+        const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-        previous.x = current.x;
-        previous.y = current.y;
+        speed.x = 0.0;
+        speed.y = 0.0;
+        if ((current.x !== x) && (current.y !== y)) {
+            const xDelta: number = x - current.x;
+            const yDelta: number = y - current.y;
+            const slope: number = Math.abs(yDelta / xDelta);
+            const ySlope = slope / (slope + 1);
+            const xSlope = 1.0 - ySlope;
+            if (current.x < x) {
+                speed.x = xSlope * SPEED;
+            } else {
+                speed.x = -xSlope * SPEED;
+            }
+            if (current.y < y) {
+                speed.y = ySlope * SPEED;
+            } else {
+                speed.y = -ySlope * SPEED;
+            }
+        } else if ((current.x === x) && (current.y !== y)) {
+            if (current.y < y) {
+                speed.y = SPEED;
+            } else {
+                speed.y = -SPEED;
+            }
+        } else if ((current.x !== x) && (current.y === y)) {
+            if (current.x < x) {
+                speed.x = SPEED;
+            } else {
+                speed.x = -SPEED;
+            }
+        } else {
+            return;
+        }
+        const index: number = (y * canvas.width) + x;
+        if (mask[index] === OPAQUE) {
+            target.x = x;
+            target.y = y;
+        } else {
+            target.x = current.x;
+            target.y = current.y;
+        }
     });
     {
         setVerticalLine(canvas, buffer, 6, 10, 40);
@@ -368,12 +368,10 @@ window.onload = function() {
             if (buffer[(y * canvas.width) + x] === WHITE) {
                 current.x = x;
                 current.y = y;
-                move.x = x;
-                move.y = y;
                 target.x = x;
                 target.y = y;
-                previous.x = x;
-                previous.y = y;
+                move.x = x;
+                move.y = y;
                 break;
             }
         }
@@ -382,7 +380,7 @@ window.onload = function() {
         setImage(ctx, image, buffer, mask);
     }
     const loop: () => void = function() {
-        doStep(canvas, mask, buffer, current, target, previous);
+        doStep(canvas, mask, buffer, current, target, move, speed);
         setImage(ctx, image, buffer, mask);
         requestAnimationFrame(loop);
     };
