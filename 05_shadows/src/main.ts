@@ -7,7 +7,7 @@ const WHITE: number = 255;
 const OPAQUE: number = 255;
 const TRANSPARENT: number = 40;
 
-const RADIUS: number = 91;
+const RADIUS: number = 64;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;

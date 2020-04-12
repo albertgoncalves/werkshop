@@ -16,7 +16,7 @@
     var WHITE = 255;
     var OPAQUE = 255;
     var TRANSPARENT = 40;
-    var RADIUS = 91;
+    var RADIUS = 64;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
     var SPEED = 0.5;
