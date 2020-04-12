@@ -105,7 +105,8 @@ function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
             const xDelta: number = x - current.x;
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                (y < canvas.height)) {
+                (y < canvas.height))
+            {
                 mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {
@@ -163,7 +164,8 @@ function setMaskRowCol(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
             const yWidth: number = y * canvas.width;
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                (y < canvas.height)) {
+                (y < canvas.height))
+            {
                 mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {

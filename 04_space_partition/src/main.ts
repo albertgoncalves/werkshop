@@ -110,7 +110,8 @@ function getPartitions(stack: Partition[]): Edge[] {
                 const y =
                     Math.floor(Math.random() * yDelta) + partition.yLower;
                 if (!(((y - MIN_SPLIT) < partition.yLower) ||
-                      (partition.yUpper < (y + MIN_SPLIT)))) {
+                      (partition.yUpper < (y + MIN_SPLIT))))
+                {
                     edges.push({
                         x1: partition.xLower,
                         y1: y,
@@ -142,7 +143,8 @@ function getPartitions(stack: Partition[]): Edge[] {
                 const x =
                     Math.floor(Math.random() * xDelta) + partition.xLower;
                 if (!(((x - MIN_SPLIT) < partition.xLower) ||
-                      (partition.xUpper < (x + MIN_SPLIT)))) {
+                      (partition.xUpper < (x + MIN_SPLIT))))
+                {
                     edges.push({
                         x1: x,
                         y1: partition.yLower,
@@ -190,7 +192,8 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                     /* NOTE: `edge.y1` *should* always be lower than `edge.y2`!
                      */
                     ((edge.y1 < candidate.y1) && (candidate.y1 < edge.y2)) &&
-                    ((candidate.x1 === x) || (candidate.x2 === x))) {
+                    ((candidate.x1 === x) || (candidate.x2 === x)))
+                {
                     neighbors.push(candidate.y1);
                 }
             }
@@ -240,7 +243,8 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                     /* NOTE: `edge.x1` *should* always be lower than `edge.x2`!
                      */
                     ((edge.x1 < candidate.x1) && (candidate.x1 < edge.x2)) &&
-                    ((candidate.y1 === y) || (candidate.y2 === y))) {
+                    ((candidate.y1 === y) || (candidate.y2 === y)))
+                {
                     neighbors.push(candidate.x1);
                 }
             }

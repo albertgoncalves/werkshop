@@ -4,4 +4,9 @@ ColumnLimit: 79
 SpacesInContainerLiterals: false
 AlignOperands: false
 JavaScriptQuotes: Double
+JavaScriptWrapImports: true
 AllowShortFunctionsOnASingleLine: None
+BinPackArguments: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterControlStatement: MultiLine

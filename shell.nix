@@ -1,7 +1,7 @@
 with import <nixpkgs> {};
-mkShell {
+llvmPackages_10.stdenv.mkDerivation {
+    name = "_";
     buildInputs = [
-        clang-tools
         htmlTidy
         jq
         nodejs
