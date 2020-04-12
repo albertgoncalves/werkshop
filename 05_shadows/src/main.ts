@@ -1,18 +1,22 @@
 const CANVAS_SCALE: number = 3;
 
+const OPAQUE: number = 255;
+const TRANSPARENT: number = 40;
+
 const DARK_GRAY: number = 112;
 const LIGHT_GRAY: number = 224;
 const WHITE: number = 255;
 
-const OPAQUE: number = 255;
-const TRANSPARENT: number = 40;
+const WALL: number = DARK_GRAY;
+const FLOOR: number = WHITE;
+const PLAYER: number = LIGHT_GRAY;
 
 const RADIUS: number = 64;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;
 
-const SPEED: number = 0.5;
+const SPEED: number = 0.75;
 
 interface Coords {
     x: number;
@@ -39,7 +43,7 @@ function setVerticalLine(canvas: HTMLCanvasElement, buffer: Uint8ClampedArray,
     const start: number = (yStart * canvas.width) + x;
     const end: number = (yEnd * canvas.width) + x;
     for (let i: number = start; i <= end; i += canvas.width) {
-        buffer[i] = DARK_GRAY;
+        buffer[i] = WALL;
     }
 }
 
@@ -50,7 +54,7 @@ function setHorizontalLine(canvas: HTMLCanvasElement,
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
     for (let i: number = start; i <= end; i++) {
-        buffer[i] = DARK_GRAY;
+        buffer[i] = WALL;
     }
 }
 
@@ -71,7 +75,7 @@ function getBlocked(canvas: HTMLCanvasElement, buffer: Uint8ClampedArray,
                     x: number, y: number) {
     return ((x < 0) || (y < 0) || (canvas.width <= x) ||
             (canvas.height <= y) ||
-            (buffer[(canvas.width * y) + x] !== WHITE));
+            (buffer[(canvas.width * y) + x] !== FLOOR));
 }
 
 function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
@@ -259,9 +263,9 @@ function doJump(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
         return;
     }
     const index: number = (target.y * canvas.width) + target.x;
-    if (buffer[index] === WHITE) {
-        buffer[(current.y * canvas.width) + current.x] = WHITE;
-        buffer[index] = LIGHT_GRAY;
+    if (buffer[index] === FLOOR) {
+        buffer[(current.y * canvas.width) + current.x] = FLOOR;
+        buffer[index] = PLAYER;
         setMask(canvas, mask, buffer, target);
         current.x = target.x;
         current.y = target.y;
@@ -283,7 +287,7 @@ window.onload = function() {
     const image: ImageData = ctx.createImageData(canvas.width, canvas.height);
     const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
-    buffer.fill(WHITE);
+    buffer.fill(FLOOR);
     const current: Coords = {
         x: 0,
         y: 0,
@@ -408,7 +412,9 @@ window.onload = function() {
         for (let _: number = 100; 0 < _; _--) {
             const x: number = Math.floor(Math.random() * canvas.width);
             const y: number = Math.floor(Math.random() * canvas.height);
-            if (buffer[(y * canvas.width) + x] === WHITE) {
+            const index = (y * canvas.width) + x;
+            if (buffer[index] === FLOOR) {
+                buffer[index] = PLAYER;
                 current.x = x;
                 current.y = y;
                 target.x = x;
@@ -418,7 +424,6 @@ window.onload = function() {
                 break;
             }
         }
-        buffer[(current.y * canvas.width) + current.x] = LIGHT_GRAY;
         setMask(canvas, mask, buffer, current);
         setImage(ctx, image, buffer, mask);
     }

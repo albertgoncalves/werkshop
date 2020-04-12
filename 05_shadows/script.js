@@ -11,20 +11,23 @@
     });
     "use strict";
     var CANVAS_SCALE = 3;
+    var OPAQUE = 255;
+    var TRANSPARENT = 40;
     var DARK_GRAY = 112;
     var LIGHT_GRAY = 224;
     var WHITE = 255;
-    var OPAQUE = 255;
-    var TRANSPARENT = 40;
+    var WALL = DARK_GRAY;
+    var FLOOR = WHITE;
+    var PLAYER = LIGHT_GRAY;
     var RADIUS = 64;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
-    var SPEED = 0.5;
+    var SPEED = 0.75;
     function setVerticalLine(canvas, buffer, x, yStart, yEnd) {
         var start = (yStart * canvas.width) + x;
         var end = (yEnd * canvas.width) + x;
         for (var i = start; i <= end; i += canvas.width) {
-            buffer[i] = DARK_GRAY;
+            buffer[i] = WALL;
         }
     }
     function setHorizontalLine(canvas, buffer, xStart, xEnd, y) {
@@ -32,7 +35,7 @@
         var start = yWidth + xStart;
         var end = yWidth + xEnd;
         for (var i = start; i <= end; i++) {
-            buffer[i] = DARK_GRAY;
+            buffer[i] = WALL;
         }
     }
     function setImage(ctx, image, buffer, mask) {
@@ -49,7 +52,7 @@
     function getBlocked(canvas, buffer, x, y) {
         return ((x < 0) || (y < 0) || (canvas.width <= x) ||
             (canvas.height <= y) ||
-            (buffer[(canvas.width * y) + x] !== WHITE));
+            (buffer[(canvas.width * y) + x] !== FLOOR));
     }
     function setMaskColRow(canvas, mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
@@ -230,9 +233,9 @@
             return;
         }
         var index = (target.y * canvas.width) + target.x;
-        if (buffer[index] === WHITE) {
-            buffer[(current.y * canvas.width) + current.x] = WHITE;
-            buffer[index] = LIGHT_GRAY;
+        if (buffer[index] === FLOOR) {
+            buffer[(current.y * canvas.width) + current.x] = FLOOR;
+            buffer[index] = PLAYER;
             setMask(canvas, mask, buffer, target);
             current.x = target.x;
             current.y = target.y;
@@ -252,7 +255,7 @@
         var image = ctx.createImageData(canvas.width, canvas.height);
         var buffer = new Uint8ClampedArray(n);
         var mask = new Uint8ClampedArray(n);
-        buffer.fill(WHITE);
+        buffer.fill(FLOOR);
         var current = {
             x: 0,
             y: 0
@@ -376,7 +379,9 @@
             for (var _ = 100; 0 < _; _--) {
                 var x = Math.floor(Math.random() * canvas.width);
                 var y = Math.floor(Math.random() * canvas.height);
-                if (buffer[(y * canvas.width) + x] === WHITE) {
+                var index = (y * canvas.width) + x;
+                if (buffer[index] === FLOOR) {
+                    buffer[index] = PLAYER;
                     current.x = x;
                     current.y = y;
                     target.x = x;
@@ -386,7 +391,6 @@
                     break;
                 }
             }
-            buffer[(current.y * canvas.width) + current.x] = LIGHT_GRAY;
             setMask(canvas, mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
