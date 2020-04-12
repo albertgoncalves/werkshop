@@ -12,7 +12,7 @@ const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;
 
-const SPEED: number = 0.75;
+const SPEED: number = 0.5;
 
 interface Coords {
     x: number;
@@ -25,6 +25,13 @@ interface Octal {
     loopStart: number;
     slopeStart: number;
     slopeEnd: number;
+}
+
+interface Keys {
+    up: boolean;
+    down: boolean;
+    left: boolean;
+    right: boolean;
 }
 
 function setVerticalLine(canvas: HTMLCanvasElement, buffer: Uint8ClampedArray,
@@ -245,35 +252,24 @@ function setMask(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
     });
 }
 
-function doStep(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
+function doJump(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
                 buffer: Uint8ClampedArray, current: Coords, target: Coords,
-                move: Coords, speed: Coords) {
+                move: Coords) {
     if ((current.x === target.x) && (current.y === target.y)) {
         return;
     }
-    move.x += speed.x;
-    move.y += speed.y;
-    const next: Coords = {
-        x: Math.round(move.x),
-        y: Math.round(move.y),
-    };
-    if ((current.x === next.x) && (current.y === next.y)) {
-        return;
-    }
-    const index: number = (next.y * canvas.width) + next.x;
+    const index: number = (target.y * canvas.width) + target.x;
     if (buffer[index] === WHITE) {
         buffer[(current.y * canvas.width) + current.x] = WHITE;
         buffer[index] = LIGHT_GRAY;
-        setMask(canvas, mask, buffer, next);
-        current.x = next.x;
-        current.y = next.y;
+        setMask(canvas, mask, buffer, target);
+        current.x = target.x;
+        current.y = target.y;
     } else {
-        speed.x = 0;
-        speed.y = 0;
+        target.x = current.x;
+        target.y = current.y;
         move.x = current.x;
         move.y = current.y;
-        target.x = current.y;
-        target.y = current.y;
     }
 }
 
@@ -300,55 +296,102 @@ window.onload = function() {
         x: 0.0,
         y: 0.0,
     };
-    const speed: Coords = {
-        x: 0.0,
-        y: 0.0,
+    const keys: Keys = {
+        up: false,
+        down: false,
+        left: false,
+        right: false,
     };
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
         const x: number =
             (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-        speed.x = 0.0;
-        speed.y = 0.0;
-        if ((current.x !== x) && (current.y !== y)) {
-            const xDelta: number = x - current.x;
-            const yDelta: number = y - current.y;
-            const slope: number = Math.abs(yDelta / xDelta);
-            const ySlope = slope / (slope + 1);
-            const xSlope = 1.0 - ySlope;
-            if (current.x < x) {
-                speed.x = xSlope * SPEED;
-            } else {
-                speed.x = -xSlope * SPEED;
-            }
-            if (current.y < y) {
-                speed.y = ySlope * SPEED;
-            } else {
-                speed.y = -ySlope * SPEED;
-            }
-        } else if ((current.x === x) && (current.y !== y)) {
-            if (current.y < y) {
-                speed.y = SPEED;
-            } else {
-                speed.y = -SPEED;
-            }
-        } else if ((current.x !== x) && (current.y === y)) {
-            if (current.x < x) {
-                speed.x = SPEED;
-            } else {
-                speed.x = -SPEED;
-            }
-        } else {
-            return;
-        }
         const index: number = (y * canvas.width) + x;
         if (mask[index] === OPAQUE) {
             target.x = x;
             target.y = y;
+            move.x = x;
+            move.y = y;
         } else {
             target.x = current.x;
             target.y = current.y;
+            move.x = current.x;
+            move.y = current.y;
+        }
+    });
+    canvas.setAttribute("tabindex", "0");
+    canvas.focus();
+    canvas.addEventListener("keydown", function(event: KeyboardEvent) {
+        switch (event.code) {
+        case "ArrowUp": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.up = true;
+            break;
+        }
+        case "ArrowDown": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.down = true;
+            break;
+        }
+        case "ArrowLeft": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.left = true;
+            break;
+        }
+        case "ArrowRight": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.right = true;
+            break;
+        }
+        }
+    });
+    canvas.addEventListener("keyup", function(event: KeyboardEvent) {
+        switch (event.code) {
+        case "ArrowUp": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.up = false;
+            break;
+        }
+        case "ArrowDown": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.down = false;
+            break;
+        }
+        case "ArrowLeft": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.left = false;
+            break;
+        }
+        case "ArrowRight": {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
+            }
+            keys.right = false;
+            break;
+        }
         }
     });
     {
@@ -379,8 +422,26 @@ window.onload = function() {
         setMask(canvas, mask, buffer, current);
         setImage(ctx, image, buffer, mask);
     }
+    const widthBound: number = canvas.width - 1;
+    const heightBound: number = canvas.height - 1;
     const loop: () => void = function() {
-        doStep(canvas, mask, buffer, current, target, move, speed);
+        if (keys.up && (0 < current.y)) {
+            move.y -= SPEED;
+        }
+        if (keys.down && (current.y < heightBound)) {
+            move.y += SPEED;
+        }
+        if (keys.left && (0 < current.x)) {
+            move.x -= SPEED;
+        }
+        if (keys.right && (current.x < widthBound)) {
+            move.x += SPEED;
+        }
+        if (keys.up || keys.down || keys.left || keys.right) {
+            target.x = Math.round(move.x);
+            target.y = Math.round(move.y);
+        }
+        doJump(canvas, mask, buffer, current, target, move);
         setImage(ctx, image, buffer, mask);
         requestAnimationFrame(loop);
     };

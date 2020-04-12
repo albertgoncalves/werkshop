@@ -19,7 +19,7 @@
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
-    var SPEED = 0.75;
+    var SPEED = 0.5;
     function setVerticalLine(canvas, buffer, x, yStart, yEnd) {
         var start = (yStart * canvas.width) + x;
         var end = (yEnd * canvas.width) + x;
@@ -225,34 +225,23 @@
             slopeEnd: 0.0
         });
     }
-    function doStep(canvas, mask, buffer, current, target, move, speed) {
+    function doJump(canvas, mask, buffer, current, target, move) {
         if ((current.x === target.x) && (current.y === target.y)) {
             return;
         }
-        move.x += speed.x;
-        move.y += speed.y;
-        var next = {
-            x: Math.round(move.x),
-            y: Math.round(move.y)
-        };
-        if ((current.x === next.x) && (current.y === next.y)) {
-            return;
-        }
-        var index = (next.y * canvas.width) + next.x;
+        var index = (target.y * canvas.width) + target.x;
         if (buffer[index] === WHITE) {
             buffer[(current.y * canvas.width) + current.x] = WHITE;
             buffer[index] = LIGHT_GRAY;
-            setMask(canvas, mask, buffer, next);
-            current.x = next.x;
-            current.y = next.y;
+            setMask(canvas, mask, buffer, target);
+            current.x = target.x;
+            current.y = target.y;
         }
         else {
-            speed.x = 0;
-            speed.y = 0;
+            target.x = current.x;
+            target.y = current.y;
             move.x = current.x;
             move.y = current.y;
-            target.x = current.y;
-            target.y = current.y;
         }
     }
     window.onload = function () {
@@ -276,61 +265,101 @@
             x: 0.0,
             y: 0.0
         };
-        var speed = {
-            x: 0.0,
-            y: 0.0
+        var keys = {
+            up: false,
+            down: false,
+            left: false,
+            right: false
         };
         canvas.addEventListener("mousedown", function (event) {
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-            speed.x = 0.0;
-            speed.y = 0.0;
-            if ((current.x !== x) && (current.y !== y)) {
-                var xDelta = x - current.x;
-                var yDelta = y - current.y;
-                var slope = Math.abs(yDelta / xDelta);
-                var ySlope = slope / (slope + 1);
-                var xSlope = 1.0 - ySlope;
-                if (current.x < x) {
-                    speed.x = xSlope * SPEED;
-                }
-                else {
-                    speed.x = -xSlope * SPEED;
-                }
-                if (current.y < y) {
-                    speed.y = ySlope * SPEED;
-                }
-                else {
-                    speed.y = -ySlope * SPEED;
-                }
-            }
-            else if ((current.x === x) && (current.y !== y)) {
-                if (current.y < y) {
-                    speed.y = SPEED;
-                }
-                else {
-                    speed.y = -SPEED;
-                }
-            }
-            else if ((current.x !== x) && (current.y === y)) {
-                if (current.x < x) {
-                    speed.x = SPEED;
-                }
-                else {
-                    speed.x = -SPEED;
-                }
-            }
-            else {
-                return;
-            }
             var index = (y * canvas.width) + x;
             if (mask[index] === OPAQUE) {
                 target.x = x;
                 target.y = y;
+                move.x = x;
+                move.y = y;
             }
             else {
                 target.x = current.x;
                 target.y = current.y;
+                move.x = current.x;
+                move.y = current.y;
+            }
+        });
+        canvas.setAttribute("tabindex", "0");
+        canvas.focus();
+        canvas.addEventListener("keydown", function (event) {
+            switch (event.code) {
+                case "ArrowUp": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.up = true;
+                    break;
+                }
+                case "ArrowDown": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.down = true;
+                    break;
+                }
+                case "ArrowLeft": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.left = true;
+                    break;
+                }
+                case "ArrowRight": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.right = true;
+                    break;
+                }
+            }
+        });
+        canvas.addEventListener("keyup", function (event) {
+            switch (event.code) {
+                case "ArrowUp": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.up = false;
+                    break;
+                }
+                case "ArrowDown": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.down = false;
+                    break;
+                }
+                case "ArrowLeft": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.left = false;
+                    break;
+                }
+                case "ArrowRight": {
+                    event.preventDefault();
+                    if (event.repeat) {
+                        return;
+                    }
+                    keys.right = false;
+                    break;
+                }
             }
         });
         {
@@ -361,8 +390,26 @@
             setMask(canvas, mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
+        var widthBound = canvas.width - 1;
+        var heightBound = canvas.height - 1;
         var loop = function () {
-            doStep(canvas, mask, buffer, current, target, move, speed);
+            if (keys.up && (0 < current.y)) {
+                move.y -= SPEED;
+            }
+            if (keys.down && (current.y < heightBound)) {
+                move.y += SPEED;
+            }
+            if (keys.left && (0 < current.x)) {
+                move.x -= SPEED;
+            }
+            if (keys.right && (current.x < widthBound)) {
+                move.x += SPEED;
+            }
+            if (keys.up || keys.down || keys.left || keys.right) {
+                target.x = Math.round(move.x);
+                target.y = Math.round(move.y);
+            }
+            doJump(canvas, mask, buffer, current, target, move);
             setImage(ctx, image, buffer, mask);
             requestAnimationFrame(loop);
         };
