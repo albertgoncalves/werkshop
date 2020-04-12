@@ -12,7 +12,6 @@
     "use strict";
     var DEBUG = true;
     var DARK_GRAY = 64;
-    var GRAY = 128;
     var WHITE = 255;
     var COLOR_R = 75;
     var COLOR_G = 155;

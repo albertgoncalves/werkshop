@@ -329,7 +329,7 @@ window.onload = function() {
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
-        switch (event.code) {
+        switch (event.key) {
         case "ArrowUp": {
             event.preventDefault();
             if (event.repeat) {
@@ -365,7 +365,7 @@ window.onload = function() {
         }
     });
     canvas.addEventListener("keyup", function(event: KeyboardEvent) {
-        switch (event.code) {
+        switch (event.key) {
         case "ArrowUp": {
             event.preventDefault();
             if (event.repeat) {

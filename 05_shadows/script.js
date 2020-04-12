@@ -294,7 +294,7 @@
         canvas.setAttribute("tabindex", "0");
         canvas.focus();
         canvas.addEventListener("keydown", function (event) {
-            switch (event.code) {
+            switch (event.key) {
                 case "ArrowUp": {
                     event.preventDefault();
                     if (event.repeat) {
@@ -330,7 +330,7 @@
             }
         });
         canvas.addEventListener("keyup", function (event) {
-            switch (event.code) {
+            switch (event.key) {
                 case "ArrowUp": {
                     event.preventDefault();
                     if (event.repeat) {
