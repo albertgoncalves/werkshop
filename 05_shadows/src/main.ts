@@ -279,10 +279,13 @@ window.onload = function() {
         document.getElementById("canvas") as HTMLCanvasElement;
     WIDTH = canvas.width;
     HEIGHT = canvas.height;
+    const n: number = WIDTH * HEIGHT;
+    if (n === 0) {
+        return;
+    }
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-    const n: number = WIDTH * HEIGHT;
     const image: ImageData = ctx.createImageData(WIDTH, HEIGHT);
     const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);

@@ -250,9 +250,12 @@
         var canvas = document.getElementById("canvas");
         WIDTH = canvas.width;
         HEIGHT = canvas.height;
+        var n = WIDTH * HEIGHT;
+        if (n === 0) {
+            return;
+        }
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-        var n = WIDTH * HEIGHT;
         var image = ctx.createImageData(WIDTH, HEIGHT);
         var buffer = new Uint8ClampedArray(n);
         var mask = new Uint8ClampedArray(n);
