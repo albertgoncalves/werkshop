@@ -135,5 +135,5 @@ window.onload = function() {
             drawCross(ctx, circle.x, circle.y, 0.035);
             ctx.stroke();
         }
-    });
+    }, false);
 };

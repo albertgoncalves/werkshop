@@ -322,7 +322,7 @@ window.onload = function() {
             move.x = current.x;
             move.y = current.y;
         }
-    });
+    }, false);
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
@@ -360,7 +360,7 @@ window.onload = function() {
             break;
         }
         }
-    });
+    }, false);
     canvas.addEventListener("keyup", function(event: KeyboardEvent) {
         switch (event.key) {
         case "ArrowUp": {
@@ -396,7 +396,7 @@ window.onload = function() {
             break;
         }
         }
-    });
+    }, false);
     {
         setVerticalLine(buffer, 6, 10, 15);
         setVerticalLine(buffer, 6, 19, 40);
