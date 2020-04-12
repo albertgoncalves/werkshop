@@ -11,12 +11,15 @@ const WALL: number = DARK_GRAY;
 const FLOOR: number = WHITE;
 const PLAYER: number = LIGHT_GRAY;
 
-const RADIUS: number = 64;
+const RADIUS: number = 91;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;
 
-const SPEED: number = 0.75;
+const SPEED: number = 0.65;
+
+let WIDTH: number = 0;
+let HEIGHT: number = 0;
 
 interface Coords {
     x: number;
@@ -38,19 +41,18 @@ interface Keys {
     right: boolean;
 }
 
-function setVerticalLine(canvas: HTMLCanvasElement, buffer: Uint8ClampedArray,
-                         x: number, yStart: number, yEnd: number) {
-    const start: number = (yStart * canvas.width) + x;
-    const end: number = (yEnd * canvas.width) + x;
-    for (let i: number = start; i <= end; i += canvas.width) {
+function setVerticalLine(buffer: Uint8ClampedArray, x: number, yStart: number,
+                         yEnd: number) {
+    const start: number = (yStart * WIDTH) + x;
+    const end: number = (yEnd * WIDTH) + x;
+    for (let i: number = start; i <= end; i += WIDTH) {
         buffer[i] = WALL;
     }
 }
 
-function setHorizontalLine(canvas: HTMLCanvasElement,
-                           buffer: Uint8ClampedArray, xStart: number,
+function setHorizontalLine(buffer: Uint8ClampedArray, xStart: number,
                            xEnd: number, y: number) {
-    const yWidth: number = y * canvas.width;
+    const yWidth: number = y * WIDTH;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
     for (let i: number = start; i <= end; i++) {
@@ -71,16 +73,13 @@ function setImage(ctx: CanvasRenderingContext2D, image: ImageData,
     ctx.putImageData(image, 0, 0);
 }
 
-function getBlocked(canvas: HTMLCanvasElement, buffer: Uint8ClampedArray,
-                    x: number, y: number) {
-    return ((x < 0) || (y < 0) || (canvas.width <= x) ||
-            (canvas.height <= y) ||
-            (buffer[(canvas.width * y) + x] !== FLOOR));
+function getBlocked(buffer: Uint8ClampedArray, x: number, y: number) {
+    return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
+            (buffer[(WIDTH * y) + x] !== FLOOR));
 }
 
-function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
-                       buffer: Uint8ClampedArray, current: Coords,
-                       octal: Octal) {
+function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+                       current: Coords, octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
         return;
     }
@@ -91,7 +90,7 @@ function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
         const y: number = current.y + (dY * octal.yMult);
         const yDelta: number = y - current.y;
         const yDeltaSquared: number = yDelta * yDelta;
-        const yWidth: number = y * canvas.width;
+        const yWidth: number = y * WIDTH;
         for (let dX: number = dY + 1; - 1 < dX; dX--) {
             const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
             if (octal.slopeStart < lSlope) {
@@ -104,13 +103,12 @@ function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
             const x: number = current.x + (dX * octal.xMult);
             const xDelta: number = x - current.x;
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
-                (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                (y < canvas.height))
+                (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
                 mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {
-                if (getBlocked(canvas, buffer, x, y)) {
+                if (getBlocked(buffer, x, y)) {
                     nextStart = lSlope;
                     continue;
                 } else {
@@ -118,9 +116,9 @@ function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(canvas, buffer, x, y)) && (dY < RADIUS)) {
+                if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
                     blocked = true;
-                    setMaskColRow(canvas, mask, buffer, current, {
+                    setMaskColRow(mask, buffer, current, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
                         loopStart: dY + 1,
@@ -137,9 +135,8 @@ function setMaskColRow(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
     }
 }
 
-function setMaskRowCol(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
-                       buffer: Uint8ClampedArray, current: Coords,
-                       octal: Octal) {
+function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+                       current: Coords, octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
         return;
     }
@@ -161,15 +158,14 @@ function setMaskRowCol(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
             }
             const y: number = current.y + (dY * octal.yMult);
             const yDelta: number = y - current.y;
-            const yWidth: number = y * canvas.width;
+            const yWidth: number = y * WIDTH;
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
-                (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                (y < canvas.height))
+                (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
                 mask[yWidth + x] = OPAQUE;
             }
             if (blocked) {
-                if (getBlocked(canvas, buffer, x, y)) {
+                if (getBlocked(buffer, x, y)) {
                     nextStart = lSlope;
                     continue;
                 } else {
@@ -177,9 +173,9 @@ function setMaskRowCol(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(canvas, buffer, x, y)) && (dX < RADIUS)) {
+                if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
                     blocked = true;
-                    setMaskRowCol(canvas, mask, buffer, current, {
+                    setMaskRowCol(mask, buffer, current, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
                         loopStart: dX + 1,
@@ -196,60 +192,60 @@ function setMaskRowCol(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
     }
 }
 
-function setMask(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
-                 buffer: Uint8ClampedArray, current: Coords) {
+function setMask(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+                 current: Coords) {
     mask.fill(TRANSPARENT);
-    mask[(current.y * canvas.width) + current.x] = OPAQUE;
-    setMaskColRow(canvas, mask, buffer, current, {
+    mask[(current.y * WIDTH) + current.x] = OPAQUE;
+    setMaskColRow(mask, buffer, current, {
         xMult: 1,
         yMult: 1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskColRow(canvas, mask, buffer, current, {
-        xMult: 1,
-        yMult: -1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskColRow(canvas, mask, buffer, current, {
-        xMult: -1,
-        yMult: 1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskColRow(canvas, mask, buffer, current, {
-        xMult: -1,
-        yMult: -1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskRowCol(canvas, mask, buffer, current, {
-        xMult: 1,
-        yMult: 1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskRowCol(canvas, mask, buffer, current, {
+    setMaskColRow(mask, buffer, current, {
         xMult: 1,
         yMult: -1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskRowCol(canvas, mask, buffer, current, {
+    setMaskColRow(mask, buffer, current, {
         xMult: -1,
         yMult: 1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskRowCol(canvas, mask, buffer, current, {
+    setMaskColRow(mask, buffer, current, {
+        xMult: -1,
+        yMult: -1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: 1,
+        yMult: 1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: 1,
+        yMult: -1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: -1,
+        yMult: 1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
         xMult: -1,
         yMult: -1,
         loopStart: 1,
@@ -258,17 +254,16 @@ function setMask(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
     });
 }
 
-function doJump(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
-                buffer: Uint8ClampedArray, current: Coords, target: Coords,
-                move: Coords) {
+function doJump(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+                current: Coords, target: Coords, move: Coords) {
     if ((current.x === target.x) && (current.y === target.y)) {
         return;
     }
-    const index: number = (target.y * canvas.width) + target.x;
+    const index: number = (target.y * WIDTH) + target.x;
     if (buffer[index] === FLOOR) {
-        buffer[(current.y * canvas.width) + current.x] = FLOOR;
+        buffer[(current.y * WIDTH) + current.x] = FLOOR;
         buffer[index] = PLAYER;
-        setMask(canvas, mask, buffer, target);
+        setMask(mask, buffer, target);
         current.x = target.x;
         current.y = target.y;
     } else {
@@ -282,11 +277,13 @@ function doJump(canvas: HTMLCanvasElement, mask: Uint8ClampedArray,
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
+    WIDTH = canvas.width;
+    HEIGHT = canvas.height;
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-    const n: number = canvas.width * canvas.height;
-    const image: ImageData = ctx.createImageData(canvas.width, canvas.height);
+    const n: number = WIDTH * HEIGHT;
+    const image: ImageData = ctx.createImageData(WIDTH, HEIGHT);
     const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
     buffer.fill(FLOOR);
@@ -313,7 +310,7 @@ window.onload = function() {
             (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-        const index: number = (y * canvas.width) + x;
+        const index: number = (y * WIDTH) + x;
         if (mask[index] === OPAQUE) {
             target.x = x;
             target.y = y;
@@ -401,20 +398,30 @@ window.onload = function() {
         }
     });
     {
-        setVerticalLine(canvas, buffer, 6, 10, 40);
-        setVerticalLine(canvas, buffer, 25, 10, 20);
-        setVerticalLine(canvas, buffer, 18, 8, 21);
-        setVerticalLine(canvas, buffer, 55, 3, 50);
-        setVerticalLine(canvas, buffer, 32, 30, 48);
-        setHorizontalLine(canvas, buffer, 7, 24, 5);
-        setHorizontalLine(canvas, buffer, 10, 31, 17);
-        setHorizontalLine(canvas, buffer, 12, 44, 26);
-        setHorizontalLine(canvas, buffer, 3, 24, 54);
-        setHorizontalLine(canvas, buffer, 27, 59, 56);
+        setVerticalLine(buffer, 6, 10, 15);
+        setVerticalLine(buffer, 6, 19, 40);
+        setVerticalLine(buffer, 18, 8, 21);
+        setVerticalLine(buffer, 25, 10, 20);
+        setVerticalLine(buffer, 32, 30, 40);
+        setVerticalLine(buffer, 32, 46, 51);
+        setVerticalLine(buffer, 45, 7, 11);
+        setVerticalLine(buffer, 45, 15, 21);
+        setVerticalLine(buffer, 55, 3, 10);
+        setVerticalLine(buffer, 55, 13, 20);
+        setVerticalLine(buffer, 55, 23, 29);
+        setVerticalLine(buffer, 55, 32, 37);
+        setVerticalLine(buffer, 55, 42, 50);
+        setHorizontalLine(buffer, 7, 24, 5);
+        setHorizontalLine(buffer, 10, 19, 17);
+        setHorizontalLine(buffer, 22, 31, 17);
+        setHorizontalLine(buffer, 12, 25, 26);
+        setHorizontalLine(buffer, 29, 44, 26);
+        setHorizontalLine(buffer, 3, 24, 54);
+        setHorizontalLine(buffer, 27, 59, 56);
         for (let _: number = 100; 0 < _; _--) {
-            const x: number = Math.floor(Math.random() * canvas.width);
-            const y: number = Math.floor(Math.random() * canvas.height);
-            const index = (y * canvas.width) + x;
+            const x: number = Math.floor(Math.random() * WIDTH);
+            const y: number = Math.floor(Math.random() * HEIGHT);
+            const index = (y * WIDTH) + x;
             if (buffer[index] === FLOOR) {
                 buffer[index] = PLAYER;
                 current.x = x;
@@ -426,11 +433,11 @@ window.onload = function() {
                 break;
             }
         }
-        setMask(canvas, mask, buffer, current);
+        setMask(mask, buffer, current);
         setImage(ctx, image, buffer, mask);
     }
-    const widthBound: number = canvas.width - 1;
-    const heightBound: number = canvas.height - 1;
+    const widthBound: number = WIDTH - 1;
+    const heightBound: number = HEIGHT - 1;
     const loop: () => void = function() {
         if (keys.up && (0 < current.y)) {
             move.y -= SPEED;
@@ -448,7 +455,7 @@ window.onload = function() {
             target.x = Math.round(move.x);
             target.y = Math.round(move.y);
         }
-        doJump(canvas, mask, buffer, current, target, move);
+        doJump(mask, buffer, current, target, move);
         setImage(ctx, image, buffer, mask);
         requestAnimationFrame(loop);
     };

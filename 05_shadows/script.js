@@ -19,19 +19,21 @@
     var WALL = DARK_GRAY;
     var FLOOR = WHITE;
     var PLAYER = LIGHT_GRAY;
-    var RADIUS = 64;
+    var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
-    var SPEED = 0.75;
-    function setVerticalLine(canvas, buffer, x, yStart, yEnd) {
-        var start = (yStart * canvas.width) + x;
-        var end = (yEnd * canvas.width) + x;
-        for (var i = start; i <= end; i += canvas.width) {
+    var SPEED = 0.65;
+    var WIDTH = 0;
+    var HEIGHT = 0;
+    function setVerticalLine(buffer, x, yStart, yEnd) {
+        var start = (yStart * WIDTH) + x;
+        var end = (yEnd * WIDTH) + x;
+        for (var i = start; i <= end; i += WIDTH) {
             buffer[i] = WALL;
         }
     }
-    function setHorizontalLine(canvas, buffer, xStart, xEnd, y) {
-        var yWidth = y * canvas.width;
+    function setHorizontalLine(buffer, xStart, xEnd, y) {
+        var yWidth = y * WIDTH;
         var start = yWidth + xStart;
         var end = yWidth + xEnd;
         for (var i = start; i <= end; i++) {
@@ -49,12 +51,11 @@
         }
         ctx.putImageData(image, 0, 0);
     }
-    function getBlocked(canvas, buffer, x, y) {
-        return ((x < 0) || (y < 0) || (canvas.width <= x) ||
-            (canvas.height <= y) ||
-            (buffer[(canvas.width * y) + x] !== FLOOR));
+    function getBlocked(buffer, x, y) {
+        return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
+            (buffer[(WIDTH * y) + x] !== FLOOR));
     }
-    function setMaskColRow(canvas, mask, buffer, current, octal) {
+    function setMaskColRow(mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
             return;
         }
@@ -65,7 +66,7 @@
             var y = current.y + (dY * octal.yMult);
             var yDelta = y - current.y;
             var yDeltaSquared = yDelta * yDelta;
-            var yWidth = y * canvas.width;
+            var yWidth = y * WIDTH;
             for (var dX = dY + 1; -1 < dX; dX--) {
                 var lSlope = (dX - APERTURE) / (dY + APERTURE);
                 if (octal.slopeStart < lSlope) {
@@ -78,12 +79,11 @@
                 var x = current.x + (dX * octal.xMult);
                 var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
-                    (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                    (y < canvas.height)) {
+                    (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
                     mask[yWidth + x] = OPAQUE;
                 }
                 if (blocked) {
-                    if (getBlocked(canvas, buffer, x, y)) {
+                    if (getBlocked(buffer, x, y)) {
                         nextStart = lSlope;
                         continue;
                     }
@@ -93,9 +93,9 @@
                     }
                 }
                 else {
-                    if ((getBlocked(canvas, buffer, x, y)) && (dY < RADIUS)) {
+                    if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
                         blocked = true;
-                        setMaskColRow(canvas, mask, buffer, current, {
+                        setMaskColRow(mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
                             loopStart: dY + 1,
@@ -111,7 +111,7 @@
             }
         }
     }
-    function setMaskRowCol(canvas, mask, buffer, current, octal) {
+    function setMaskRowCol(mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
             return;
         }
@@ -133,14 +133,13 @@
                 }
                 var y = current.y + (dY * octal.yMult);
                 var yDelta = y - current.y;
-                var yWidth = y * canvas.width;
+                var yWidth = y * WIDTH;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
-                    (0 <= x) && (x < canvas.width) && (0 <= y) &&
-                    (y < canvas.height)) {
+                    (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
                     mask[yWidth + x] = OPAQUE;
                 }
                 if (blocked) {
-                    if (getBlocked(canvas, buffer, x, y)) {
+                    if (getBlocked(buffer, x, y)) {
                         nextStart = lSlope;
                         continue;
                     }
@@ -150,9 +149,9 @@
                     }
                 }
                 else {
-                    if ((getBlocked(canvas, buffer, x, y)) && (dX < RADIUS)) {
+                    if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
                         blocked = true;
-                        setMaskRowCol(canvas, mask, buffer, current, {
+                        setMaskRowCol(mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
                             loopStart: dX + 1,
@@ -168,59 +167,59 @@
             }
         }
     }
-    function setMask(canvas, mask, buffer, current) {
+    function setMask(mask, buffer, current) {
         mask.fill(TRANSPARENT);
-        mask[(current.y * canvas.width) + current.x] = OPAQUE;
-        setMaskColRow(canvas, mask, buffer, current, {
+        mask[(current.y * WIDTH) + current.x] = OPAQUE;
+        setMaskColRow(mask, buffer, current, {
             xMult: 1,
             yMult: 1,
             loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskColRow(canvas, mask, buffer, current, {
-            xMult: 1,
-            yMult: -1,
-            loopStart: 1,
-            slopeStart: 1.0,
-            slopeEnd: 0.0
-        });
-        setMaskColRow(canvas, mask, buffer, current, {
-            xMult: -1,
-            yMult: 1,
-            loopStart: 1,
-            slopeStart: 1.0,
-            slopeEnd: 0.0
-        });
-        setMaskColRow(canvas, mask, buffer, current, {
-            xMult: -1,
-            yMult: -1,
-            loopStart: 1,
-            slopeStart: 1.0,
-            slopeEnd: 0.0
-        });
-        setMaskRowCol(canvas, mask, buffer, current, {
-            xMult: 1,
-            yMult: 1,
-            loopStart: 1,
-            slopeStart: 1.0,
-            slopeEnd: 0.0
-        });
-        setMaskRowCol(canvas, mask, buffer, current, {
+        setMaskColRow(mask, buffer, current, {
             xMult: 1,
             yMult: -1,
             loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, current, {
+        setMaskColRow(mask, buffer, current, {
             xMult: -1,
             yMult: 1,
             loopStart: 1,
             slopeStart: 1.0,
             slopeEnd: 0.0
         });
-        setMaskRowCol(canvas, mask, buffer, current, {
+        setMaskColRow(mask, buffer, current, {
+            xMult: -1,
+            yMult: -1,
+            loopStart: 1,
+            slopeStart: 1.0,
+            slopeEnd: 0.0
+        });
+        setMaskRowCol(mask, buffer, current, {
+            xMult: 1,
+            yMult: 1,
+            loopStart: 1,
+            slopeStart: 1.0,
+            slopeEnd: 0.0
+        });
+        setMaskRowCol(mask, buffer, current, {
+            xMult: 1,
+            yMult: -1,
+            loopStart: 1,
+            slopeStart: 1.0,
+            slopeEnd: 0.0
+        });
+        setMaskRowCol(mask, buffer, current, {
+            xMult: -1,
+            yMult: 1,
+            loopStart: 1,
+            slopeStart: 1.0,
+            slopeEnd: 0.0
+        });
+        setMaskRowCol(mask, buffer, current, {
             xMult: -1,
             yMult: -1,
             loopStart: 1,
@@ -228,15 +227,15 @@
             slopeEnd: 0.0
         });
     }
-    function doJump(canvas, mask, buffer, current, target, move) {
+    function doJump(mask, buffer, current, target, move) {
         if ((current.x === target.x) && (current.y === target.y)) {
             return;
         }
-        var index = (target.y * canvas.width) + target.x;
+        var index = (target.y * WIDTH) + target.x;
         if (buffer[index] === FLOOR) {
-            buffer[(current.y * canvas.width) + current.x] = FLOOR;
+            buffer[(current.y * WIDTH) + current.x] = FLOOR;
             buffer[index] = PLAYER;
-            setMask(canvas, mask, buffer, target);
+            setMask(mask, buffer, target);
             current.x = target.x;
             current.y = target.y;
         }
@@ -249,10 +248,12 @@
     }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
+        WIDTH = canvas.width;
+        HEIGHT = canvas.height;
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-        var n = canvas.width * canvas.height;
-        var image = ctx.createImageData(canvas.width, canvas.height);
+        var n = WIDTH * HEIGHT;
+        var image = ctx.createImageData(WIDTH, HEIGHT);
         var buffer = new Uint8ClampedArray(n);
         var mask = new Uint8ClampedArray(n);
         buffer.fill(FLOOR);
@@ -277,7 +278,7 @@
         canvas.addEventListener("mousedown", function (event) {
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-            var index = (y * canvas.width) + x;
+            var index = (y * WIDTH) + x;
             if (mask[index] === OPAQUE) {
                 target.x = x;
                 target.y = y;
@@ -366,20 +367,30 @@
             }
         });
         {
-            setVerticalLine(canvas, buffer, 6, 10, 40);
-            setVerticalLine(canvas, buffer, 25, 10, 20);
-            setVerticalLine(canvas, buffer, 18, 8, 21);
-            setVerticalLine(canvas, buffer, 55, 3, 50);
-            setVerticalLine(canvas, buffer, 32, 30, 48);
-            setHorizontalLine(canvas, buffer, 7, 24, 5);
-            setHorizontalLine(canvas, buffer, 10, 31, 17);
-            setHorizontalLine(canvas, buffer, 12, 44, 26);
-            setHorizontalLine(canvas, buffer, 3, 24, 54);
-            setHorizontalLine(canvas, buffer, 27, 59, 56);
+            setVerticalLine(buffer, 6, 10, 15);
+            setVerticalLine(buffer, 6, 19, 40);
+            setVerticalLine(buffer, 18, 8, 21);
+            setVerticalLine(buffer, 25, 10, 20);
+            setVerticalLine(buffer, 32, 30, 40);
+            setVerticalLine(buffer, 32, 46, 51);
+            setVerticalLine(buffer, 45, 7, 11);
+            setVerticalLine(buffer, 45, 15, 21);
+            setVerticalLine(buffer, 55, 3, 10);
+            setVerticalLine(buffer, 55, 13, 20);
+            setVerticalLine(buffer, 55, 23, 29);
+            setVerticalLine(buffer, 55, 32, 37);
+            setVerticalLine(buffer, 55, 42, 50);
+            setHorizontalLine(buffer, 7, 24, 5);
+            setHorizontalLine(buffer, 10, 19, 17);
+            setHorizontalLine(buffer, 22, 31, 17);
+            setHorizontalLine(buffer, 12, 25, 26);
+            setHorizontalLine(buffer, 29, 44, 26);
+            setHorizontalLine(buffer, 3, 24, 54);
+            setHorizontalLine(buffer, 27, 59, 56);
             for (var _ = 100; 0 < _; _--) {
-                var x = Math.floor(Math.random() * canvas.width);
-                var y = Math.floor(Math.random() * canvas.height);
-                var index = (y * canvas.width) + x;
+                var x = Math.floor(Math.random() * WIDTH);
+                var y = Math.floor(Math.random() * HEIGHT);
+                var index = (y * WIDTH) + x;
                 if (buffer[index] === FLOOR) {
                     buffer[index] = PLAYER;
                     current.x = x;
@@ -391,11 +402,11 @@
                     break;
                 }
             }
-            setMask(canvas, mask, buffer, current);
+            setMask(mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
-        var widthBound = canvas.width - 1;
-        var heightBound = canvas.height - 1;
+        var widthBound = WIDTH - 1;
+        var heightBound = HEIGHT - 1;
         var loop = function () {
             if (keys.up && (0 < current.y)) {
                 move.y -= SPEED;
@@ -413,7 +424,7 @@
                 target.x = Math.round(move.x);
                 target.y = Math.round(move.y);
             }
-            doJump(canvas, mask, buffer, current, target, move);
+            doJump(mask, buffer, current, target, move);
             setImage(ctx, image, buffer, mask);
             requestAnimationFrame(loop);
         };
