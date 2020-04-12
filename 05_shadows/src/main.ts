@@ -1,25 +1,13 @@
-const CANVAS_SCALE: number = 3;
+interface Alpha {
+    opaque: number;
+    transparent: number;
+}
 
-const OPAQUE: number = 255;
-const TRANSPARENT: number = 40;
-
-const DARK_GRAY: number = 112;
-const LIGHT_GRAY: number = 224;
-const WHITE: number = 255;
-
-const WALL: number = DARK_GRAY;
-const FLOOR: number = WHITE;
-const PLAYER: number = LIGHT_GRAY;
-
-const RADIUS: number = 91;
-const RADIUS_SQUARED: number = RADIUS * RADIUS;
-
-const APERTURE: number = 0.499;
-
-const SPEED: number = 0.65;
-
-let WIDTH: number = 0;
-let HEIGHT: number = 0;
+interface Color {
+    darkGray: number;
+    lightGray: number;
+    white: number;
+}
 
 interface Coords {
     x: number;
@@ -41,12 +29,42 @@ interface Keys {
     right: boolean;
 }
 
+const CANVAS_SCALE: number = 3;
+
+const ALPHA: Alpha = {
+    opaque: 255,
+    transparent: 40,
+};
+
+const COLOR: Color = {
+    darkGray: 112,
+    lightGray: 224,
+    white: 255,
+};
+
+const VISIBLE: number = ALPHA.opaque;
+const HIDDEN: number = ALPHA.transparent;
+
+const BLOCK: number = COLOR.darkGray;
+const EMPTY: number = COLOR.white;
+const PLAYER: number = COLOR.lightGray;
+
+const RADIUS: number = 91;
+const RADIUS_SQUARED: number = RADIUS * RADIUS;
+
+const APERTURE: number = 0.499;
+
+const SPEED: number = 0.65;
+
+let WIDTH: number = 0;
+let HEIGHT: number = 0;
+
 function setVerticalLine(buffer: Uint8ClampedArray, x: number, yStart: number,
                          yEnd: number) {
     const start: number = (yStart * WIDTH) + x;
     const end: number = (yEnd * WIDTH) + x;
     for (let i: number = start; i <= end; i += WIDTH) {
-        buffer[i] = WALL;
+        buffer[i] = BLOCK;
     }
 }
 
@@ -56,7 +74,7 @@ function setHorizontalLine(buffer: Uint8ClampedArray, xStart: number,
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
     for (let i: number = start; i <= end; i++) {
-        buffer[i] = WALL;
+        buffer[i] = BLOCK;
     }
 }
 
@@ -75,7 +93,7 @@ function setImage(ctx: CanvasRenderingContext2D, image: ImageData,
 
 function getBlocked(buffer: Uint8ClampedArray, x: number, y: number) {
     return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
-            (buffer[(WIDTH * y) + x] !== FLOOR));
+            (buffer[(WIDTH * y) + x] !== EMPTY));
 }
 
 function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
@@ -105,7 +123,7 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
-                mask[yWidth + x] = OPAQUE;
+                mask[yWidth + x] = VISIBLE;
             }
             if (blocked) {
                 if (getBlocked(buffer, x, y)) {
@@ -162,7 +180,7 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
-                mask[yWidth + x] = OPAQUE;
+                mask[yWidth + x] = VISIBLE;
             }
             if (blocked) {
                 if (getBlocked(buffer, x, y)) {
@@ -194,8 +212,8 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
 
 function setMask(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                  current: Coords) {
-    mask.fill(TRANSPARENT);
-    mask[(current.y * WIDTH) + current.x] = OPAQUE;
+    mask.fill(HIDDEN);
+    mask[(current.y * WIDTH) + current.x] = VISIBLE;
     setMaskColRow(mask, buffer, current, {
         xMult: 1,
         yMult: 1,
@@ -260,8 +278,8 @@ function doJump(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         return;
     }
     const index: number = (target.y * WIDTH) + target.x;
-    if (buffer[index] === FLOOR) {
-        buffer[(current.y * WIDTH) + current.x] = FLOOR;
+    if (buffer[index] === EMPTY) {
+        buffer[(current.y * WIDTH) + current.x] = EMPTY;
         buffer[index] = PLAYER;
         setMask(mask, buffer, target);
         current.x = target.x;
@@ -287,9 +305,9 @@ window.onload = function() {
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     const image: ImageData = ctx.createImageData(WIDTH, HEIGHT);
-    const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
-    buffer.fill(FLOOR);
+    const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
+    buffer.fill(EMPTY);
     const current: Coords = {
         x: 0,
         y: 0,
@@ -314,7 +332,7 @@ window.onload = function() {
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
         const index: number = (y * WIDTH) + x;
-        if (mask[index] === OPAQUE) {
+        if (mask[index] === VISIBLE) {
             target.x = x;
             target.y = y;
             move.x = x;
@@ -425,7 +443,7 @@ window.onload = function() {
             const x: number = Math.floor(Math.random() * WIDTH);
             const y: number = Math.floor(Math.random() * HEIGHT);
             const index = (y * WIDTH) + x;
-            if (buffer[index] === FLOOR) {
+            if (buffer[index] === EMPTY) {
                 buffer[index] = PLAYER;
                 current.x = x;
                 current.y = y;

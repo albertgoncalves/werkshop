@@ -11,14 +11,20 @@
     });
     "use strict";
     var CANVAS_SCALE = 3;
-    var OPAQUE = 255;
-    var TRANSPARENT = 40;
-    var DARK_GRAY = 112;
-    var LIGHT_GRAY = 224;
-    var WHITE = 255;
-    var WALL = DARK_GRAY;
-    var FLOOR = WHITE;
-    var PLAYER = LIGHT_GRAY;
+    var ALPHA = {
+        opaque: 255,
+        transparent: 40
+    };
+    var COLOR = {
+        darkGray: 112,
+        lightGray: 224,
+        white: 255
+    };
+    var VISIBLE = ALPHA.opaque;
+    var HIDDEN = ALPHA.transparent;
+    var BLOCK = COLOR.darkGray;
+    var EMPTY = COLOR.white;
+    var PLAYER = COLOR.lightGray;
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
@@ -29,7 +35,7 @@
         var start = (yStart * WIDTH) + x;
         var end = (yEnd * WIDTH) + x;
         for (var i = start; i <= end; i += WIDTH) {
-            buffer[i] = WALL;
+            buffer[i] = BLOCK;
         }
     }
     function setHorizontalLine(buffer, xStart, xEnd, y) {
@@ -37,7 +43,7 @@
         var start = yWidth + xStart;
         var end = yWidth + xEnd;
         for (var i = start; i <= end; i++) {
-            buffer[i] = WALL;
+            buffer[i] = BLOCK;
         }
     }
     function setImage(ctx, image, buffer, mask) {
@@ -53,7 +59,7 @@
     }
     function getBlocked(buffer, x, y) {
         return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
-            (buffer[(WIDTH * y) + x] !== FLOOR));
+            (buffer[(WIDTH * y) + x] !== EMPTY));
     }
     function setMaskColRow(mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
@@ -80,7 +86,7 @@
                 var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
-                    mask[yWidth + x] = OPAQUE;
+                    mask[yWidth + x] = VISIBLE;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, x, y)) {
@@ -136,7 +142,7 @@
                 var yWidth = y * WIDTH;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
-                    mask[yWidth + x] = OPAQUE;
+                    mask[yWidth + x] = VISIBLE;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, x, y)) {
@@ -168,8 +174,8 @@
         }
     }
     function setMask(mask, buffer, current) {
-        mask.fill(TRANSPARENT);
-        mask[(current.y * WIDTH) + current.x] = OPAQUE;
+        mask.fill(HIDDEN);
+        mask[(current.y * WIDTH) + current.x] = VISIBLE;
         setMaskColRow(mask, buffer, current, {
             xMult: 1,
             yMult: 1,
@@ -232,8 +238,8 @@
             return;
         }
         var index = (target.y * WIDTH) + target.x;
-        if (buffer[index] === FLOOR) {
-            buffer[(current.y * WIDTH) + current.x] = FLOOR;
+        if (buffer[index] === EMPTY) {
+            buffer[(current.y * WIDTH) + current.x] = EMPTY;
             buffer[index] = PLAYER;
             setMask(mask, buffer, target);
             current.x = target.x;
@@ -257,9 +263,9 @@
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
         var image = ctx.createImageData(WIDTH, HEIGHT);
-        var buffer = new Uint8ClampedArray(n);
         var mask = new Uint8ClampedArray(n);
-        buffer.fill(FLOOR);
+        var buffer = new Uint8ClampedArray(n);
+        buffer.fill(EMPTY);
         var current = {
             x: 0,
             y: 0
@@ -282,7 +288,7 @@
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
             var index = (y * WIDTH) + x;
-            if (mask[index] === OPAQUE) {
+            if (mask[index] === VISIBLE) {
                 target.x = x;
                 target.y = y;
                 move.x = x;
@@ -394,7 +400,7 @@
                 var x = Math.floor(Math.random() * WIDTH);
                 var y = Math.floor(Math.random() * HEIGHT);
                 var index = (y * WIDTH) + x;
-                if (buffer[index] === FLOOR) {
+                if (buffer[index] === EMPTY) {
                     buffer[index] = PLAYER;
                     current.x = x;
                     current.y = y;
