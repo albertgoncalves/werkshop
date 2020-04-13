@@ -22,7 +22,7 @@ interface Octal {
     slopeEnd: number;
 }
 
-interface Keys {
+interface Directions {
     up: boolean;
     down: boolean;
     left: boolean;
@@ -58,11 +58,13 @@ const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.499;
 
-const SPEED: number = 0.65;
+const SPEED: number = 0.6;
 const FRAME_MS: number = (1 / 60) * 1000;
 
 let WIDTH: number = 0;
 let HEIGHT: number = 0;
+let WIDTH_BOUND: number = 0;
+let HEIGHT_BOUND: number = 0;
 
 function setVerticalLine(buffer: Uint8ClampedArray, x: number, yStart: number,
                          yEnd: number) {
@@ -282,6 +284,8 @@ window.onload = function() {
         document.getElementById("canvas") as HTMLCanvasElement;
     WIDTH = canvas.width;
     HEIGHT = canvas.height;
+    WIDTH_BOUND = WIDTH - 1;
+    HEIGHT_BOUND = HEIGHT - 1;
     const n: number = WIDTH * HEIGHT;
     if (n === 0) {
         return;
@@ -308,7 +312,7 @@ window.onload = function() {
     const state: State = {
         time: null,
     };
-    const keys: Keys = {
+    const keys: Directions = {
         up: false,
         down: false,
         left: false,
@@ -320,7 +324,7 @@ window.onload = function() {
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
         const index: number = (y * WIDTH) + x;
-        if (mask[index] === VISIBLE) {
+        if ((buffer[index] === EMPTY) && (mask[index] === VISIBLE)) {
             target.x = x;
             target.y = y;
             move.x = x;
@@ -445,24 +449,34 @@ window.onload = function() {
         setMask(mask, buffer, current);
         setImage(ctx, image, buffer, mask);
     }
-    const widthBound: number = WIDTH - 1;
-    const heightBound: number = HEIGHT - 1;
     const loop: (t: number) => void = function(t: number) {
         if (keys.up || keys.down || keys.left || keys.right) {
             let speed: number = SPEED;
             if ((state.time !== null) && (state.time < t)) {
                 speed = ((t - state.time) / FRAME_MS) * SPEED;
             }
-            if (keys.up && (0 < current.y)) {
+            if (keys.up &&
+                (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY) &&
+                (0 < current.y))
+            {
                 move.y -= speed;
             }
-            if (keys.down && (current.y < heightBound)) {
+            if (keys.down &&
+                (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY) &&
+                (current.y < HEIGHT_BOUND))
+            {
                 move.y += speed;
             }
-            if (keys.left && (0 < current.x)) {
+            if (keys.left &&
+                (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY) &&
+                (0 < current.x))
+            {
                 move.x -= speed;
             }
-            if (keys.right && (current.x < widthBound)) {
+            if (keys.right &&
+                (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY) &&
+                (current.x < WIDTH_BOUND))
+            {
                 move.x += speed;
             }
             target.x = Math.round(move.x);
@@ -472,19 +486,11 @@ window.onload = function() {
             move.y = current.y;
         }
         if ((target.x !== current.x) || (target.y !== current.y)) {
-            const index: number = (target.y * WIDTH) + target.x;
-            if (buffer[index] === EMPTY) {
-                buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                buffer[index] = PLAYER;
-                setMask(mask, buffer, target);
-                current.x = target.x;
-                current.y = target.y;
-            } else {
-                target.x = current.x;
-                target.y = current.y;
-                move.x = current.x;
-                move.y = current.y;
-            }
+            buffer[(current.y * WIDTH) + current.x] = EMPTY;
+            buffer[(target.y * WIDTH) + target.x] = PLAYER;
+            setMask(mask, buffer, target);
+            current.x = target.x;
+            current.y = target.y;
         }
         setImage(ctx, image, buffer, mask);
         state.time = t;

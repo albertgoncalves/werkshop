@@ -28,10 +28,12 @@
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
-    var SPEED = 0.65;
+    var SPEED = 0.6;
     var FRAME_MS = (1 / 60) * 1000;
     var WIDTH = 0;
     var HEIGHT = 0;
+    var WIDTH_BOUND = 0;
+    var HEIGHT_BOUND = 0;
     function setVerticalLine(buffer, x, yStart, yEnd) {
         var start = (yStart * WIDTH) + x;
         var end = (yEnd * WIDTH) + x;
@@ -238,6 +240,8 @@
         var canvas = document.getElementById("canvas");
         WIDTH = canvas.width;
         HEIGHT = canvas.height;
+        WIDTH_BOUND = WIDTH - 1;
+        HEIGHT_BOUND = HEIGHT - 1;
         var n = WIDTH * HEIGHT;
         if (n === 0) {
             return;
@@ -273,7 +277,7 @@
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
             var index = (y * WIDTH) + x;
-            if (mask[index] === VISIBLE) {
+            if ((buffer[index] === EMPTY) && (mask[index] === VISIBLE)) {
                 target.x = x;
                 target.y = y;
                 move.x = x;
@@ -399,24 +403,30 @@
             setMask(mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
-        var widthBound = WIDTH - 1;
-        var heightBound = HEIGHT - 1;
         var loop = function (t) {
             if (keys.up || keys.down || keys.left || keys.right) {
                 var speed = SPEED;
                 if ((state.time !== null) && (state.time < t)) {
                     speed = ((t - state.time) / FRAME_MS) * SPEED;
                 }
-                if (keys.up && (0 < current.y)) {
+                if (keys.up &&
+                    (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY) &&
+                    (0 < current.y)) {
                     move.y -= speed;
                 }
-                if (keys.down && (current.y < heightBound)) {
+                if (keys.down &&
+                    (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY) &&
+                    (current.y < HEIGHT_BOUND)) {
                     move.y += speed;
                 }
-                if (keys.left && (0 < current.x)) {
+                if (keys.left &&
+                    (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY) &&
+                    (0 < current.x)) {
                     move.x -= speed;
                 }
-                if (keys.right && (current.x < widthBound)) {
+                if (keys.right &&
+                    (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY) &&
+                    (current.x < WIDTH_BOUND)) {
                     move.x += speed;
                 }
                 target.x = Math.round(move.x);
@@ -427,20 +437,11 @@
                 move.y = current.y;
             }
             if ((target.x !== current.x) || (target.y !== current.y)) {
-                var index = (target.y * WIDTH) + target.x;
-                if (buffer[index] === EMPTY) {
-                    buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                    buffer[index] = PLAYER;
-                    setMask(mask, buffer, target);
-                    current.x = target.x;
-                    current.y = target.y;
-                }
-                else {
-                    target.x = current.x;
-                    target.y = current.y;
-                    move.x = current.x;
-                    move.y = current.y;
-                }
+                buffer[(current.y * WIDTH) + current.x] = EMPTY;
+                buffer[(target.y * WIDTH) + target.x] = PLAYER;
+                setMask(mask, buffer, target);
+                current.x = target.x;
+                current.y = target.y;
             }
             setImage(ctx, image, buffer, mask);
             state.time = t;
