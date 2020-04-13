@@ -29,6 +29,7 @@
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.499;
     var SPEED = 0.65;
+    var FRAME_MS = (1 / 60) * 1000;
     var WIDTH = 0;
     var HEIGHT = 0;
     function setVerticalLine(buffer, x, yStart, yEnd) {
@@ -278,6 +279,9 @@
             x: 0.0,
             y: 0.0
         };
+        var state = {
+            time: null
+        };
         var keys = {
             up: false,
             down: false,
@@ -416,28 +420,33 @@
         }
         var widthBound = WIDTH - 1;
         var heightBound = HEIGHT - 1;
-        var loop = function () {
-            if (keys.up && (0 < current.y)) {
-                move.y -= SPEED;
-            }
-            if (keys.down && (current.y < heightBound)) {
-                move.y += SPEED;
-            }
-            if (keys.left && (0 < current.x)) {
-                move.x -= SPEED;
-            }
-            if (keys.right && (current.x < widthBound)) {
-                move.x += SPEED;
-            }
+        var loop = function (t) {
             if (keys.up || keys.down || keys.left || keys.right) {
+                var speed = SPEED;
+                if ((state.time !== null) && (state.time < t)) {
+                    speed = ((t - state.time) / FRAME_MS) * SPEED;
+                }
+                if (keys.up && (0 < current.y)) {
+                    move.y -= speed;
+                }
+                if (keys.down && (current.y < heightBound)) {
+                    move.y += speed;
+                }
+                if (keys.left && (0 < current.x)) {
+                    move.x -= speed;
+                }
+                if (keys.right && (current.x < widthBound)) {
+                    move.x += speed;
+                }
                 target.x = Math.round(move.x);
                 target.y = Math.round(move.y);
             }
             doJump(mask, buffer, current, target, move);
             setImage(ctx, image, buffer, mask);
+            state.time = t;
             requestAnimationFrame(loop);
         };
-        loop();
+        loop(0);
     };
     
     'marker:resolver';

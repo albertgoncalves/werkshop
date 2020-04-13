@@ -29,6 +29,10 @@ interface Keys {
     right: boolean;
 }
 
+interface State {
+    time: number|null;
+}
+
 const CANVAS_SCALE: number = 3;
 
 const ALPHA: Alpha = {
@@ -55,6 +59,7 @@ const RADIUS_SQUARED: number = RADIUS * RADIUS;
 const APERTURE: number = 0.499;
 
 const SPEED: number = 0.65;
+const FRAME_MS: number = (1 / 60) * 1000;
 
 let WIDTH: number = 0;
 let HEIGHT: number = 0;
@@ -320,6 +325,9 @@ window.onload = function() {
         x: 0.0,
         y: 0.0,
     };
+    const state: State = {
+        time: null,
+    };
     const keys: Keys = {
         up: false,
         down: false,
@@ -459,26 +467,31 @@ window.onload = function() {
     }
     const widthBound: number = WIDTH - 1;
     const heightBound: number = HEIGHT - 1;
-    const loop: () => void = function() {
-        if (keys.up && (0 < current.y)) {
-            move.y -= SPEED;
-        }
-        if (keys.down && (current.y < heightBound)) {
-            move.y += SPEED;
-        }
-        if (keys.left && (0 < current.x)) {
-            move.x -= SPEED;
-        }
-        if (keys.right && (current.x < widthBound)) {
-            move.x += SPEED;
-        }
+    const loop: (t: number) => void = function(t: number) {
         if (keys.up || keys.down || keys.left || keys.right) {
+            let speed: number = SPEED;
+            if ((state.time !== null) && (state.time < t)) {
+                speed = ((t - state.time) / FRAME_MS) * SPEED;
+            }
+            if (keys.up && (0 < current.y)) {
+                move.y -= speed;
+            }
+            if (keys.down && (current.y < heightBound)) {
+                move.y += speed;
+            }
+            if (keys.left && (0 < current.x)) {
+                move.x -= speed;
+            }
+            if (keys.right && (current.x < widthBound)) {
+                move.x += speed;
+            }
             target.x = Math.round(move.x);
             target.y = Math.round(move.y);
         }
         doJump(mask, buffer, current, target, move);
         setImage(ctx, image, buffer, mask);
+        state.time = t;
         requestAnimationFrame(loop);
     };
-    loop();
+    loop(0);
 };
