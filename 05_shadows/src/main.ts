@@ -277,26 +277,6 @@ function setMask(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     });
 }
 
-function doJump(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
-                current: Coords, target: Coords, move: Coords) {
-    if ((current.x === target.x) && (current.y === target.y)) {
-        return;
-    }
-    const index: number = (target.y * WIDTH) + target.x;
-    if (buffer[index] === EMPTY) {
-        buffer[(current.y * WIDTH) + current.x] = EMPTY;
-        buffer[index] = PLAYER;
-        setMask(mask, buffer, target);
-        current.x = target.x;
-        current.y = target.y;
-    } else {
-        target.x = current.x;
-        target.y = current.y;
-        move.x = current.x;
-        move.y = current.y;
-    }
-}
-
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
@@ -487,8 +467,25 @@ window.onload = function() {
             }
             target.x = Math.round(move.x);
             target.y = Math.round(move.y);
+        } else if ((move.x !== current.x) || (move.y !== current.y)) {
+            move.x = current.x;
+            move.y = current.y;
         }
-        doJump(mask, buffer, current, target, move);
+        if ((target.x !== current.x) || (target.y !== current.y)) {
+            const index: number = (target.y * WIDTH) + target.x;
+            if (buffer[index] === EMPTY) {
+                buffer[(current.y * WIDTH) + current.x] = EMPTY;
+                buffer[index] = PLAYER;
+                setMask(mask, buffer, target);
+                current.x = target.x;
+                current.y = target.y;
+            } else {
+                target.x = current.x;
+                target.y = current.y;
+                move.x = current.x;
+                move.y = current.y;
+            }
+        }
         setImage(ctx, image, buffer, mask);
         state.time = t;
         requestAnimationFrame(loop);

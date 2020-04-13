@@ -234,25 +234,6 @@
             slopeEnd: 0.0
         });
     }
-    function doJump(mask, buffer, current, target, move) {
-        if ((current.x === target.x) && (current.y === target.y)) {
-            return;
-        }
-        var index = (target.y * WIDTH) + target.x;
-        if (buffer[index] === EMPTY) {
-            buffer[(current.y * WIDTH) + current.x] = EMPTY;
-            buffer[index] = PLAYER;
-            setMask(mask, buffer, target);
-            current.x = target.x;
-            current.y = target.y;
-        }
-        else {
-            target.x = current.x;
-            target.y = current.y;
-            move.x = current.x;
-            move.y = current.y;
-        }
-    }
     window.onload = function () {
         var canvas = document.getElementById("canvas");
         WIDTH = canvas.width;
@@ -441,7 +422,26 @@
                 target.x = Math.round(move.x);
                 target.y = Math.round(move.y);
             }
-            doJump(mask, buffer, current, target, move);
+            else if ((move.x !== current.x) || (move.y !== current.y)) {
+                move.x = current.x;
+                move.y = current.y;
+            }
+            if ((target.x !== current.x) || (target.y !== current.y)) {
+                var index = (target.y * WIDTH) + target.x;
+                if (buffer[index] === EMPTY) {
+                    buffer[(current.y * WIDTH) + current.x] = EMPTY;
+                    buffer[index] = PLAYER;
+                    setMask(mask, buffer, target);
+                    current.x = target.x;
+                    current.y = target.y;
+                }
+                else {
+                    target.x = current.x;
+                    target.y = current.y;
+                    move.x = current.x;
+                    move.y = current.y;
+                }
+            }
             setImage(ctx, image, buffer, mask);
             state.time = t;
             requestAnimationFrame(loop);
