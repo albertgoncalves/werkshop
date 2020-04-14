@@ -27,7 +27,7 @@
     var PLAYER = COLOR.lightGray;
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
-    var APERTURE = 0.45;
+    var APERTURE = 0.5;
     var SPEED = 0.6;
     var FRAME_MS = (1 / 60) * 1000;
     var WIDTH = 0;
@@ -86,6 +86,13 @@
                     break;
                 }
                 var x = current.x + (dX * octal.xMult);
+                var xOffset = x - octal.xMult;
+                var yOffset = (y - octal.yMult) * WIDTH;
+                if ((mask[yOffset + x] !== VISIBLE) &&
+                    (mask[yWidth + xOffset] !== VISIBLE) &&
+                    (mask[yOffset + xOffset] !== VISIBLE)) {
+                    return;
+                }
                 var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
@@ -141,8 +148,15 @@
                     break;
                 }
                 var y = current.y + (dY * octal.yMult);
-                var yDelta = y - current.y;
                 var yWidth = y * WIDTH;
+                var xOffset = x - octal.xMult;
+                var yOffset = (y - octal.yMult) * WIDTH;
+                if ((mask[yOffset + x] !== VISIBLE) &&
+                    (mask[yWidth + xOffset] !== VISIBLE) &&
+                    (mask[yOffset + xOffset] !== VISIBLE)) {
+                    return;
+                }
+                var yDelta = y - current.y;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
                     mask[yWidth + x] = VISIBLE;

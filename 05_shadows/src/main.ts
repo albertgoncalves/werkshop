@@ -56,7 +56,7 @@ const PLAYER: number = COLOR.lightGray;
 const RADIUS: number = 91;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
-const APERTURE: number = 0.45;
+const APERTURE: number = 0.5;
 
 const SPEED: number = 0.6;
 const FRAME_MS: number = (1 / 60) * 1000;
@@ -98,7 +98,7 @@ function setImage(ctx: CanvasRenderingContext2D, image: ImageData,
     ctx.putImageData(image, 0, 0);
 }
 
-function getBlocked(buffer: Uint8ClampedArray, x: number, y: number) {
+function getBlocked(buffer: Uint8ClampedArray, x: number, y: number): boolean {
     return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
             (buffer[(WIDTH * y) + x] !== EMPTY));
 }
@@ -126,6 +126,14 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                 break;
             }
             const x: number = current.x + (dX * octal.xMult);
+            const xOffset: number = x - octal.xMult;
+            const yOffset: number = (y - octal.yMult) * WIDTH;
+            if ((mask[yOffset + x] !== VISIBLE) &&
+                (mask[yWidth + xOffset] !== VISIBLE) &&
+                (mask[yOffset + xOffset] !== VISIBLE))
+            {
+                return;
+            }
             const xDelta: number = x - current.x;
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
@@ -182,8 +190,16 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                 break;
             }
             const y: number = current.y + (dY * octal.yMult);
-            const yDelta: number = y - current.y;
             const yWidth: number = y * WIDTH;
+            const xOffset: number = x - octal.xMult;
+            const yOffset: number = (y - octal.yMult) * WIDTH;
+            if ((mask[yOffset + x] !== VISIBLE) &&
+                (mask[yWidth + xOffset] !== VISIBLE) &&
+                (mask[yOffset + xOffset] !== VISIBLE))
+            {
+                return;
+            }
+            const yDelta: number = y - current.y;
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
