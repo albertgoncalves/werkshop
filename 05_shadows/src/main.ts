@@ -56,7 +56,7 @@ const PLAYER: number = COLOR.lightGray;
 const RADIUS: number = 91;
 const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
-const APERTURE: number = 0.499;
+const APERTURE: number = 0.45;
 
 const SPEED: number = 0.6;
 const FRAME_MS: number = (1 / 60) * 1000;

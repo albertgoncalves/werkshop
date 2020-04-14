@@ -27,7 +27,7 @@
     var PLAYER = COLOR.lightGray;
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
-    var APERTURE = 0.499;
+    var APERTURE = 0.45;
     var SPEED = 0.6;
     var FRAME_MS = (1 / 60) * 1000;
     var WIDTH = 0;
