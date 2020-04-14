@@ -283,12 +283,6 @@
                 move.x = x;
                 move.y = y;
             }
-            else {
-                target.x = current.x;
-                target.y = current.y;
-                move.x = current.x;
-                move.y = current.y;
-            }
         }, false);
         canvas.setAttribute("tabindex", "0");
         canvas.focus();
