@@ -450,27 +450,23 @@ window.onload = function() {
             if ((state.time !== null) && (state.time < t)) {
                 speed = ((t - state.time) / FRAME_MS) * SPEED;
             }
-            if (keys.up &&
-                (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY) &&
-                (0 < current.y))
+            if (keys.up && (0 < current.y) &&
+                (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY))
             {
                 move.y -= speed;
             }
-            if (keys.down &&
-                (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY) &&
-                (current.y < HEIGHT_BOUND))
+            if (keys.down && (current.y < HEIGHT_BOUND) &&
+                (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY))
             {
                 move.y += speed;
             }
-            if (keys.left &&
-                (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY) &&
-                (0 < current.x))
+            if (keys.left && (0 < current.x) &&
+                (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY))
             {
                 move.x -= speed;
             }
-            if (keys.right &&
-                (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY) &&
-                (current.x < WIDTH_BOUND))
+            if (keys.right && (current.x < WIDTH_BOUND) &&
+                (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY))
             {
                 move.x += speed;
             }
