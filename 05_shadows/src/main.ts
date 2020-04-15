@@ -116,7 +116,7 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         const yDelta: number = y - current.y;
         const yDeltaSquared: number = yDelta * yDelta;
         const yWidth: number = y * WIDTH;
-        for (let dX: number = dY + 1; - 1 < dX; dX--) {
+        for (let dX: number = dY; 0 <= dX; dX--) {
             const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
             if (octal.slopeStart < lSlope) {
                 continue;
@@ -180,7 +180,7 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
         const x: number = current.x + (dX * octal.xMult);
         const xDelta: number = x - current.x;
         const xDeltaSquared: number = xDelta * xDelta;
-        for (let dY: number = dX + 1; - 1 < dY; dY--) {
+        for (let dY: number = dX; 0 <= dY; dY--) {
             const lSlope: number = (dY - APERTURE) / (dX + APERTURE);
             if (octal.slopeStart < lSlope) {
                 continue;

@@ -76,7 +76,7 @@
             var yDelta = y - current.y;
             var yDeltaSquared = yDelta * yDelta;
             var yWidth = y * WIDTH;
-            for (var dX = dY + 1; -1 < dX; dX--) {
+            for (var dX = dY; 0 <= dX; dX--) {
                 var lSlope = (dX - APERTURE) / (dY + APERTURE);
                 if (octal.slopeStart < lSlope) {
                     continue;
@@ -138,7 +138,7 @@
             var x = current.x + (dX * octal.xMult);
             var xDelta = x - current.x;
             var xDeltaSquared = xDelta * xDelta;
-            for (var dY = dX + 1; -1 < dY; dY--) {
+            for (var dY = dX; 0 <= dY; dY--) {
                 var lSlope = (dY - APERTURE) / (dX + APERTURE);
                 if (octal.slopeStart < lSlope) {
                     continue;
