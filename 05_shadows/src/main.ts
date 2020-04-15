@@ -112,6 +112,7 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     const yEnd: number = RADIUS + 1;
     for (let dY: number = octal.loopStart; dY < yEnd; dY++) {
         let blocked: boolean = false;
+        let visible: boolean = false;
         const y: number = current.y + (dY * octal.yMult);
         const yDelta: number = y - current.y;
         const yDeltaSquared: number = yDelta * yDelta;
@@ -126,19 +127,12 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                 break;
             }
             const x: number = current.x + (dX * octal.xMult);
-            const xOffset: number = x - octal.xMult;
-            const yOffset: number = (y - octal.yMult) * WIDTH;
-            if ((mask[yOffset + x] !== VISIBLE) &&
-                (mask[yWidth + xOffset] !== VISIBLE) &&
-                (mask[yOffset + xOffset] !== VISIBLE))
-            {
-                return;
-            }
             const xDelta: number = x - current.x;
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
                 mask[yWidth + x] = VISIBLE;
+                visible = true;
             }
             if (blocked) {
                 if (getBlocked(buffer, x, y)) {
@@ -162,7 +156,7 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                 }
             }
         }
-        if (blocked) {
+        if (blocked || (!visible)) {
             break;
         }
     }
@@ -177,6 +171,7 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     const xEnd: number = RADIUS + 1;
     for (let dX: number = octal.loopStart; dX < xEnd; dX++) {
         let blocked: boolean = false;
+        let visible: boolean = false;
         const x: number = current.x + (dX * octal.xMult);
         const xDelta: number = x - current.x;
         const xDeltaSquared: number = xDelta * xDelta;
@@ -191,19 +186,12 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
             const y: number = current.y + (dY * octal.yMult);
             const yWidth: number = y * WIDTH;
-            const xOffset: number = x - octal.xMult;
-            const yOffset: number = (y - octal.yMult) * WIDTH;
-            if ((mask[yOffset + x] !== VISIBLE) &&
-                (mask[yWidth + xOffset] !== VISIBLE) &&
-                (mask[yOffset + xOffset] !== VISIBLE))
-            {
-                return;
-            }
             const yDelta: number = y - current.y;
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                 (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT))
             {
                 mask[yWidth + x] = VISIBLE;
+                visible = true;
             }
             if (blocked) {
                 if (getBlocked(buffer, x, y)) {
@@ -227,7 +215,7 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
                 }
             }
         }
-        if (blocked) {
+        if (blocked || (!visible)) {
             break;
         }
     }

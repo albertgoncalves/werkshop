@@ -72,6 +72,7 @@
         var yEnd = RADIUS + 1;
         for (var dY = octal.loopStart; dY < yEnd; dY++) {
             var blocked = false;
+            var visible = false;
             var y = current.y + (dY * octal.yMult);
             var yDelta = y - current.y;
             var yDeltaSquared = yDelta * yDelta;
@@ -86,17 +87,11 @@
                     break;
                 }
                 var x = current.x + (dX * octal.xMult);
-                var xOffset = x - octal.xMult;
-                var yOffset = (y - octal.yMult) * WIDTH;
-                if ((mask[yOffset + x] !== VISIBLE) &&
-                    (mask[yWidth + xOffset] !== VISIBLE) &&
-                    (mask[yOffset + xOffset] !== VISIBLE)) {
-                    return;
-                }
                 var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
                     mask[yWidth + x] = VISIBLE;
+                    visible = true;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, x, y)) {
@@ -122,7 +117,7 @@
                     }
                 }
             }
-            if (blocked) {
+            if (blocked || (!visible)) {
                 break;
             }
         }
@@ -135,6 +130,7 @@
         var xEnd = RADIUS + 1;
         for (var dX = octal.loopStart; dX < xEnd; dX++) {
             var blocked = false;
+            var visible = false;
             var x = current.x + (dX * octal.xMult);
             var xDelta = x - current.x;
             var xDeltaSquared = xDelta * xDelta;
@@ -149,17 +145,11 @@
                 }
                 var y = current.y + (dY * octal.yMult);
                 var yWidth = y * WIDTH;
-                var xOffset = x - octal.xMult;
-                var yOffset = (y - octal.yMult) * WIDTH;
-                if ((mask[yOffset + x] !== VISIBLE) &&
-                    (mask[yWidth + xOffset] !== VISIBLE) &&
-                    (mask[yOffset + xOffset] !== VISIBLE)) {
-                    return;
-                }
                 var yDelta = y - current.y;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
                     mask[yWidth + x] = VISIBLE;
+                    visible = true;
                 }
                 if (blocked) {
                     if (getBlocked(buffer, x, y)) {
@@ -185,7 +175,7 @@
                     }
                 }
             }
-            if (blocked) {
+            if (blocked || (!visible)) {
                 break;
             }
         }
