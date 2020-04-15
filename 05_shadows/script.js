@@ -118,7 +118,7 @@
                 }
             }
             if (blocked || (!visible)) {
-                break;
+                return;
             }
         }
     }
@@ -176,7 +176,7 @@
                 }
             }
             if (blocked || (!visible)) {
-                break;
+                return;
             }
         }
     }
@@ -281,7 +281,7 @@
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
             var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
             var index = (y * WIDTH) + x;
-            if ((buffer[index] === EMPTY) && (mask[index] === VISIBLE)) {
+            if (buffer[index] === EMPTY) {
                 target.x = x;
                 target.y = y;
                 move.x = x;

@@ -157,7 +157,7 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
         }
         if (blocked || (!visible)) {
-            break;
+            return;
         }
     }
 }
@@ -216,7 +216,7 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
             }
         }
         if (blocked || (!visible)) {
-            break;
+            return;
         }
     }
 }
@@ -328,7 +328,7 @@ window.onload = function() {
         const y: number =
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
         const index: number = (y * WIDTH) + x;
-        if ((buffer[index] === EMPTY) && (mask[index] === VISIBLE)) {
+        if (buffer[index] === EMPTY) {
             target.x = x;
             target.y = y;
             move.x = x;
