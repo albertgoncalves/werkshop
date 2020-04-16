@@ -1,13 +1,38 @@
-interface Alpha {
-    opaque: number;
-    transparent: number;
-}
+const DEBUG: boolean = true;
 
-interface Color {
-    darkGray: number;
-    lightGray: number;
-    white: number;
-}
+const CANVAS_SCALE: number = 3;
+
+const ALPHA_OPAQUE: number = 255;
+const ALPHA_TRANSPARENT: number = 48;
+
+const COLOR_DARKGRAY: number = 112;
+const COLOR_LIGHTGRAY: number = 224;
+const COLOR_WHITE: number = 255;
+
+const VISIBLE: number = ALPHA_OPAQUE;
+const HIDDEN: number = ALPHA_TRANSPARENT;
+
+const BLOCK: number = COLOR_DARKGRAY;
+const EMPTY: number = COLOR_WHITE;
+const PLAYER: number = COLOR_LIGHTGRAY;
+
+const RADIUS: number = 91;
+const RADIUS_SQUARED: number = RADIUS * RADIUS;
+
+const APERTURE: number = 0.5;
+
+const KEY_UP: string = "i";
+const KEY_DOWN: string = "k";
+const KEY_LEFT: string = "j";
+const KEY_RIGHT: string = "l";
+
+const SPEED: number = 0.65;
+const FRAME_MS: number = (1 / 60) * 1000;
+
+let WIDTH: number = 0;
+let HEIGHT: number = 0;
+let WIDTH_BOUND: number = 0;
+let HEIGHT_BOUND: number = 0;
 
 interface Coords {
     x: number;
@@ -32,39 +57,6 @@ interface Directions {
 interface State {
     time: number|null;
 }
-
-const CANVAS_SCALE: number = 3;
-
-const ALPHA: Alpha = {
-    opaque: 255,
-    transparent: 48,
-};
-
-const COLOR: Color = {
-    darkGray: 112,
-    lightGray: 224,
-    white: 255,
-};
-
-const VISIBLE: number = ALPHA.opaque;
-const HIDDEN: number = ALPHA.transparent;
-
-const BLOCK: number = COLOR.darkGray;
-const EMPTY: number = COLOR.white;
-const PLAYER: number = COLOR.lightGray;
-
-const RADIUS: number = 91;
-const RADIUS_SQUARED: number = RADIUS * RADIUS;
-
-const APERTURE: number = 0.5;
-
-const SPEED: number = 0.65;
-const FRAME_MS: number = (1 / 60) * 1000;
-
-let WIDTH: number = 0;
-let HEIGHT: number = 0;
-let WIDTH_BOUND: number = 0;
-let HEIGHT_BOUND: number = 0;
 
 function setVerticalLine(buffer: Uint8ClampedArray,
                          x: number,
@@ -294,6 +286,42 @@ function setMask(mask: Uint8ClampedArray,
     });
 }
 
+function getKeyUp(buffer: Uint8ClampedArray,
+                  keys: Directions,
+                  current: Coords): boolean {
+    return ((keys.up !== 0) && (keys.down < keys.up) &&
+            (keys.left < keys.up) && (keys.right < keys.up) &&
+            (0 < current.y) &&
+            (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY));
+}
+
+function getKeyDown(buffer: Uint8ClampedArray,
+                    keys: Directions,
+                    current: Coords): boolean {
+    return ((keys.down !== 0) && (keys.up < keys.down) &&
+            (keys.left < keys.down) && (keys.right < keys.down) &&
+            (current.y < HEIGHT_BOUND) &&
+            (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY));
+}
+
+function getKeyLeft(buffer: Uint8ClampedArray,
+                    keys: Directions,
+                    current: Coords): boolean {
+    return ((keys.left !== 0) && (keys.up < keys.left) &&
+            (keys.down < keys.left) && (keys.right < keys.left) &&
+            (0 < current.x) &&
+            (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY));
+}
+
+function getKeyRight(buffer: Uint8ClampedArray,
+                     keys: Directions,
+                     current: Coords): boolean {
+    return ((keys.right !== 0) && (keys.up < keys.right) &&
+            (keys.down < keys.right) && (keys.left < keys.right) &&
+            (current.x < WIDTH_BOUND) &&
+            (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY));
+}
+
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
@@ -349,94 +377,122 @@ window.onload = function() {
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
     let counter: number = 0;
-    const debugKeys: HTMLElement =
-        document.getElementById("debug-keys") as HTMLElement;
-    const debugKey: HTMLElement =
-        document.getElementById("debug-key") as HTMLElement;
+    const debugKeysState: HTMLElement =
+        document.getElementById("debug-keys-state") as HTMLElement;
+    const debugKeyAction: HTMLElement =
+        document.getElementById("debug-key-action") as HTMLElement;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
-            case "ArrowUp": {
+            case KEY_UP: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.up = ++counter;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "pressed <strong>up</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML = "pressed <strong>up</strong>";
+                }
                 break;
             }
-            case "ArrowDown": {
+            case KEY_DOWN: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.down = ++counter;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "pressed <strong>down</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML = "pressed <strong>down</strong>";
+                }
                 break;
             }
-            case "ArrowLeft": {
+            case KEY_LEFT: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.left = ++counter;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "pressed <strong>left</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML = "pressed <strong>left</strong>";
+                }
                 break;
             }
-            case "ArrowRight": {
+            case KEY_RIGHT: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.right = ++counter;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "pressed <strong>right</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML =
+                        "pressed <strong>right</strong>";
+                }
                 break;
             }
         }
     }, false);
     canvas.addEventListener("keyup", function(event: KeyboardEvent) {
         switch (event.key) {
-            case "ArrowUp": {
+            case KEY_UP: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.up = 0;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "released <strong>up</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML = "released <strong>up</strong>";
+                }
                 break;
             }
-            case "ArrowDown": {
+            case KEY_DOWN: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.down = 0;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "released <strong>down</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML =
+                        "released <strong>down</strong>";
+                }
                 break;
             }
-            case "ArrowLeft": {
+            case KEY_LEFT: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.left = 0;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "released <strong>left</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML =
+                        "released <strong>left</strong>";
+                }
                 break;
             }
-            case "ArrowRight": {
+            case KEY_RIGHT: {
                 event.preventDefault();
                 if (event.repeat) {
                     return;
                 }
                 keys.right = 0;
-                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
-                debugKey.innerHTML = "released <strong>right</strong>";
+                if (DEBUG) {
+                    debugKeysState.innerHTML =
+                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeyAction.innerHTML =
+                        "released <strong>right</strong>";
+                }
                 break;
             }
         }
@@ -486,36 +542,19 @@ window.onload = function() {
             if ((state.time !== null) && (state.time < t)) {
                 speed = ((t - state.time) / FRAME_MS) * SPEED;
             }
-            if ((keys.up !== 0) && (keys.down < keys.up) &&
-                (keys.left < keys.up) && (keys.right < keys.up) &&
-                (0 < current.y) &&
-                (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY))
-            {
+            if (getKeyUp(buffer, keys, current)) {
                 move.x = current.x;
                 move.y -= speed;
                 target.y = Math.round(move.y);
-            } else if ((keys.down !== 0) && (keys.up < keys.down) &&
-                       (keys.left < keys.down) && (keys.right < keys.down) &&
-                       (current.y < HEIGHT_BOUND) &&
-                       (buffer[((current.y + 1) * WIDTH) + current.x] ===
-                        EMPTY))
-            {
+            } else if (getKeyDown(buffer, keys, current)) {
                 move.x = current.x;
                 move.y += speed;
                 target.y = Math.round(move.y);
-            } else if ((keys.left !== 0) && (keys.up < keys.left) &&
-                       (keys.down < keys.left) && (keys.right < keys.left) &&
-                       (0 < current.x) &&
-                       (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY))
-            {
+            } else if (getKeyLeft(buffer, keys, current)) {
                 move.x -= speed;
                 move.y = current.y;
                 target.x = Math.round(move.x);
-            } else if ((keys.right !== 0) && (keys.up < keys.right) &&
-                       (keys.down < keys.right) && (keys.left < keys.right) &&
-                       (current.x < WIDTH_BOUND) &&
-                       (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY))
-            {
+            } else if (getKeyRight(buffer, keys, current)) {
                 move.x += speed;
                 move.y = current.y;
                 target.x = Math.round(move.x);
