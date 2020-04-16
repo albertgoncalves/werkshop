@@ -289,35 +289,32 @@ function setMask(mask: Uint8ClampedArray,
 function getKeyUp(buffer: Uint8ClampedArray,
                   keys: Directions,
                   current: Coords): boolean {
-    return ((keys.up !== 0) && (keys.down < keys.up) &&
-            (keys.left < keys.up) && (keys.right < keys.up) &&
-            (0 < current.y) &&
+    return ((keys.up !== 0) && (keys.down === 0) && (keys.left < keys.up) &&
+            (keys.right < keys.up) && (0 < current.y) &&
             (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY));
 }
 
 function getKeyDown(buffer: Uint8ClampedArray,
                     keys: Directions,
                     current: Coords): boolean {
-    return ((keys.down !== 0) && (keys.up < keys.down) &&
-            (keys.left < keys.down) && (keys.right < keys.down) &&
-            (current.y < HEIGHT_BOUND) &&
+    return ((keys.down !== 0) && (keys.up === 0) && (keys.left < keys.down) &&
+            (keys.right < keys.down) && (current.y < HEIGHT_BOUND) &&
             (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY));
 }
 
 function getKeyLeft(buffer: Uint8ClampedArray,
                     keys: Directions,
                     current: Coords): boolean {
-    return ((keys.left !== 0) && (keys.up < keys.left) &&
-            (keys.down < keys.left) && (keys.right < keys.left) &&
-            (0 < current.x) &&
+    return ((keys.left !== 0) && (keys.right === 0) && (keys.up < keys.left) &&
+            (keys.down < keys.left) && (0 < current.x) &&
             (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY));
 }
 
 function getKeyRight(buffer: Uint8ClampedArray,
                      keys: Directions,
                      current: Coords): boolean {
-    return ((keys.right !== 0) && (keys.up < keys.right) &&
-            (keys.down < keys.right) && (keys.left < keys.right) &&
+    return ((keys.right !== 0) && (keys.left === 0) &&
+            (keys.up < keys.right) && (keys.down < keys.right) &&
             (current.x < WIDTH_BOUND) &&
             (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY));
 }
@@ -537,28 +534,34 @@ window.onload = function() {
         setImage(ctx, image, buffer, mask);
     }
     const loop: (t: number) => void = function(t: number) {
-        if (keys.up || keys.down || keys.left || keys.right) {
-            let speed: number = SPEED;
-            if ((state.time !== null) && (state.time < t)) {
-                speed = ((t - state.time) / FRAME_MS) * SPEED;
-            }
-            if (getKeyUp(buffer, keys, current)) {
-                move.x = current.x;
-                move.y -= speed;
-                target.y = Math.round(move.y);
-            } else if (getKeyDown(buffer, keys, current)) {
-                move.x = current.x;
-                move.y += speed;
-                target.y = Math.round(move.y);
-            } else if (getKeyLeft(buffer, keys, current)) {
-                move.x -= speed;
-                move.y = current.y;
-                target.x = Math.round(move.x);
-            } else if (getKeyRight(buffer, keys, current)) {
-                move.x += speed;
-                move.y = current.y;
-                target.x = Math.round(move.x);
-            }
+        if (getKeyUp(buffer, keys, current)) {
+            const speed: number = ((state.time !== null) && (state.time < t))
+                ? ((t - state.time) / FRAME_MS) * SPEED
+                : SPEED;
+            move.x = current.x;
+            move.y -= speed;
+            target.y = Math.round(move.y);
+        } else if (getKeyDown(buffer, keys, current)) {
+            const speed: number = ((state.time !== null) && (state.time < t))
+                ? ((t - state.time) / FRAME_MS) * SPEED
+                : SPEED;
+            move.x = current.x;
+            move.y += speed;
+            target.y = Math.round(move.y);
+        } else if (getKeyLeft(buffer, keys, current)) {
+            const speed: number = ((state.time !== null) && (state.time < t))
+                ? ((t - state.time) / FRAME_MS) * SPEED
+                : SPEED;
+            move.x -= speed;
+            move.y = current.y;
+            target.x = Math.round(move.x);
+        } else if (getKeyRight(buffer, keys, current)) {
+            const speed: number = ((state.time !== null) && (state.time < t))
+                ? ((t - state.time) / FRAME_MS) * SPEED
+                : SPEED;
+            move.x += speed;
+            move.y = current.y;
+            target.x = Math.round(move.x);
         } else if ((move.x !== current.x) || (move.y !== current.y)) {
             move.x = current.x;
             move.y = current.y;
