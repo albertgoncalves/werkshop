@@ -108,8 +108,10 @@ window.onload = function() {
     console.timeEnd("makeTree()");
     drawPoints(ctx, points);
     canvas.addEventListener("click", function(event: MouseEvent) {
-        circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
-        circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
+        circle.x =
+            (event.x + window.pageXOffset - canvas.offsetLeft) / canvas.width;
+        circle.y =
+            (event.y + window.pageYOffset - canvas.offsetTop) / canvas.height;
         /* NOTE: Reset all points */
         for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];

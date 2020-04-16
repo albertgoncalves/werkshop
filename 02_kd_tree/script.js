@@ -244,8 +244,10 @@
             console.timeEnd("makeTree()");
             drawPoints(ctx, points);
             canvas.addEventListener("click", function (event) {
-                circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
-                circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
+                circle.x =
+                    (event.x + window.pageXOffset - canvas.offsetLeft) / canvas.width;
+                circle.y =
+                    (event.y + window.pageYOffset - canvas.offsetTop) / canvas.height;
                 for (var i = 0; i < n; ++i) {
                     var point = points[i];
                     point.boundsOverlap = false;
