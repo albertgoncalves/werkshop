@@ -5,6 +5,7 @@ AlignAfterOpenBracket: Align
 AllowAllArgumentsOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
 AlignOperands: false
 AllowShortFunctionsOnASingleLine: None
 JavaScriptQuotes: Double
