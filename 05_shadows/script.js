@@ -291,6 +291,8 @@
         canvas.setAttribute("tabindex", "0");
         canvas.focus();
         var counter = 0;
+        var debugKeys = document.getElementById("debug-keys");
+        var debugKey = document.getElementById("debug-key");
         canvas.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case "ArrowUp": {
@@ -299,6 +301,8 @@
                         return;
                     }
                     keys.up = ++counter;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "pressed <strong>up</strong>";
                     break;
                 }
                 case "ArrowDown": {
@@ -307,6 +311,8 @@
                         return;
                     }
                     keys.down = ++counter;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "pressed <strong>down</strong>";
                     break;
                 }
                 case "ArrowLeft": {
@@ -315,6 +321,8 @@
                         return;
                     }
                     keys.left = ++counter;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "pressed <strong>left</strong>";
                     break;
                 }
                 case "ArrowRight": {
@@ -323,6 +331,8 @@
                         return;
                     }
                     keys.right = ++counter;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "pressed <strong>right</strong>";
                     break;
                 }
             }
@@ -335,6 +345,8 @@
                         return;
                     }
                     keys.up = 0;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "released <strong>up</strong>";
                     break;
                 }
                 case "ArrowDown": {
@@ -343,6 +355,8 @@
                         return;
                     }
                     keys.down = 0;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "released <strong>down</strong>";
                     break;
                 }
                 case "ArrowLeft": {
@@ -351,6 +365,8 @@
                         return;
                     }
                     keys.left = 0;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "released <strong>left</strong>";
                     break;
                 }
                 case "ArrowRight": {
@@ -359,6 +375,8 @@
                         return;
                     }
                     keys.right = 0;
+                    debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKey.innerHTML = "released <strong>right</strong>";
                     break;
                 }
             }
@@ -408,14 +426,15 @@
                 if ((state.time !== null) && (state.time < t)) {
                     speed = ((t - state.time) / FRAME_MS) * SPEED;
                 }
-                if (keys.up && (keys.down < keys.up) && (keys.left < keys.up) &&
-                    (keys.right < keys.up) && (0 < current.y) &&
+                if ((keys.up !== 0) && (keys.down < keys.up) &&
+                    (keys.left < keys.up) && (keys.right < keys.up) &&
+                    (0 < current.y) &&
                     (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY)) {
                     move.x = current.x;
                     move.y -= speed;
                     target.y = Math.round(move.y);
                 }
-                else if (keys.down && (keys.up < keys.down) &&
+                else if ((keys.down !== 0) && (keys.up < keys.down) &&
                     (keys.left < keys.down) && (keys.right < keys.down) &&
                     (current.y < HEIGHT_BOUND) &&
                     (buffer[((current.y + 1) * WIDTH) + current.x] ===
@@ -424,7 +443,7 @@
                     move.y += speed;
                     target.y = Math.round(move.y);
                 }
-                else if (keys.left && (keys.up < keys.left) &&
+                else if ((keys.left !== 0) && (keys.up < keys.left) &&
                     (keys.down < keys.left) && (keys.right < keys.left) &&
                     (0 < current.x) &&
                     (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY)) {
@@ -432,7 +451,7 @@
                     move.y = current.y;
                     target.x = Math.round(move.x);
                 }
-                else if (keys.right && (keys.up < keys.right) &&
+                else if ((keys.right !== 0) && (keys.up < keys.right) &&
                     (keys.down < keys.right) && (keys.left < keys.right) &&
                     (current.x < WIDTH_BOUND) &&
                     (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY)) {

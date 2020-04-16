@@ -349,6 +349,10 @@ window.onload = function() {
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
     let counter: number = 0;
+    const debugKeys: HTMLElement =
+        document.getElementById("debug-keys") as HTMLElement;
+    const debugKey: HTMLElement =
+        document.getElementById("debug-key") as HTMLElement;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
             case "ArrowUp": {
@@ -357,6 +361,8 @@ window.onload = function() {
                     return;
                 }
                 keys.up = ++counter;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "pressed <strong>up</strong>";
                 break;
             }
             case "ArrowDown": {
@@ -365,6 +371,8 @@ window.onload = function() {
                     return;
                 }
                 keys.down = ++counter;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "pressed <strong>down</strong>";
                 break;
             }
             case "ArrowLeft": {
@@ -373,6 +381,8 @@ window.onload = function() {
                     return;
                 }
                 keys.left = ++counter;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "pressed <strong>left</strong>";
                 break;
             }
             case "ArrowRight": {
@@ -381,6 +391,8 @@ window.onload = function() {
                     return;
                 }
                 keys.right = ++counter;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "pressed <strong>right</strong>";
                 break;
             }
         }
@@ -393,6 +405,8 @@ window.onload = function() {
                     return;
                 }
                 keys.up = 0;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "released <strong>up</strong>";
                 break;
             }
             case "ArrowDown": {
@@ -401,6 +415,8 @@ window.onload = function() {
                     return;
                 }
                 keys.down = 0;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "released <strong>down</strong>";
                 break;
             }
             case "ArrowLeft": {
@@ -409,6 +425,8 @@ window.onload = function() {
                     return;
                 }
                 keys.left = 0;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "released <strong>left</strong>";
                 break;
             }
             case "ArrowRight": {
@@ -417,6 +435,8 @@ window.onload = function() {
                     return;
                 }
                 keys.right = 0;
+                debugKeys.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+                debugKey.innerHTML = "released <strong>right</strong>";
                 break;
             }
         }
@@ -466,14 +486,15 @@ window.onload = function() {
             if ((state.time !== null) && (state.time < t)) {
                 speed = ((t - state.time) / FRAME_MS) * SPEED;
             }
-            if (keys.up && (keys.down < keys.up) && (keys.left < keys.up) &&
-                (keys.right < keys.up) && (0 < current.y) &&
+            if ((keys.up !== 0) && (keys.down < keys.up) &&
+                (keys.left < keys.up) && (keys.right < keys.up) &&
+                (0 < current.y) &&
                 (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY))
             {
                 move.x = current.x;
                 move.y -= speed;
                 target.y = Math.round(move.y);
-            } else if (keys.down && (keys.up < keys.down) &&
+            } else if ((keys.down !== 0) && (keys.up < keys.down) &&
                        (keys.left < keys.down) && (keys.right < keys.down) &&
                        (current.y < HEIGHT_BOUND) &&
                        (buffer[((current.y + 1) * WIDTH) + current.x] ===
@@ -482,7 +503,7 @@ window.onload = function() {
                 move.x = current.x;
                 move.y += speed;
                 target.y = Math.round(move.y);
-            } else if (keys.left && (keys.up < keys.left) &&
+            } else if ((keys.left !== 0) && (keys.up < keys.left) &&
                        (keys.down < keys.left) && (keys.right < keys.left) &&
                        (0 < current.x) &&
                        (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY))
@@ -490,7 +511,7 @@ window.onload = function() {
                 move.x -= speed;
                 move.y = current.y;
                 target.x = Math.round(move.x);
-            } else if (keys.right && (keys.up < keys.right) &&
+            } else if ((keys.right !== 0) && (keys.up < keys.right) &&
                        (keys.down < keys.right) && (keys.left < keys.right) &&
                        (current.x < WIDTH_BOUND) &&
                        (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY))
