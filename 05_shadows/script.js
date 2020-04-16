@@ -45,12 +45,12 @@
         var yWidth = y * WIDTH;
         var start = yWidth + xStart;
         var end = yWidth + xEnd;
-        for (var i = start; i <= end; i++) {
+        for (var i = start; i <= end; ++i) {
             buffer[i] = BLOCK;
         }
     }
     function setImage(ctx, image, buffer, mask) {
-        for (var i = buffer.length - 1; 0 <= i; i--) {
+        for (var i = buffer.length - 1; 0 <= i; --i) {
             var color = buffer[i];
             var index = i << 2;
             image.data[index] = color;
@@ -70,14 +70,14 @@
         }
         var nextStart = octal.slopeStart;
         var yEnd = RADIUS + 1;
-        for (var dY = octal.loopStart; dY < yEnd; dY++) {
+        for (var dY = octal.loopStart; dY < yEnd; ++dY) {
             var blocked = false;
             var visible = false;
             var y = current.y + (dY * octal.yMult);
             var yDelta = y - current.y;
             var yDeltaSquared = yDelta * yDelta;
             var yWidth = y * WIDTH;
-            for (var dX = dY; 0 <= dX; dX--) {
+            for (var dX = dY; 0 <= dX; --dX) {
                 var lSlope = (dX - APERTURE) / (dY + APERTURE);
                 if (octal.slopeStart < lSlope) {
                     continue;
@@ -128,13 +128,13 @@
         }
         var nextStart = octal.slopeStart;
         var xEnd = RADIUS + 1;
-        for (var dX = octal.loopStart; dX < xEnd; dX++) {
+        for (var dX = octal.loopStart; dX < xEnd; ++dX) {
             var blocked = false;
             var visible = false;
             var x = current.x + (dX * octal.xMult);
             var xDelta = x - current.x;
             var xDeltaSquared = xDelta * xDelta;
-            for (var dY = dX; 0 <= dY; dY--) {
+            for (var dY = dX; 0 <= dY; --dY) {
                 var lSlope = (dY - APERTURE) / (dX + APERTURE);
                 if (octal.slopeStart < lSlope) {
                     continue;
@@ -383,7 +383,7 @@
             setHorizontalLine(buffer, 29, 44, 26);
             setHorizontalLine(buffer, 3, 24, 54);
             setHorizontalLine(buffer, 27, 59, 56);
-            for (var _ = 100; 0 < _; _--) {
+            for (var _ = 100; 0 < _; --_) {
                 var x = Math.floor(Math.random() * WIDTH);
                 var y = Math.floor(Math.random() * HEIGHT);
                 var index = (y * WIDTH) + x;

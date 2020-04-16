@@ -61,7 +61,7 @@
         var yWidth = y * width;
         var start = yWidth + xStart;
         var end = yWidth + xEnd;
-        for (var i = start + 1; i < end; i++) {
+        for (var i = start + 1; i < end; ++i) {
             var index = i << 2;
             buffer.data[index] = WHITE;
             buffer.data[index + 1] = WHITE;
@@ -100,7 +100,7 @@
         while (partition) {
             if (partition.horizontal) {
                 var yDelta = partition.yUpper - partition.yLower;
-                for (var i = N; 0 < i; i--) {
+                for (var i = N; 0 < i; --i) {
                     var y = Math.floor(Math.random() * yDelta) + partition.yLower;
                     if (!(((y - MIN_SPLIT) < partition.yLower) ||
                         (partition.yUpper < (y + MIN_SPLIT)))) {
@@ -132,7 +132,7 @@
             }
             else {
                 var xDelta = partition.xUpper - partition.xLower;
-                for (var i = N; 0 < i; i--) {
+                for (var i = N; 0 < i; --i) {
                     var x = Math.floor(Math.random() * xDelta) + partition.xLower;
                     if (!(((x - MIN_SPLIT) < partition.xLower) ||
                         (partition.xUpper < (x + MIN_SPLIT)))) {
@@ -168,12 +168,12 @@
     }
     function getSplitEdges(preEdges) {
         var edges = [];
-        for (var i = preEdges.length - 1; 0 <= i; i--) {
+        for (var i = preEdges.length - 1; 0 <= i; --i) {
             var edge = preEdges[i];
             if (edge.x1 === edge.x2) {
                 var x = edge.x1;
                 var neighbors = [edge.y1, edge.y2];
-                for (var j = preEdges.length - 1; 0 <= j; j--) {
+                for (var j = preEdges.length - 1; 0 <= j; --j) {
                     if (i === j) {
                         continue;
                     }
@@ -187,7 +187,7 @@
                 neighbors.sort(function (a, b) {
                     return a - b;
                 });
-                for (var k = neighbors.length - 1; 0 < k; k--) {
+                for (var k = neighbors.length - 1; 0 < k; --k) {
                     var y1 = neighbors[k - 1];
                     var y2 = neighbors[k];
                     var yDelta = y2 - y1;
@@ -222,7 +222,7 @@
             else if (edge.y1 === edge.y2) {
                 var y = edge.y1;
                 var neighbors = [edge.x1, edge.x2];
-                for (var j = preEdges.length - 1; 0 <= j; j--) {
+                for (var j = preEdges.length - 1; 0 <= j; --j) {
                     if (i === j) {
                         continue;
                     }
@@ -236,7 +236,7 @@
                 neighbors.sort(function (a, b) {
                     return a - b;
                 });
-                for (var k = neighbors.length - 1; 0 < k; k--) {
+                for (var k = neighbors.length - 1; 0 < k; --k) {
                     var x1 = neighbors[k - 1];
                     var x2 = neighbors[k];
                     var xDelta = x2 - x1;
@@ -280,7 +280,7 @@
         var buffer = ctx.createImageData(width, height);
         {
             console.time("for (let i: num...");
-            for (var i = (width * height) - 1; 0 <= i; i--) {
+            for (var i = (width * height) - 1; 0 <= i; --i) {
                 var index = i << 2;
                 buffer.data[index] = DARK_GRAY;
                 buffer.data[index + 1] = DARK_GRAY;
@@ -300,7 +300,7 @@
                 }]));
             console.timeEnd("getSplitEdges(...)");
             console.time("for (let i: num...");
-            for (var i = edges.length - 1; 0 <= i; i--) {
+            for (var i = edges.length - 1; 0 <= i; --i) {
                 var edge = edges[i];
                 if (edge.x1 === edge.x2) {
                     setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);

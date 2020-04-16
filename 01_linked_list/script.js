@@ -23,7 +23,7 @@
         {
             var k = 15;
             var kHalf = k / 2;
-            for (var i = 0; i < n; i++) {
+            for (var i = 0; i < n; ++i) {
                 var xOrigin = (canvasWidthSlice * (i + 0.5)) - nodeHalfWidth;
                 nodes[i] = {
                     xOrigin: xOrigin,
@@ -47,7 +47,7 @@
                 var canvasPadWidth = 10;
                 ctx.strokeRect(canvasPadWidth, yUnder, canvasWidthSlice - (canvasPadWidth * 2), yOver - yUnder);
                 ctx.beginPath();
-                for (var i = 1; i < n; i++) {
+                for (var i = 1; i < n; ++i) {
                     var node = nodes[i];
                     var xOriginOffset = node.xOrigin + nodeWidth;
                     ctx.moveTo(node.xOrigin, yOver);
@@ -63,7 +63,7 @@
                 var nodeThreeQuarterWidth = nodeWidth * 0.75;
                 ctx.setLineDash([]);
                 ctx.beginPath();
-                for (var i = 1; i < n; i++) {
+                for (var i = 1; i < n; ++i) {
                     var nodeFrom = nodes[i - 1];
                     var nodeTo = nodes[i];
                     var xFrom = nodeFrom.x + nodeThreeQuarterWidth;
@@ -84,7 +84,7 @@
                 ctx.setLineDash([1, 2]);
                 ctx.beginPath();
                 var m = n - 1;
-                for (var i = 0; i < m; i++) {
+                for (var i = 0; i < m; ++i) {
                     var node = nodes[i];
                     var xSep = node.x + nodeHalfWidth;
                     ctx.moveTo(xSep, node.y);

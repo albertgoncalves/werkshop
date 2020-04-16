@@ -41,20 +41,20 @@
                 }
                 while (i < j) {
                     swap(array, i, j);
-                    i++;
+                    ++i;
                     while (compare(array[i], t) < 0) {
-                        i++;
+                        ++i;
                     }
-                    j--;
+                    --j;
                     while (0 < compare(array[j], t)) {
-                        j--;
+                        --j;
                     }
                 }
                 if (compare(array[left], t) === 0) {
                     swap(array, left, j);
                 }
                 else {
-                    j++;
+                    ++j;
                     swap(array, j, right);
                 }
                 if (j <= k) {
@@ -178,7 +178,7 @@
             var n = points.length;
             {
                 ctx.beginPath();
-                for (var i = 0; i < n; i++) {
+                for (var i = 0; i < n; ++i) {
                     var point = points[i];
                     if (point.boundsOverlap) {
                         drawArc(ctx, point.x, point.y, 0.035);
@@ -189,7 +189,7 @@
             }
             {
                 ctx.beginPath();
-                for (var i = 0; i < n; i++) {
+                for (var i = 0; i < n; ++i) {
                     var point = points[i];
                     if (point.withinRadius) {
                         drawArc(ctx, point.x, point.y, 0.0175);
@@ -200,7 +200,7 @@
             }
             {
                 ctx.beginPath();
-                for (var i = 0; i < n; i++) {
+                for (var i = 0; i < n; ++i) {
                     var point = points[i];
                     drawArc(ctx, point.x, point.y, 0.0025);
                 }
@@ -226,7 +226,7 @@
                 radiusSquared: radius * radius
             };
             var points = new Array(n);
-            for (var i = 0; i < n; i++) {
+            for (var i = 0; i < n; ++i) {
                 points[i] = {
                     x: Math.random(),
                     y: Math.random(),
@@ -246,7 +246,7 @@
             canvas.addEventListener("click", function (event) {
                 circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
                 circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
-                for (var i = 0; i < n; i++) {
+                for (var i = 0; i < n; ++i) {
                     var point = points[i];
                     point.boundsOverlap = false;
                     point.withinRadius = false;

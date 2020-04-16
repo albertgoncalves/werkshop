@@ -19,7 +19,7 @@ function main() {
         /* NOTE: Initialize `nodes` */
         const k: number = 15;
         const kHalf: number = k / 2;
-        for (let i: number = 0; i < n; i++) {
+        for (let i: number = 0; i < n; ++i) {
             const xOrigin: number =
                 (canvasWidthSlice * (i + 0.5)) - nodeHalfWidth;
             nodes[i] = {
@@ -50,7 +50,7 @@ function main() {
                            canvasWidthSlice - (canvasPadWidth * 2),
                            yOver - yUnder);
             ctx.beginPath();
-            for (let i: number = 1; i < n; i++) {
+            for (let i: number = 1; i < n; ++i) {
                 const node: Node_ = nodes[i];
                 const xOriginOffset: number = node.xOrigin + nodeWidth;
                 ctx.moveTo(node.xOrigin, yOver);
@@ -67,7 +67,7 @@ function main() {
             const nodeThreeQuarterWidth: number = nodeWidth * 0.75;
             ctx.setLineDash([]);
             ctx.beginPath();
-            for (let i: number = 1; i < n; i++) {
+            for (let i: number = 1; i < n; ++i) {
                 const nodeFrom: Node_ = nodes[i - 1];
                 const nodeTo: Node_ = nodes[i];
                 const xFrom: number = nodeFrom.x + nodeThreeQuarterWidth;
@@ -89,7 +89,7 @@ function main() {
             ctx.setLineDash([1, 2]);
             ctx.beginPath();
             const m: number = n - 1;
-            for (let i: number = 0; i < m; i++) {
+            for (let i: number = 0; i < m; ++i) {
                 const node: Node_ = nodes[i];
                 const xSep: number = node.x + nodeHalfWidth;
                 ctx.moveTo(xSep, node.y);

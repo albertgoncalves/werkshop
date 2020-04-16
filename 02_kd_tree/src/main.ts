@@ -37,7 +37,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
     {
         /* NOTE: Highlight points where `boundsOverlap == true` */
         ctx.beginPath();
-        for (let i: number = 0; i < n; i++) {
+        for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
             if (point.boundsOverlap) {
                 drawArc(ctx, point.x, point.y, 0.035);
@@ -49,7 +49,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
     {
         /* NOTE: Highlight points where `withinRadius == true` */
         ctx.beginPath();
-        for (let i: number = 0; i < n; i++) {
+        for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
             if (point.withinRadius) {
                 drawArc(ctx, point.x, point.y, 0.0175);
@@ -61,7 +61,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
     {
         /* NOTE: Draw all points */
         ctx.beginPath();
-        for (let i: number = 0; i < n; i++) {
+        for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
             drawArc(ctx, point.x, point.y, 0.0025);
         }
@@ -90,7 +90,7 @@ window.onload = function() {
         radiusSquared: radius * radius,
     };
     const points: Point[] = new Array(n);
-    for (let i: number = 0; i < n; i++) {
+    for (let i: number = 0; i < n; ++i) {
         points[i] = {
             x: Math.random(),
             y: Math.random(),
@@ -111,7 +111,7 @@ window.onload = function() {
         circle.x = (event.clientX - canvas.offsetLeft) / canvas.width;
         circle.y = (event.clientY - canvas.offsetTop) / canvas.height;
         /* NOTE: Reset all points */
-        for (let i: number = 0; i < n; i++) {
+        for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
             point.boundsOverlap = false;
             point.withinRadius = false;

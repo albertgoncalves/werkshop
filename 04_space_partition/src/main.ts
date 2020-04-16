@@ -74,7 +74,7 @@ function setHorizontalLine(buffer: ImageData,
     const yWidth: number = y * width;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
-    for (let i: number = start + 1; i < end; i++) {
+    for (let i: number = start + 1; i < end; ++i) {
         const index: number = i << 2;
         buffer.data[index] = WHITE;
         buffer.data[index + 1] = WHITE;
@@ -112,7 +112,7 @@ function getPartitions(stack: Partition[]): Edge[] {
     while (partition) {
         if (partition.horizontal) {
             const yDelta: number = partition.yUpper - partition.yLower;
-            for (let i: number = N; 0 < i; i--) {
+            for (let i: number = N; 0 < i; --i) {
                 const y =
                     Math.floor(Math.random() * yDelta) + partition.yLower;
                 if (!(((y - MIN_SPLIT) < partition.yLower) ||
@@ -145,7 +145,7 @@ function getPartitions(stack: Partition[]): Edge[] {
             }
         } else {
             const xDelta: number = partition.xUpper - partition.xLower;
-            for (let i: number = N; 0 < i; i--) {
+            for (let i: number = N; 0 < i; --i) {
                 const x =
                     Math.floor(Math.random() * xDelta) + partition.xLower;
                 if (!(((x - MIN_SPLIT) < partition.xLower) ||
@@ -184,12 +184,12 @@ function getPartitions(stack: Partition[]): Edge[] {
 
 function getSplitEdges(preEdges: Edge[]): Edge[] {
     const edges: Edge[] = [];
-    for (let i: number = preEdges.length - 1; 0 <= i; i--) {
+    for (let i: number = preEdges.length - 1; 0 <= i; --i) {
         const edge: Edge = preEdges[i];
         if (edge.x1 === edge.x2) {
             const x: number = edge.x1;
             const neighbors: number[] = [edge.y1, edge.y2];
-            for (let j: number = preEdges.length - 1; 0 <= j; j--) {
+            for (let j: number = preEdges.length - 1; 0 <= j; --j) {
                 if (i === j) {
                     continue;
                 }
@@ -206,7 +206,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             neighbors.sort(function(a, b) {
                 return a - b;
             });
-            for (let k: number = neighbors.length - 1; 0 < k; k--) {
+            for (let k: number = neighbors.length - 1; 0 < k; --k) {
                 const y1: number = neighbors[k - 1];
                 const y2: number = neighbors[k];
                 const yDelta = y2 - y1;
@@ -240,7 +240,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
         } else if (edge.y1 === edge.y2) {
             const y: number = edge.y1;
             const neighbors: number[] = [edge.x1, edge.x2];
-            for (let j: number = preEdges.length - 1; 0 <= j; j--) {
+            for (let j: number = preEdges.length - 1; 0 <= j; --j) {
                 if (i === j) {
                     continue;
                 }
@@ -257,7 +257,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             neighbors.sort(function(a, b) {
                 return a - b;
             });
-            for (let k: number = neighbors.length - 1; 0 < k; k--) {
+            for (let k: number = neighbors.length - 1; 0 < k; --k) {
                 const x1: number = neighbors[k - 1];
                 const x2: number = neighbors[k];
                 const xDelta = x2 - x1;
@@ -304,7 +304,7 @@ window.onload = function() {
     const buffer: ImageData = ctx.createImageData(width, height);
     {
         console.time("for (let i: num...");
-        for (let i: number = (width * height) - 1; 0 <= i; i--) {
+        for (let i: number = (width * height) - 1; 0 <= i; --i) {
             const index: number = i << 2;
             buffer.data[index] = DARK_GRAY;
             buffer.data[index + 1] = DARK_GRAY;
@@ -324,7 +324,7 @@ window.onload = function() {
         }]));
         console.timeEnd("getSplitEdges(...)");
         console.time("for (let i: num...");
-        for (let i: number = edges.length - 1; 0 <= i; i--) {
+        for (let i: number = edges.length - 1; 0 <= i; --i) {
             const edge: Edge = edges[i];
             if (edge.x1 === edge.x2) {
                 setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);

@@ -84,7 +84,7 @@ function setHorizontalLine(buffer: Uint8ClampedArray,
     const yWidth: number = y * WIDTH;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
-    for (let i: number = start; i <= end; i++) {
+    for (let i: number = start; i <= end; ++i) {
         buffer[i] = BLOCK;
     }
 }
@@ -93,7 +93,7 @@ function setImage(ctx: CanvasRenderingContext2D,
                   image: ImageData,
                   buffer: Uint8ClampedArray,
                   mask: Uint8ClampedArray) {
-    for (let i: number = buffer.length - 1; 0 <= i; i--) {
+    for (let i: number = buffer.length - 1; 0 <= i; --i) {
         const color: number = buffer[i];
         const index: number = i << 2;
         image.data[index] = color;
@@ -118,14 +118,14 @@ function setMaskColRow(mask: Uint8ClampedArray,
     }
     let nextStart: number = octal.slopeStart;
     const yEnd: number = RADIUS + 1;
-    for (let dY: number = octal.loopStart; dY < yEnd; dY++) {
+    for (let dY: number = octal.loopStart; dY < yEnd; ++dY) {
         let blocked: boolean = false;
         let visible: boolean = false;
         const y: number = current.y + (dY * octal.yMult);
         const yDelta: number = y - current.y;
         const yDeltaSquared: number = yDelta * yDelta;
         const yWidth: number = y * WIDTH;
-        for (let dX: number = dY; 0 <= dX; dX--) {
+        for (let dX: number = dY; 0 <= dX; --dX) {
             const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
             if (octal.slopeStart < lSlope) {
                 continue;
@@ -179,13 +179,13 @@ function setMaskRowCol(mask: Uint8ClampedArray,
     }
     let nextStart: number = octal.slopeStart;
     const xEnd: number = RADIUS + 1;
-    for (let dX: number = octal.loopStart; dX < xEnd; dX++) {
+    for (let dX: number = octal.loopStart; dX < xEnd; ++dX) {
         let blocked: boolean = false;
         let visible: boolean = false;
         const x: number = current.x + (dX * octal.xMult);
         const xDelta: number = x - current.x;
         const xDeltaSquared: number = xDelta * xDelta;
-        for (let dY: number = dX; 0 <= dY; dY--) {
+        for (let dY: number = dX; 0 <= dY; --dY) {
             const lSlope: number = (dY - APERTURE) / (dX + APERTURE);
             if (octal.slopeStart < lSlope) {
                 continue;
@@ -441,7 +441,7 @@ window.onload = function() {
         setHorizontalLine(buffer, 29, 44, 26);
         setHorizontalLine(buffer, 3, 24, 54);
         setHorizontalLine(buffer, 27, 59, 56);
-        for (let _: number = 100; 0 < _; _--) {
+        for (let _: number = 100; 0 < _; --_) {
             const x: number = Math.floor(Math.random() * WIDTH);
             const y: number = Math.floor(Math.random() * HEIGHT);
             const index = (y * WIDTH) + x;

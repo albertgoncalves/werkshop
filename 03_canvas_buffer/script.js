@@ -19,12 +19,12 @@
         var buffer = ctx.createImageData(width, height);
         function loop(t) {
             var offset = Math.floor(t >>> 4);
-            for (var y = 0; y < height; y++) {
+            for (var y = 0; y < height; ++y) {
                 var yT0 = (y + offset) & 255;
                 var yT1 = (((y << 1) + offset) & 255);
                 var yT2 = (((y << 2) + offset) & 255);
                 var yOffset = y * width;
-                for (var x = 0; x < width; x++) {
+                for (var x = 0; x < width; ++x) {
                     var red = ((x + offset) & 255) ^ yT0;
                     var green = (((x << 1) + offset) & 255) ^ yT1;
                     var blue = (((x << 2) + offset) & 255) ^ yT2;

@@ -37,19 +37,19 @@ export function quickSelect<T>(array: T[],
         }
         while (i < j) {
             swap(array, i, j);
-            i++;
+            ++i;
             while (compare(array[i], t) < 0) {
-                i++;
+                ++i;
             }
-            j--;
+            --j;
             while (0 < compare(array[j], t)) {
-                j--;
+                --j;
             }
         }
         if (compare(array[left], t) === 0) {
             swap(array, left, j);
         } else {
-            j++;
+            ++j;
             swap(array, j, right);
         }
         if (j <= k) {

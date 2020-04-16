@@ -13,12 +13,12 @@ window.onload = function() {
     const buffer: ImageData = ctx.createImageData(width, height);
     function loop(t: number) {
         const offset: number = Math.floor(t >>> 4);
-        for (let y: number = 0; y < height; y++) {
+        for (let y: number = 0; y < height; ++y) {
             const yT0: number = (y + offset) & 255;
             const yT1: number = (((y << 1) + offset) & 255);
             const yT2: number = (((y << 2) + offset) & 255);
             const yOffset: number = y * width;
-            for (let x: number = 0; x < width; x++) {
+            for (let x: number = 0; x < width; ++x) {
                 const red: number = ((x + offset) & 255) ^ yT0;
                 const green: number = (((x << 1) + offset) & 255) ^ yT1;
                 const blue: number = (((x << 2) + offset) & 255) ^ yT2;
