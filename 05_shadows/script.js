@@ -28,7 +28,7 @@
     var RADIUS = 91;
     var RADIUS_SQUARED = RADIUS * RADIUS;
     var APERTURE = 0.5;
-    var SPEED = 0.6;
+    var SPEED = 0.65;
     var FRAME_MS = (1 / 60) * 1000;
     var WIDTH = 0;
     var HEIGHT = 0;
@@ -290,6 +290,7 @@
         }, false);
         canvas.setAttribute("tabindex", "0");
         canvas.focus();
+        var counter = 0;
         canvas.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case "ArrowUp": {
@@ -297,7 +298,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.up = performance.now();
+                    keys.up = ++counter;
                     break;
                 }
                 case "ArrowDown": {
@@ -305,7 +306,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.down = performance.now();
+                    keys.down = ++counter;
                     break;
                 }
                 case "ArrowLeft": {
@@ -313,7 +314,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.left = performance.now();
+                    keys.left = ++counter;
                     break;
                 }
                 case "ArrowRight": {
@@ -321,7 +322,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.right = performance.now();
+                    keys.right = ++counter;
                     break;
                 }
             }
@@ -443,6 +444,7 @@
             else if ((move.x !== current.x) || (move.y !== current.y)) {
                 move.x = current.x;
                 move.y = current.y;
+                counter = 0;
             }
             if ((target.x !== current.x) || (target.y !== current.y)) {
                 buffer[(current.y * WIDTH) + current.x] = EMPTY;

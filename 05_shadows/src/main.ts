@@ -58,7 +58,7 @@ const RADIUS_SQUARED: number = RADIUS * RADIUS;
 
 const APERTURE: number = 0.5;
 
-const SPEED: number = 0.6;
+const SPEED: number = 0.65;
 const FRAME_MS: number = (1 / 60) * 1000;
 
 let WIDTH: number = 0;
@@ -348,6 +348,7 @@ window.onload = function() {
     }, false);
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
+    let counter: number = 0;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
             case "ArrowUp": {
@@ -355,7 +356,7 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.up = performance.now();
+                keys.up = ++counter;
                 break;
             }
             case "ArrowDown": {
@@ -363,7 +364,7 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.down = performance.now();
+                keys.down = ++counter;
                 break;
             }
             case "ArrowLeft": {
@@ -371,7 +372,7 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.left = performance.now();
+                keys.left = ++counter;
                 break;
             }
             case "ArrowRight": {
@@ -379,7 +380,7 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.right = performance.now();
+                keys.right = ++counter;
                 break;
             }
         }
@@ -501,6 +502,7 @@ window.onload = function() {
         } else if ((move.x !== current.x) || (move.y !== current.y)) {
             move.x = current.x;
             move.y = current.y;
+            counter = 0;
         }
         if ((target.x !== current.x) || (target.y !== current.y)) {
             buffer[(current.y * WIDTH) + current.x] = EMPTY;
