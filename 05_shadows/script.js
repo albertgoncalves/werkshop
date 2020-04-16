@@ -13,7 +13,7 @@
     var CANVAS_SCALE = 3;
     var ALPHA = {
         opaque: 255,
-        transparent: 40
+        transparent: 48
     };
     var COLOR = {
         darkGray: 112,
@@ -272,10 +272,10 @@
             time: null
         };
         var keys = {
-            up: false,
-            down: false,
-            left: false,
-            right: false
+            up: 0,
+            down: 0,
+            left: 0,
+            right: 0
         };
         canvas.addEventListener("mousedown", function (event) {
             var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
@@ -297,7 +297,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.up = true;
+                    keys.up = performance.now();
                     break;
                 }
                 case "ArrowDown": {
@@ -305,7 +305,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.down = true;
+                    keys.down = performance.now();
                     break;
                 }
                 case "ArrowLeft": {
@@ -313,7 +313,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.left = true;
+                    keys.left = performance.now();
                     break;
                 }
                 case "ArrowRight": {
@@ -321,7 +321,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.right = true;
+                    keys.right = performance.now();
                     break;
                 }
             }
@@ -333,7 +333,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.up = false;
+                    keys.up = 0;
                     break;
                 }
                 case "ArrowDown": {
@@ -341,7 +341,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.down = false;
+                    keys.down = 0;
                     break;
                 }
                 case "ArrowLeft": {
@@ -349,7 +349,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.left = false;
+                    keys.left = 0;
                     break;
                 }
                 case "ArrowRight": {
@@ -357,7 +357,7 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.right = false;
+                    keys.right = 0;
                     break;
                 }
             }
@@ -367,13 +367,13 @@
             setVerticalLine(buffer, 6, 19, 40);
             setVerticalLine(buffer, 18, 8, 21);
             setVerticalLine(buffer, 25, 10, 20);
-            setVerticalLine(buffer, 32, 30, 40);
+            setVerticalLine(buffer, 32, 33, 40);
             setVerticalLine(buffer, 32, 46, 51);
             setVerticalLine(buffer, 45, 7, 11);
             setVerticalLine(buffer, 45, 15, 21);
-            setVerticalLine(buffer, 55, 3, 10);
-            setVerticalLine(buffer, 55, 13, 20);
-            setVerticalLine(buffer, 55, 23, 29);
+            setVerticalLine(buffer, 55, 3, 9);
+            setVerticalLine(buffer, 55, 13, 19);
+            setVerticalLine(buffer, 55, 23, 28);
             setVerticalLine(buffer, 55, 32, 37);
             setVerticalLine(buffer, 55, 42, 50);
             setHorizontalLine(buffer, 7, 24, 5);
@@ -407,24 +407,38 @@
                 if ((state.time !== null) && (state.time < t)) {
                     speed = ((t - state.time) / FRAME_MS) * SPEED;
                 }
-                if (keys.up && (0 < current.y) &&
+                if (keys.up && (keys.down < keys.up) && (keys.left < keys.up) &&
+                    (keys.right < keys.up) && (0 < current.y) &&
                     (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY)) {
+                    move.x = current.x;
                     move.y -= speed;
+                    target.y = Math.round(move.y);
                 }
-                if (keys.down && (current.y < HEIGHT_BOUND) &&
-                    (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY)) {
+                else if (keys.down && (keys.up < keys.down) &&
+                    (keys.left < keys.down) && (keys.right < keys.down) &&
+                    (current.y < HEIGHT_BOUND) &&
+                    (buffer[((current.y + 1) * WIDTH) + current.x] ===
+                        EMPTY)) {
+                    move.x = current.x;
                     move.y += speed;
+                    target.y = Math.round(move.y);
                 }
-                if (keys.left && (0 < current.x) &&
+                else if (keys.left && (keys.up < keys.left) &&
+                    (keys.down < keys.left) && (keys.right < keys.left) &&
+                    (0 < current.x) &&
                     (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY)) {
                     move.x -= speed;
+                    move.y = current.y;
+                    target.x = Math.round(move.x);
                 }
-                if (keys.right && (current.x < WIDTH_BOUND) &&
+                else if (keys.right && (keys.up < keys.right) &&
+                    (keys.down < keys.right) && (keys.left < keys.right) &&
+                    (current.x < WIDTH_BOUND) &&
                     (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY)) {
                     move.x += speed;
+                    move.y = current.y;
+                    target.x = Math.round(move.x);
                 }
-                target.x = Math.round(move.x);
-                target.y = Math.round(move.y);
             }
             else if ((move.x !== current.x) || (move.y !== current.y)) {
                 move.x = current.x;

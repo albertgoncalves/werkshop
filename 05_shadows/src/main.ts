@@ -23,10 +23,10 @@ interface Octal {
 }
 
 interface Directions {
-    up: boolean;
-    down: boolean;
-    left: boolean;
-    right: boolean;
+    up: number;
+    down: number;
+    left: number;
+    right: number;
 }
 
 interface State {
@@ -37,7 +37,7 @@ const CANVAS_SCALE: number = 3;
 
 const ALPHA: Alpha = {
     opaque: 255,
-    transparent: 40,
+    transparent: 48,
 };
 
 const COLOR: Color = {
@@ -328,10 +328,10 @@ window.onload = function() {
         time: null,
     };
     const keys: Directions = {
-        up: false,
-        down: false,
-        left: false,
-        right: false,
+        up: 0,
+        down: 0,
+        left: 0,
+        right: 0,
     };
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
         const x: number =
@@ -350,74 +350,74 @@ window.onload = function() {
     canvas.focus();
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
-        case "ArrowUp": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowUp": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.up = performance.now();
+                break;
             }
-            keys.up = true;
-            break;
-        }
-        case "ArrowDown": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowDown": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.down = performance.now();
+                break;
             }
-            keys.down = true;
-            break;
-        }
-        case "ArrowLeft": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowLeft": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.left = performance.now();
+                break;
             }
-            keys.left = true;
-            break;
-        }
-        case "ArrowRight": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowRight": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.right = performance.now();
+                break;
             }
-            keys.right = true;
-            break;
-        }
         }
     }, false);
     canvas.addEventListener("keyup", function(event: KeyboardEvent) {
         switch (event.key) {
-        case "ArrowUp": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowUp": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.up = 0;
+                break;
             }
-            keys.up = false;
-            break;
-        }
-        case "ArrowDown": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowDown": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.down = 0;
+                break;
             }
-            keys.down = false;
-            break;
-        }
-        case "ArrowLeft": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowLeft": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.left = 0;
+                break;
             }
-            keys.left = false;
-            break;
-        }
-        case "ArrowRight": {
-            event.preventDefault();
-            if (event.repeat) {
-                return;
+            case "ArrowRight": {
+                event.preventDefault();
+                if (event.repeat) {
+                    return;
+                }
+                keys.right = 0;
+                break;
             }
-            keys.right = false;
-            break;
-        }
         }
     }, false);
     {
@@ -425,13 +425,13 @@ window.onload = function() {
         setVerticalLine(buffer, 6, 19, 40);
         setVerticalLine(buffer, 18, 8, 21);
         setVerticalLine(buffer, 25, 10, 20);
-        setVerticalLine(buffer, 32, 30, 40);
+        setVerticalLine(buffer, 32, 33, 40);
         setVerticalLine(buffer, 32, 46, 51);
         setVerticalLine(buffer, 45, 7, 11);
         setVerticalLine(buffer, 45, 15, 21);
-        setVerticalLine(buffer, 55, 3, 10);
-        setVerticalLine(buffer, 55, 13, 20);
-        setVerticalLine(buffer, 55, 23, 29);
+        setVerticalLine(buffer, 55, 3, 9);
+        setVerticalLine(buffer, 55, 13, 19);
+        setVerticalLine(buffer, 55, 23, 28);
         setVerticalLine(buffer, 55, 32, 37);
         setVerticalLine(buffer, 55, 42, 50);
         setHorizontalLine(buffer, 7, 24, 5);
@@ -465,28 +465,39 @@ window.onload = function() {
             if ((state.time !== null) && (state.time < t)) {
                 speed = ((t - state.time) / FRAME_MS) * SPEED;
             }
-            if (keys.up && (0 < current.y) &&
+            if (keys.up && (keys.down < keys.up) && (keys.left < keys.up) &&
+                (keys.right < keys.up) && (0 < current.y) &&
                 (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY))
             {
+                move.x = current.x;
                 move.y -= speed;
-            }
-            if (keys.down && (current.y < HEIGHT_BOUND) &&
-                (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY))
+                target.y = Math.round(move.y);
+            } else if (keys.down && (keys.up < keys.down) &&
+                       (keys.left < keys.down) && (keys.right < keys.down) &&
+                       (current.y < HEIGHT_BOUND) &&
+                       (buffer[((current.y + 1) * WIDTH) + current.x] ===
+                        EMPTY))
             {
+                move.x = current.x;
                 move.y += speed;
-            }
-            if (keys.left && (0 < current.x) &&
-                (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY))
+                target.y = Math.round(move.y);
+            } else if (keys.left && (keys.up < keys.left) &&
+                       (keys.down < keys.left) && (keys.right < keys.left) &&
+                       (0 < current.x) &&
+                       (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY))
             {
                 move.x -= speed;
-            }
-            if (keys.right && (current.x < WIDTH_BOUND) &&
-                (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY))
+                move.y = current.y;
+                target.x = Math.round(move.x);
+            } else if (keys.right && (keys.up < keys.right) &&
+                       (keys.down < keys.right) && (keys.left < keys.right) &&
+                       (current.x < WIDTH_BOUND) &&
+                       (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY))
             {
                 move.x += speed;
+                move.y = current.y;
+                target.x = Math.round(move.x);
             }
-            target.x = Math.round(move.x);
-            target.y = Math.round(move.y);
         } else if ((move.x !== current.x) || (move.y !== current.y)) {
             move.x = current.x;
             move.y = current.y;
