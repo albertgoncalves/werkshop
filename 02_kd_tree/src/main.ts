@@ -9,13 +9,17 @@ import {
 
 const TWICE_PI: number = Math.PI * 2;
 
-function drawArc(ctx: CanvasRenderingContext2D, x: number, y: number,
+function drawArc(ctx: CanvasRenderingContext2D,
+                 x: number,
+                 y: number,
                  radius: number) {
     ctx.moveTo(x + radius, y);
     ctx.arc(x, y, radius, 0, TWICE_PI);
 }
 
-function drawCross(ctx: CanvasRenderingContext2D, x: number, y: number,
+function drawCross(ctx: CanvasRenderingContext2D,
+                   x: number,
+                   y: number,
                    radius: number) {
     ctx.moveTo(x, y - radius);
     ctx.lineTo(x, y + radius);

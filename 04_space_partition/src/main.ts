@@ -27,8 +27,11 @@ interface Edge {
     y2: number;
 }
 
-function setVerticalLine(buffer: ImageData, width: number, x: number,
-                         yStart: number, yEnd: number) {
+function setVerticalLine(buffer: ImageData,
+                         width: number,
+                         x: number,
+                         yStart: number,
+                         yEnd: number) {
     const start: number = ((yStart + 1) * width) + x;
     const end: number = (yEnd * width) + x;
     for (let i: number = start; i < end; i += width) {
@@ -63,8 +66,11 @@ function setVerticalLine(buffer: ImageData, width: number, x: number,
     }
 }
 
-function setHorizontalLine(buffer: ImageData, width: number, xStart: number,
-                           xEnd: number, y: number) {
+function setHorizontalLine(buffer: ImageData,
+                           width: number,
+                           xStart: number,
+                           xEnd: number,
+                           y: number) {
     const yWidth: number = y * width;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;

@@ -29,15 +29,18 @@ export interface Tree {
     right: Tree|null;
 }
 
-export function makeTree(points: Point[], horizontal: boolean,
-                         bounds: Bounds): Tree|null {
+export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
+    Tree|null {
     const n: number = points.length;
     if (n === 0) {
         return null;
     }
     const median: number = Math.floor(n / 2);
     if (horizontal) {
-        quickSelect(points, median, 0, n - 1,
+        quickSelect(points,
+                    median,
+                    0,
+                    n - 1,
                     function(a: Point, b: Point): number {
                         return a.x - b.x;
                     });
@@ -60,7 +63,10 @@ export function makeTree(points: Point[], horizontal: boolean,
             }),
         };
     } else {
-        quickSelect(points, median, 0, n - 1,
+        quickSelect(points,
+                    median,
+                    0,
+                    n - 1,
                     function(a: Point, b: Point): number {
                         return a.y - b.y;
                     });
@@ -99,7 +105,8 @@ export function pointInCircle(point: Point, circle: Circle): boolean {
     return ((x * x) + (y * y)) < circle.radiusSquared;
 }
 
-export function radiusSearch(tree: Tree|null, circle: Circle,
+export function radiusSearch(tree: Tree|null,
+                             circle: Circle,
                              callback: (p: Point) => void) {
     if (tree === null) {
         return;

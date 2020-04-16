@@ -6,7 +6,10 @@ function swap<T>(array: T[], i: number, j: number) {
     array[j] = tmp;
 }
 
-export function quickSelect<T>(array: T[], k: number, l: number, r: number,
+export function quickSelect<T>(array: T[],
+                               k: number,
+                               l: number,
+                               r: number,
                                compare: (a: T, b: T) => number) {
     /* NOTE: `https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm` */
     let left: number = l;

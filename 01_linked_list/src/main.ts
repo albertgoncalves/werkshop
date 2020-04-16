@@ -45,7 +45,8 @@ function main() {
             const yUnder: number = canvasHalfHeight + nodeHeight;
             ctx.setLineDash([2.25, 3]);
             const canvasPadWidth: number = 10;
-            ctx.strokeRect(canvasPadWidth, yUnder,
+            ctx.strokeRect(canvasPadWidth,
+                           yUnder,
                            canvasWidthSlice - (canvasPadWidth * 2),
                            yOver - yUnder);
             ctx.beginPath();

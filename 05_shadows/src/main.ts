@@ -66,7 +66,9 @@ let HEIGHT: number = 0;
 let WIDTH_BOUND: number = 0;
 let HEIGHT_BOUND: number = 0;
 
-function setVerticalLine(buffer: Uint8ClampedArray, x: number, yStart: number,
+function setVerticalLine(buffer: Uint8ClampedArray,
+                         x: number,
+                         yStart: number,
                          yEnd: number) {
     const start: number = (yStart * WIDTH) + x;
     const end: number = (yEnd * WIDTH) + x;
@@ -75,8 +77,10 @@ function setVerticalLine(buffer: Uint8ClampedArray, x: number, yStart: number,
     }
 }
 
-function setHorizontalLine(buffer: Uint8ClampedArray, xStart: number,
-                           xEnd: number, y: number) {
+function setHorizontalLine(buffer: Uint8ClampedArray,
+                           xStart: number,
+                           xEnd: number,
+                           y: number) {
     const yWidth: number = y * WIDTH;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
@@ -85,8 +89,10 @@ function setHorizontalLine(buffer: Uint8ClampedArray, xStart: number,
     }
 }
 
-function setImage(ctx: CanvasRenderingContext2D, image: ImageData,
-                  buffer: Uint8ClampedArray, mask: Uint8ClampedArray) {
+function setImage(ctx: CanvasRenderingContext2D,
+                  image: ImageData,
+                  buffer: Uint8ClampedArray,
+                  mask: Uint8ClampedArray) {
     for (let i: number = buffer.length - 1; 0 <= i; i--) {
         const color: number = buffer[i];
         const index: number = i << 2;
@@ -103,8 +109,10 @@ function getBlocked(buffer: Uint8ClampedArray, x: number, y: number): boolean {
             (buffer[(WIDTH * y) + x] !== EMPTY));
 }
 
-function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
-                       current: Coords, octal: Octal) {
+function setMaskColRow(mask: Uint8ClampedArray,
+                       buffer: Uint8ClampedArray,
+                       current: Coords,
+                       octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
         return;
     }
@@ -162,8 +170,10 @@ function setMaskColRow(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     }
 }
 
-function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
-                       current: Coords, octal: Octal) {
+function setMaskRowCol(mask: Uint8ClampedArray,
+                       buffer: Uint8ClampedArray,
+                       current: Coords,
+                       octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
         return;
     }
@@ -221,7 +231,8 @@ function setMaskRowCol(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
     }
 }
 
-function setMask(mask: Uint8ClampedArray, buffer: Uint8ClampedArray,
+function setMask(mask: Uint8ClampedArray,
+                 buffer: Uint8ClampedArray,
                  current: Coords) {
     mask.fill(HIDDEN);
     mask[(current.y * WIDTH) + current.x] = VISIBLE;
