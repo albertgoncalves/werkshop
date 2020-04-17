@@ -474,42 +474,40 @@
         var frameCounter = 0;
         var frameStart = performance.now();
         var loop = function (t) {
-            if ((keys.up !== 0) || (keys.down !== 0) || (keys.left !== 0) ||
-                (keys.right !== 0)) {
-                if (getKeyUp(buffer, keys, current)) {
-                    var speed = ((state.time !== null) && (state.time < t))
-                        ? ((t - state.time) / FRAME_MS) * SPEED
-                        : SPEED;
-                    move.x = current.x;
-                    move.y -= speed;
-                    target.y = Math.round(move.y);
-                }
-                else if (getKeyDown(buffer, keys, current)) {
-                    var speed = ((state.time !== null) && (state.time < t))
-                        ? ((t - state.time) / FRAME_MS) * SPEED
-                        : SPEED;
-                    move.x = current.x;
-                    move.y += speed;
-                    target.y = Math.round(move.y);
-                }
-                else if (getKeyLeft(buffer, keys, current)) {
-                    var speed = ((state.time !== null) && (state.time < t))
-                        ? ((t - state.time) / FRAME_MS) * SPEED
-                        : SPEED;
-                    move.x -= speed;
-                    move.y = current.y;
-                    target.x = Math.round(move.x);
-                }
-                else if (getKeyRight(buffer, keys, current)) {
-                    var speed = ((state.time !== null) && (state.time < t))
-                        ? ((t - state.time) / FRAME_MS) * SPEED
-                        : SPEED;
-                    move.x += speed;
-                    move.y = current.y;
-                    target.x = Math.round(move.x);
-                }
+            if (getKeyUp(buffer, keys, current)) {
+                var speed = ((state.time !== null) && (state.time < t))
+                    ? ((t - state.time) / FRAME_MS) * SPEED
+                    : SPEED;
+                move.x = current.x;
+                move.y -= speed;
+                target.y = Math.round(move.y);
             }
-            else if ((move.x !== current.x) || (move.y !== current.y)) {
+            else if (getKeyDown(buffer, keys, current)) {
+                var speed = ((state.time !== null) && (state.time < t))
+                    ? ((t - state.time) / FRAME_MS) * SPEED
+                    : SPEED;
+                move.x = current.x;
+                move.y += speed;
+                target.y = Math.round(move.y);
+            }
+            else if (getKeyLeft(buffer, keys, current)) {
+                var speed = ((state.time !== null) && (state.time < t))
+                    ? ((t - state.time) / FRAME_MS) * SPEED
+                    : SPEED;
+                move.x -= speed;
+                move.y = current.y;
+                target.x = Math.round(move.x);
+            }
+            else if (getKeyRight(buffer, keys, current)) {
+                var speed = ((state.time !== null) && (state.time < t))
+                    ? ((t - state.time) / FRAME_MS) * SPEED
+                    : SPEED;
+                move.x += speed;
+                move.y = current.y;
+                target.x = Math.round(move.x);
+            }
+            else if (((move.x !== current.x) || (move.y !== current.y)) &&
+                ((keys.up | keys.down | keys.left | keys.right) === 0)) {
                 move.x = current.x;
                 move.y = current.y;
                 keyCounter = 0;
