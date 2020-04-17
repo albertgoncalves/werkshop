@@ -266,12 +266,14 @@
         var canvas = document.getElementById("canvas");
         WIDTH = canvas.width;
         HEIGHT = canvas.height;
-        WIDTH_BOUND = WIDTH - 1;
-        HEIGHT_BOUND = HEIGHT - 1;
         var n = WIDTH * HEIGHT;
         if (n === 0) {
             return;
         }
+        WIDTH_BOUND = WIDTH - 1;
+        HEIGHT_BOUND = HEIGHT - 1;
+        canvas.setAttribute("tabindex", "0");
+        canvas.focus();
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
         var image = ctx.createImageData(WIDTH, HEIGHT);
@@ -310,11 +312,9 @@
                 move.y = y;
             }
         }, false);
-        canvas.setAttribute("tabindex", "0");
-        canvas.focus();
-        var counter = 0;
-        var debugKeysState = document.getElementById("debug-keys-state");
+        var keyCounter = 0;
         var debugKeyAction = document.getElementById("debug-key-action");
+        var debugKeysState = document.getElementById("debug-keys-state");
         canvas.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case KEY_UP: {
@@ -322,11 +322,11 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.up = ++counter;
+                    keys.up = ++keyCounter;
                     if (DEBUG) {
+                        debugKeyAction.innerHTML = "pressed <strong>up</strong>";
                         debugKeysState.innerHTML =
                             "<em>" + JSON.stringify(keys) + "</em>";
-                        debugKeyAction.innerHTML = "pressed <strong>up</strong>";
                     }
                     break;
                 }
@@ -335,11 +335,11 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.down = ++counter;
+                    keys.down = ++keyCounter;
                     if (DEBUG) {
+                        debugKeyAction.innerHTML = "pressed <strong>down</strong>";
                         debugKeysState.innerHTML =
                             "<em>" + JSON.stringify(keys) + "</em>";
-                        debugKeyAction.innerHTML = "pressed <strong>down</strong>";
                     }
                     break;
                 }
@@ -348,11 +348,11 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.left = ++counter;
+                    keys.left = ++keyCounter;
                     if (DEBUG) {
+                        debugKeyAction.innerHTML = "pressed <strong>left</strong>";
                         debugKeysState.innerHTML =
                             "<em>" + JSON.stringify(keys) + "</em>";
-                        debugKeyAction.innerHTML = "pressed <strong>left</strong>";
                     }
                     break;
                 }
@@ -361,12 +361,12 @@
                     if (event.repeat) {
                         return;
                     }
-                    keys.right = ++counter;
+                    keys.right = ++keyCounter;
                     if (DEBUG) {
-                        debugKeysState.innerHTML =
-                            "<em>" + JSON.stringify(keys) + "</em>";
                         debugKeyAction.innerHTML =
                             "pressed <strong>right</strong>";
+                        debugKeysState.innerHTML =
+                            "<em>" + JSON.stringify(keys) + "</em>";
                     }
                     break;
                 }
@@ -381,9 +381,9 @@
                     }
                     keys.up = 0;
                     if (DEBUG) {
+                        debugKeyAction.innerHTML = "released <strong>up</strong>";
                         debugKeysState.innerHTML =
                             "<em>" + JSON.stringify(keys) + "</em>";
-                        debugKeyAction.innerHTML = "released <strong>up</strong>";
                     }
                     break;
                 }
@@ -394,10 +394,10 @@
                     }
                     keys.down = 0;
                     if (DEBUG) {
-                        debugKeysState.innerHTML =
-                            "<em>" + JSON.stringify(keys) + "</em>";
                         debugKeyAction.innerHTML =
                             "released <strong>down</strong>";
+                        debugKeysState.innerHTML =
+                            "<em>" + JSON.stringify(keys) + "</em>";
                     }
                     break;
                 }
@@ -408,10 +408,10 @@
                     }
                     keys.left = 0;
                     if (DEBUG) {
-                        debugKeysState.innerHTML =
-                            "<em>" + JSON.stringify(keys) + "</em>";
                         debugKeyAction.innerHTML =
                             "released <strong>left</strong>";
+                        debugKeysState.innerHTML =
+                            "<em>" + JSON.stringify(keys) + "</em>";
                     }
                     break;
                 }
@@ -422,10 +422,10 @@
                     }
                     keys.right = 0;
                     if (DEBUG) {
-                        debugKeysState.innerHTML =
-                            "<em>" + JSON.stringify(keys) + "</em>";
                         debugKeyAction.innerHTML =
                             "released <strong>right</strong>";
+                        debugKeysState.innerHTML =
+                            "<em>" + JSON.stringify(keys) + "</em>";
                     }
                     break;
                 }
@@ -470,6 +470,9 @@
             setMask(mask, buffer, current);
             setImage(ctx, image, buffer, mask);
         }
+        var debugFPS = document.getElementById("debug-fps");
+        var frameCounter = 0;
+        var frameStart = performance.now();
         var loop = function (t) {
             if ((keys.up !== 0) || (keys.down !== 0) || (keys.left !== 0) ||
                 (keys.right !== 0)) {
@@ -509,7 +512,7 @@
             else if ((move.x !== current.x) || (move.y !== current.y)) {
                 move.x = current.x;
                 move.y = current.y;
-                counter = 0;
+                keyCounter = 0;
             }
             if ((target.x !== current.x) || (target.y !== current.y)) {
                 buffer[(current.y * WIDTH) + current.x] = EMPTY;
@@ -520,6 +523,18 @@
             }
             setImage(ctx, image, buffer, mask);
             state.time = t;
+            if (DEBUG) {
+                ++frameCounter;
+                var frameStop = performance.now();
+                var delta = frameStop - frameStart;
+                if (1000 < delta) {
+                    debugFPS.innerHTML = "<strong>" +
+                        ((frameCounter / delta) * 1000).toFixed(2) +
+                        "</strong> fps";
+                    frameStart = frameStop;
+                    frameCounter = 0;
+                }
+            }
             requestAnimationFrame(loop);
         };
         loop(0);
