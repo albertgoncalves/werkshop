@@ -113,7 +113,7 @@ function getPartitions(stack: Partition[]): Edge[] {
         if (partition.horizontal) {
             const yDelta: number = partition.yUpper - partition.yLower;
             for (let i: number = N; 0 < i; --i) {
-                const y =
+                const y: number =
                     Math.floor(Math.random() * yDelta) + partition.yLower;
                 if (!(((y - MIN_SPLIT) < partition.yLower) ||
                       (partition.yUpper < (y + MIN_SPLIT))))
@@ -146,7 +146,7 @@ function getPartitions(stack: Partition[]): Edge[] {
         } else {
             const xDelta: number = partition.xUpper - partition.xLower;
             for (let i: number = N; 0 < i; --i) {
-                const x =
+                const x: number =
                     Math.floor(Math.random() * xDelta) + partition.xLower;
                 if (!(((x - MIN_SPLIT) < partition.xLower) ||
                       (partition.xUpper < (x + MIN_SPLIT))))
@@ -209,7 +209,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             for (let k: number = neighbors.length - 1; 0 < k; --k) {
                 const y1: number = neighbors[k - 1];
                 const y2: number = neighbors[k];
-                const yDelta = y2 - y1;
+                const yDelta: number = y2 - y1;
                 if (yDelta !== 0) {
                     if (yDelta <= MIN_SPLIT) {
                         edges.push({
@@ -260,7 +260,7 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
             for (let k: number = neighbors.length - 1; 0 < k; --k) {
                 const x1: number = neighbors[k - 1];
                 const x2: number = neighbors[k];
-                const xDelta = x2 - x1;
+                const xDelta: number = x2 - x1;
                 if (xDelta !== 0) {
                     if (xDelta <= MIN_SPLIT) {
                         edges.push({

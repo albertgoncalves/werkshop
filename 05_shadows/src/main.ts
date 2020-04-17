@@ -518,7 +518,7 @@ window.onload = function() {
         for (let _: number = 100; 0 < _; --_) {
             const x: number = Math.floor(Math.random() * WIDTH);
             const y: number = Math.floor(Math.random() * HEIGHT);
-            const index = (y * WIDTH) + x;
+            const index: number = (y * WIDTH) + x;
             if (buffer[index] === EMPTY) {
                 buffer[index] = PLAYER;
                 current.x = x;

@@ -44,7 +44,7 @@ export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
                     function(a: Point, b: Point): number {
                         return a.x - b.x;
                     });
-        const point = points[median];
+        const point: Point = points[median];
         return {
             point,
             horizontal,
@@ -70,7 +70,7 @@ export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
                     function(a: Point, b: Point): number {
                         return a.y - b.y;
                     });
-        const point = points[median];
+        const point: Point = points[median];
         return {
             point,
             horizontal,
