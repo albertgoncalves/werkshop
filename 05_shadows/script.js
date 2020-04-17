@@ -312,9 +312,9 @@
                 move.y = y;
             }
         }, false);
-        var keyCounter = 0;
         var debugKeyAction = document.getElementById("debug-key-action");
         var debugKeysState = document.getElementById("debug-keys-state");
+        var keyCounter = 0;
         canvas.addEventListener("keydown", function (event) {
             switch (event.key) {
                 case KEY_UP: {

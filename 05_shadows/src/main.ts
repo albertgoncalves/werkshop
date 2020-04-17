@@ -373,11 +373,11 @@ window.onload = function() {
             move.y = y;
         }
     }, false);
-    let keyCounter: number = 0;
     const debugKeyAction: HTMLElement =
         document.getElementById("debug-key-action") as HTMLElement;
     const debugKeysState: HTMLElement =
         document.getElementById("debug-keys-state") as HTMLElement;
+    let keyCounter: number = 0;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
             case KEY_UP: {
