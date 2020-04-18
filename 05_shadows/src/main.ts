@@ -25,7 +25,7 @@ const KEY_LEFT: string = "j";
 const KEY_RIGHT: string = "l";
 
 const FRAME_STEP: number = 8.0;
-const FRAME_SPEED: number = 0.25;
+const FRAME_SPEED: number = 0.4;
 
 let WIDTH: number = 0;
 let HEIGHT: number = 0;
@@ -524,6 +524,10 @@ window.onload = function() {
     const loop: (frameTime: number) => void = function(frameTime: number) {
         if (state.mouseClick) {
             state.mouseClick = false;
+            buffer[(current.y * WIDTH) + current.x] = EMPTY;
+            buffer[(target.y * WIDTH) + target.x] = PLAYER;
+            current.x = target.x;
+            current.y = target.y;
             move.x = target.x;
             move.y = target.y;
         } else {
@@ -536,47 +540,31 @@ window.onload = function() {
                 } else if (getKeyUp(buffer, keys, current)) {
                     move.x = current.x;
                     move.y -= FRAME_SPEED;
+                    target.y = Math.round(move.y);
                 } else if (getKeyDown(buffer, keys, current)) {
                     move.x = current.x;
                     move.y += FRAME_SPEED;
+                    target.y = Math.round(move.y);
                 } else if (getKeyLeft(buffer, keys, current)) {
                     move.x -= FRAME_SPEED;
                     move.y = current.y;
+                    target.x = Math.round(move.x);
                 } else if (getKeyRight(buffer, keys, current)) {
                     move.x += FRAME_SPEED;
                     move.y = current.y;
+                    target.x = Math.round(move.x);
+                }
+                if ((target.x !== current.x) || (target.y !== current.y)) {
+                    buffer[(current.y * WIDTH) + current.x] = EMPTY;
+                    buffer[(target.y * WIDTH) + target.x] = PLAYER;
+                    current.x = target.x;
+                    current.y = target.y;
                 }
                 state.frameIncrements -= FRAME_STEP;
             }
-            const xDelta: number = move.x - current.x;
-            const yDelta: number = move.y - current.y;
-            if (xDelta < -1) {
-                move.x = current.x - 1;
-                target.x = move.x;
-            } else if (1 < xDelta) {
-                move.x = current.x + 1;
-                target.x = move.x;
-            } else {
-                target.x = Math.round(move.x);
-            }
-            if (yDelta < -1) {
-                move.y = current.y - 1;
-                target.y = move.y;
-            } else if (1 < yDelta) {
-                move.y = current.y + 1;
-                target.y = move.y;
-            } else {
-                target.y = Math.round(move.y);
-            }
         }
-        if ((target.x !== current.x) || (target.y !== current.y)) {
-            buffer[(current.y * WIDTH) + current.x] = EMPTY;
-            buffer[(target.y * WIDTH) + target.x] = PLAYER;
-            current.x = target.x;
-            current.y = target.y;
-            setMask(mask, buffer, target);
-            setImage(ctx, image, buffer, mask);
-        }
+        setMask(mask, buffer, target);
+        setImage(ctx, image, buffer, mask);
         ++state.debugCount;
         const debugElapsed: number = frameTime - state.debugPrevTime;
         if (1000 < debugElapsed) {
