@@ -523,13 +523,13 @@ window.onload = function() {
         document.getElementById("debug-fps") as HTMLElement;
     const loop: (frameTime: number) => void = function(frameTime: number) {
         if (state.mouseClick) {
-            state.mouseClick = false;
             buffer[(current.y * WIDTH) + current.x] = EMPTY;
             buffer[(target.y * WIDTH) + target.x] = PLAYER;
             current.x = target.x;
             current.y = target.y;
             move.x = target.x;
             move.y = target.y;
+            state.mouseClick = false;
         } else {
             state.frameIncrements += frameTime - state.framePrevTime;
             while (FRAME_STEP < state.frameIncrements) {

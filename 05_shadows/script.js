@@ -455,13 +455,13 @@
         var debugFPS = document.getElementById("debug-fps");
         var loop = function (frameTime) {
             if (state.mouseClick) {
-                state.mouseClick = false;
                 buffer[(current.y * WIDTH) + current.x] = EMPTY;
                 buffer[(target.y * WIDTH) + target.x] = PLAYER;
                 current.x = target.x;
                 current.y = target.y;
                 move.x = target.x;
                 move.y = target.y;
+                state.mouseClick = false;
             }
             else {
                 state.frameIncrements += frameTime - state.framePrevTime;
