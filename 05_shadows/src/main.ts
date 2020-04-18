@@ -1,5 +1,3 @@
-const DEBUG: boolean = true;
-
 const CANVAS_SCALE: number = 3;
 
 const ALPHA_OPAQUE: number = 255;
@@ -26,8 +24,8 @@ const KEY_DOWN: string = "k";
 const KEY_LEFT: string = "j";
 const KEY_RIGHT: string = "l";
 
-const SPEED: number = 0.65;
-const FRAME_MS: number = (1 / 60) * 1000;
+const FRAME_STEP: number = 8.0;
+const FRAME_SPEED: number = 0.25;
 
 let WIDTH: number = 0;
 let HEIGHT: number = 0;
@@ -55,7 +53,12 @@ interface Directions {
 }
 
 interface State {
-    time: number|null;
+    framePrevTime: number;
+    frameIncrements: number;
+    debugPrevTime: number;
+    debugCount: number;
+    keyCount: number;
+    mouseClick: boolean;
 }
 
 function setVerticalLine(buffer: Uint8ClampedArray,
@@ -351,14 +354,19 @@ window.onload = function() {
         x: 0.0,
         y: 0.0,
     };
-    const state: State = {
-        time: null,
-    };
     const keys: Directions = {
         up: 0,
         down: 0,
         left: 0,
         right: 0,
+    };
+    const state: State = {
+        framePrevTime: 0.0,
+        frameIncrements: 0.0,
+        debugPrevTime: 0.0,
+        debugCount: 0,
+        keyCount: 0,
+        mouseClick: false,
     };
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
         const x: number =
@@ -367,17 +375,15 @@ window.onload = function() {
             (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
         const index: number = (y * WIDTH) + x;
         if (buffer[index] === EMPTY) {
+            state.mouseClick = true;
             target.x = x;
             target.y = y;
-            move.x = x;
-            move.y = y;
         }
     }, false);
     const debugKeyAction: HTMLElement =
         document.getElementById("debug-key-action") as HTMLElement;
     const debugKeysState: HTMLElement =
         document.getElementById("debug-keys-state") as HTMLElement;
-    let keyCounter: number = 0;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
             case KEY_UP: {
@@ -385,12 +391,10 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.up = ++keyCounter;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML = "pressed <strong>up</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                keys.up = ++state.keyCount;
+                debugKeyAction.innerHTML = "pressed <strong>up</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_DOWN: {
@@ -398,12 +402,10 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.down = ++keyCounter;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML = "pressed <strong>down</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                keys.down = ++state.keyCount;
+                debugKeyAction.innerHTML = "pressed <strong>down</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_LEFT: {
@@ -411,12 +413,10 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.left = ++keyCounter;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML = "pressed <strong>left</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                keys.left = ++state.keyCount;
+                debugKeyAction.innerHTML = "pressed <strong>left</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_RIGHT: {
@@ -424,13 +424,10 @@ window.onload = function() {
                 if (event.repeat) {
                     return;
                 }
-                keys.right = ++keyCounter;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML =
-                        "pressed <strong>right</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                keys.right = ++state.keyCount;
+                debugKeyAction.innerHTML = "pressed <strong>right</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
         }
@@ -443,11 +440,9 @@ window.onload = function() {
                     return;
                 }
                 keys.up = 0;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML = "released <strong>up</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                debugKeyAction.innerHTML = "released <strong>up</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_DOWN: {
@@ -456,12 +451,9 @@ window.onload = function() {
                     return;
                 }
                 keys.down = 0;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML =
-                        "released <strong>down</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                debugKeyAction.innerHTML = "released <strong>down</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_LEFT: {
@@ -470,12 +462,9 @@ window.onload = function() {
                     return;
                 }
                 keys.left = 0;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML =
-                        "released <strong>left</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                debugKeyAction.innerHTML = "released <strong>left</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
             case KEY_RIGHT: {
@@ -484,12 +473,9 @@ window.onload = function() {
                     return;
                 }
                 keys.right = 0;
-                if (DEBUG) {
-                    debugKeyAction.innerHTML =
-                        "released <strong>right</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
-                }
+                debugKeyAction.innerHTML = "released <strong>right</strong>";
+                debugKeysState.innerHTML =
+                    "<em>" + JSON.stringify(keys) + "</em>";
                 break;
             }
         }
@@ -535,65 +521,72 @@ window.onload = function() {
     }
     const debugFPS: HTMLElement =
         document.getElementById("debug-fps") as HTMLElement;
-    let frameCounter: number = 0;
-    let frameStart: number = performance.now();
-    const loop: (t: number) => void = function(t: number) {
-        if (getKeyUp(buffer, keys, current)) {
-            const speed: number = ((state.time !== null) && (state.time < t))
-                ? ((t - state.time) / FRAME_MS) * SPEED
-                : SPEED;
-            move.x = current.x;
-            move.y -= speed;
-            target.y = Math.round(move.y);
-        } else if (getKeyDown(buffer, keys, current)) {
-            const speed: number = ((state.time !== null) && (state.time < t))
-                ? ((t - state.time) / FRAME_MS) * SPEED
-                : SPEED;
-            move.x = current.x;
-            move.y += speed;
-            target.y = Math.round(move.y);
-        } else if (getKeyLeft(buffer, keys, current)) {
-            const speed: number = ((state.time !== null) && (state.time < t))
-                ? ((t - state.time) / FRAME_MS) * SPEED
-                : SPEED;
-            move.x -= speed;
-            move.y = current.y;
-            target.x = Math.round(move.x);
-        } else if (getKeyRight(buffer, keys, current)) {
-            const speed: number = ((state.time !== null) && (state.time < t))
-                ? ((t - state.time) / FRAME_MS) * SPEED
-                : SPEED;
-            move.x += speed;
-            move.y = current.y;
-            target.x = Math.round(move.x);
-        } else if (((move.x !== current.x) || (move.y !== current.y)) &&
-                   ((keys.up | keys.down | keys.left | keys.right) === 0))
-        {
-            move.x = current.x;
-            move.y = current.y;
-            keyCounter = 0;
+    const loop: (frameTime: number) => void = function(frameTime: number) {
+        if (state.mouseClick) {
+            state.mouseClick = false;
+            move.x = target.x;
+            move.y = target.y;
+        } else {
+            state.frameIncrements += frameTime - state.framePrevTime;
+            while (FRAME_STEP < state.frameIncrements) {
+                if ((keys.up | keys.down | keys.left | keys.right) === 0) {
+                    move.x = current.x;
+                    move.y = current.y;
+                    state.keyCount = 0;
+                } else if (getKeyUp(buffer, keys, current)) {
+                    move.x = current.x;
+                    move.y -= FRAME_SPEED;
+                } else if (getKeyDown(buffer, keys, current)) {
+                    move.x = current.x;
+                    move.y += FRAME_SPEED;
+                } else if (getKeyLeft(buffer, keys, current)) {
+                    move.x -= FRAME_SPEED;
+                    move.y = current.y;
+                } else if (getKeyRight(buffer, keys, current)) {
+                    move.x += FRAME_SPEED;
+                    move.y = current.y;
+                }
+                state.frameIncrements -= FRAME_STEP;
+            }
+            const xDelta: number = move.x - current.x;
+            const yDelta: number = move.y - current.y;
+            if (xDelta < -1) {
+                move.x = current.x - 1;
+                target.x = move.x;
+            } else if (1 < xDelta) {
+                move.x = current.x + 1;
+                target.x = move.x;
+            } else {
+                target.x = Math.round(move.x);
+            }
+            if (yDelta < -1) {
+                move.y = current.y - 1;
+                target.y = move.y;
+            } else if (1 < yDelta) {
+                move.y = current.y + 1;
+                target.y = move.y;
+            } else {
+                target.y = Math.round(move.y);
+            }
         }
         if ((target.x !== current.x) || (target.y !== current.y)) {
             buffer[(current.y * WIDTH) + current.x] = EMPTY;
             buffer[(target.y * WIDTH) + target.x] = PLAYER;
-            setMask(mask, buffer, target);
             current.x = target.x;
             current.y = target.y;
+            setMask(mask, buffer, target);
+            setImage(ctx, image, buffer, mask);
         }
-        setImage(ctx, image, buffer, mask);
-        state.time = t;
-        if (DEBUG) {
-            ++frameCounter;
-            const frameStop: number = performance.now();
-            const delta: number = frameStop - frameStart;
-            if (1000 < delta) {
-                debugFPS.innerHTML = "<strong>" +
-                    ((frameCounter / delta) * 1000).toFixed(2) +
-                    "</strong> fps";
-                frameStart = frameStop;
-                frameCounter = 0;
-            }
+        ++state.debugCount;
+        const debugElapsed: number = frameTime - state.debugPrevTime;
+        if (1000 < debugElapsed) {
+            debugFPS.innerHTML = "<strong>" +
+                ((state.debugCount / debugElapsed) * 1000).toFixed(2) +
+                "</strong> fps";
+            state.debugPrevTime = frameTime;
+            state.debugCount = 0;
         }
+        state.framePrevTime = frameTime;
         requestAnimationFrame(loop);
     };
     loop(0);
