@@ -70,6 +70,12 @@
     define("kdtree", ["require", "exports", "quickselect"], function (require, exports, quickselect_1) {
         "use strict";
         exports.__esModule = true;
+        function xCompare(a, b) {
+            return a.x - b.x;
+        }
+        function yCompare(a, b) {
+            return a.y - b.y;
+        }
         function makeTree(points, horizontal, bounds) {
             var n = points.length;
             if (n === 0) {
@@ -77,9 +83,7 @@
             }
             var median = Math.floor(n / 2);
             if (horizontal) {
-                quickselect_1.quickSelect(points, median, 0, n - 1, function (a, b) {
-                    return a.x - b.x;
-                });
+                quickselect_1.quickSelect(points, median, 0, n - 1, xCompare);
                 var point = points[median];
                 return {
                     point: point,
@@ -100,9 +104,7 @@
                 };
             }
             else {
-                quickselect_1.quickSelect(points, median, 0, n - 1, function (a, b) {
-                    return a.y - b.y;
-                });
+                quickselect_1.quickSelect(points, median, 0, n - 1, yCompare);
                 var point = points[median];
                 return {
                     point: point,

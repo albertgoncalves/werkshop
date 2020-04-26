@@ -29,6 +29,14 @@ export interface Tree {
     right: Tree|null;
 }
 
+function xCompare(a: Point, b: Point): number {
+    return a.x - b.x;
+}
+
+function yCompare(a: Point, b: Point): number {
+    return a.y - b.y;
+}
+
 export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
     Tree|null {
     const n: number = points.length;
@@ -37,13 +45,7 @@ export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
     }
     const median: number = Math.floor(n / 2);
     if (horizontal) {
-        quickSelect(points,
-                    median,
-                    0,
-                    n - 1,
-                    function(a: Point, b: Point): number {
-                        return a.x - b.x;
-                    });
+        quickSelect(points, median, 0, n - 1, xCompare);
         const point: Point = points[median];
         return {
             point,
@@ -63,13 +65,7 @@ export function makeTree(points: Point[], horizontal: boolean, bounds: Bounds):
             }),
         };
     } else {
-        quickSelect(points,
-                    median,
-                    0,
-                    n - 1,
-                    function(a: Point, b: Point): number {
-                        return a.y - b.y;
-                    });
+        quickSelect(points, median, 0, n - 1, yCompare);
         const point: Point = points[median];
         return {
             point,

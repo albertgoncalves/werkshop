@@ -35,7 +35,7 @@ function randomColor(alpha: number) {
 function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
     const n: number = points.length;
     {
-        /* NOTE: Highlight points where `boundsOverlap == true` */
+        /* NOTE: Highlight points where `boundsOverlap == true`. */
         ctx.beginPath();
         for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
@@ -47,7 +47,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
         ctx.fill();
     }
     {
-        /* NOTE: Highlight points where `withinRadius == true` */
+        /* NOTE: Highlight points where `withinRadius == true`. */
         ctx.beginPath();
         for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
@@ -59,7 +59,7 @@ function drawPoints(ctx: CanvasRenderingContext2D, points: Point[]) {
         ctx.fill();
     }
     {
-        /* NOTE: Draw all points */
+        /* NOTE: Draw all points. */
         ctx.beginPath();
         for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
@@ -112,18 +112,18 @@ window.onload = function() {
             (event.x + window.pageXOffset - canvas.offsetLeft) / canvas.width;
         circle.y =
             (event.y + window.pageYOffset - canvas.offsetTop) / canvas.height;
-        /* NOTE: Reset all points */
+        /* NOTE: Reset all points. */
         for (let i: number = 0; i < n; ++i) {
             const point: Point = points[i];
             point.boundsOverlap = false;
             point.withinRadius = false;
         }
         {
-            /* NOTE: Search tree for points within `circle.radius` */
+            /* NOTE: Search tree for points within `circle.radius`. */
             console.time("radiusSearch()");
             radiusSearch(tree, circle, function(point: Point) {
                 /* NOTE: When tree node bounds intersects with `circle`, test
-                 * `tree.point` for intersection with `circle`
+                 * `tree.point` for intersection with `circle`.
                  */
                 point.boundsOverlap = true;
                 if (pointInCircle(point, circle)) {
@@ -135,7 +135,7 @@ window.onload = function() {
         ctx.clearRect(0, 0, 1, 1);
         drawPoints(ctx, points);
         {
-            /* NOTE: Draw search region based on `circle` */
+            /* NOTE: Draw search region based on `circle`. */
             ctx.beginPath();
             drawArc(ctx, circle.x, circle.y, circle.radius);
             drawCross(ctx, circle.x, circle.y, 0.035);

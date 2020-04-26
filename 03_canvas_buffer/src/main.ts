@@ -1,5 +1,5 @@
-/* NOTE:
- * `https://rembound.com/articles/drawing-pixels-with-html5-canvas-and-javascript`
+/* NOTE: See
+ * `https://rembound.com/articles/drawing-pixels-with-html5-canvas-and-javascript`.
  */
 
 window.onload = function() {

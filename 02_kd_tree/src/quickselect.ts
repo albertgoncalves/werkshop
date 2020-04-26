@@ -11,7 +11,9 @@ export function quickSelect<T>(array: T[],
                                l: number,
                                r: number,
                                compare: (a: T, b: T) => number) {
-    /* NOTE: `https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm` */
+    /* NOTE: See
+     * `https://en.wikipedia.org/wiki/Floyd%E2%80%93Rivest_algorithm`.
+     */
     let left: number = l;
     let right: number = r;
     while (left < right) {

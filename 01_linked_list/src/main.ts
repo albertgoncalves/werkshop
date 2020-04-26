@@ -16,7 +16,7 @@ function main() {
     const canvasHalfHeight: number = canvas.height / 2;
     const canvasWidthSlice: number = canvas.width / n;
     {
-        /* NOTE: Initialize `nodes` */
+        /* NOTE: Initialize `nodes`. */
         const k: number = 15;
         const kHalf: number = k / 2;
         for (let i: number = 0; i < n; ++i) {
@@ -31,7 +31,7 @@ function main() {
         }
     }
     {
-        /* NOTE: Draw everything */
+        /* NOTE: Draw everything. */
         const ctx: CanvasRenderingContext2D =
             canvas.getContext("2d") as CanvasRenderingContext2D;
         ctx.imageSmoothingEnabled = true;
@@ -40,7 +40,7 @@ function main() {
         ctx.strokeStyle = color;
         ctx.lineWidth = 1.65;
         {
-            /* NOTE: Draw `nodes` surroundings */
+            /* NOTE: Draw `nodes` surroundings. */
             const yOver: number = canvasHalfHeight - nodeHeight;
             const yUnder: number = canvasHalfHeight + nodeHeight;
             ctx.setLineDash([2.25, 3]);
@@ -61,7 +61,7 @@ function main() {
             ctx.stroke();
         }
         {
-            /* NOTE: Draw `nodes` rects and pointers */
+            /* NOTE: Draw `nodes` rects and pointers. */
             const radius: number = 2.5;
             const twicePi: number = Math.PI * 2;
             const nodeThreeQuarterWidth: number = nodeWidth * 0.75;
@@ -85,7 +85,7 @@ function main() {
             ctx.fill();
         }
         {
-            /* NOTE: Draw `nodes` separator details */
+            /* NOTE: Draw `nodes` separator details. */
             ctx.setLineDash([1, 2]);
             ctx.beginPath();
             const m: number = n - 1;
