@@ -386,98 +386,90 @@ window.onload = function() {
         document.getElementById("debug-keys-state") as HTMLElement;
     canvas.addEventListener("keydown", function(event: KeyboardEvent) {
         switch (event.key) {
-            case KEY_UP: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.up = ++state.keyCount;
-                debugKeyAction.innerHTML = "pressed <strong>up</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+        case KEY_UP: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_DOWN: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.down = ++state.keyCount;
-                debugKeyAction.innerHTML = "pressed <strong>down</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.up = ++state.keyCount;
+            debugKeyAction.innerHTML = "pressed <strong>up</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_DOWN: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_LEFT: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.left = ++state.keyCount;
-                debugKeyAction.innerHTML = "pressed <strong>left</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.down = ++state.keyCount;
+            debugKeyAction.innerHTML = "pressed <strong>down</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_LEFT: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_RIGHT: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.right = ++state.keyCount;
-                debugKeyAction.innerHTML = "pressed <strong>right</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.left = ++state.keyCount;
+            debugKeyAction.innerHTML = "pressed <strong>left</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_RIGHT: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
+            keys.right = ++state.keyCount;
+            debugKeyAction.innerHTML = "pressed <strong>right</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
         }
     }, false);
     canvas.addEventListener("keyup", function(event: KeyboardEvent) {
         switch (event.key) {
-            case KEY_UP: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.up = 0;
-                debugKeyAction.innerHTML = "released <strong>up</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+        case KEY_UP: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_DOWN: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.down = 0;
-                debugKeyAction.innerHTML = "released <strong>down</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.up = 0;
+            debugKeyAction.innerHTML = "released <strong>up</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_DOWN: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_LEFT: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.left = 0;
-                debugKeyAction.innerHTML = "released <strong>left</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.down = 0;
+            debugKeyAction.innerHTML = "released <strong>down</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_LEFT: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
-            case KEY_RIGHT: {
-                event.preventDefault();
-                if (event.repeat) {
-                    return;
-                }
-                keys.right = 0;
-                debugKeyAction.innerHTML = "released <strong>right</strong>";
-                debugKeysState.innerHTML =
-                    "<em>" + JSON.stringify(keys) + "</em>";
-                break;
+            keys.left = 0;
+            debugKeyAction.innerHTML = "released <strong>left</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
+        case KEY_RIGHT: {
+            event.preventDefault();
+            if (event.repeat) {
+                return;
             }
+            keys.right = 0;
+            debugKeyAction.innerHTML = "released <strong>right</strong>";
+            debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
+            break;
+        }
         }
     }, false);
     {

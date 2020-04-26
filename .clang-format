@@ -2,18 +2,18 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 ColumnLimit: 79
 AlignAfterOpenBracket: Align
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignOperands: false
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
-JavaScriptQuotes: Double
-JavaScriptWrapImports: true
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Custom
 BraceWrapping:
     AfterControlStatement: MultiLine
-IndentCaseLabels: true
+IndentCaseLabels: false
+JavaScriptQuotes: Double
+JavaScriptWrapImports: true
 SpacesInContainerLiterals: false

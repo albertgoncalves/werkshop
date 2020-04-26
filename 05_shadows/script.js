@@ -326,8 +326,7 @@
                     }
                     keys.up = ++state.keyCount;
                     debugKeyAction.innerHTML = "pressed <strong>up</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_DOWN: {
@@ -337,8 +336,7 @@
                     }
                     keys.down = ++state.keyCount;
                     debugKeyAction.innerHTML = "pressed <strong>down</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_LEFT: {
@@ -348,8 +346,7 @@
                     }
                     keys.left = ++state.keyCount;
                     debugKeyAction.innerHTML = "pressed <strong>left</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_RIGHT: {
@@ -359,8 +356,7 @@
                     }
                     keys.right = ++state.keyCount;
                     debugKeyAction.innerHTML = "pressed <strong>right</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
             }
@@ -374,8 +370,7 @@
                     }
                     keys.up = 0;
                     debugKeyAction.innerHTML = "released <strong>up</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_DOWN: {
@@ -385,8 +380,7 @@
                     }
                     keys.down = 0;
                     debugKeyAction.innerHTML = "released <strong>down</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_LEFT: {
@@ -396,8 +390,7 @@
                     }
                     keys.left = 0;
                     debugKeyAction.innerHTML = "released <strong>left</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
                 case KEY_RIGHT: {
@@ -407,8 +400,7 @@
                     }
                     keys.right = 0;
                     debugKeyAction.innerHTML = "released <strong>right</strong>";
-                    debugKeysState.innerHTML =
-                        "<em>" + JSON.stringify(keys) + "</em>";
+                    debugKeysState.innerHTML = "<em>" + JSON.stringify(keys) + "</em>";
                     break;
                 }
             }
