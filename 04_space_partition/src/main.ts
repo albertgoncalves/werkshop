@@ -32,36 +32,34 @@ function setVerticalLine(buffer: ImageData,
                          x: number,
                          yStart: number,
                          yEnd: number) {
-    const start: number = ((yStart + 1) * width) + x;
-    const end: number = (yEnd * width) + x;
-    for (let i: number = start; i < end; i += width) {
-        const index: number = i << 2;
-        buffer.data[index] = WHITE;
-        buffer.data[index + 1] = WHITE;
-        buffer.data[index + 2] = WHITE;
+    const start: number = ((yStart * width) + x) << 2;
+    const end: number = ((yEnd * width) + x) << 2;
+    const widthColor: number = width << 2;
+    for (let i: number = start + widthColor; i < end; i += widthColor) {
+        buffer.data[i] = WHITE;
+        buffer.data[i + 1] = WHITE;
+        buffer.data[i + 2] = WHITE;
     }
     {
-        const index: number = ((yStart * width) + x) << 2;
         if (DEBUG) {
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            buffer.data[start] = COLOR_R;
+            buffer.data[start + 1] = COLOR_G;
+            buffer.data[start + 2] = COLOR_B;
         } else {
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+            buffer.data[start] = WHITE;
+            buffer.data[start + 1] = WHITE;
+            buffer.data[start + 2] = WHITE;
         }
     }
     {
-        const index: number = end << 2;
         if (DEBUG) {
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            buffer.data[end] = COLOR_R;
+            buffer.data[end + 1] = COLOR_G;
+            buffer.data[end + 2] = COLOR_B;
         } else {
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+            buffer.data[end] = WHITE;
+            buffer.data[end + 1] = WHITE;
+            buffer.data[end + 2] = WHITE;
         }
     }
 }
@@ -72,36 +70,33 @@ function setHorizontalLine(buffer: ImageData,
                            xEnd: number,
                            y: number) {
     const yWidth: number = y * width;
-    const start: number = yWidth + xStart;
-    const end: number = yWidth + xEnd;
-    for (let i: number = start + 1; i < end; ++i) {
-        const index: number = i << 2;
-        buffer.data[index] = WHITE;
-        buffer.data[index + 1] = WHITE;
-        buffer.data[index + 2] = WHITE;
+    const start: number = (yWidth + xStart) << 2;
+    const end: number = (yWidth + xEnd) << 2;
+    for (let i: number = start + 4; i < end; i += 4) {
+        buffer.data[i] = WHITE;
+        buffer.data[i + 1] = WHITE;
+        buffer.data[i + 2] = WHITE;
     }
     {
-        const index: number = start << 2;
         if (DEBUG) {
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            buffer.data[start] = COLOR_R;
+            buffer.data[start + 1] = COLOR_G;
+            buffer.data[start + 2] = COLOR_B;
         } else {
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+            buffer.data[start] = WHITE;
+            buffer.data[start + 1] = WHITE;
+            buffer.data[start + 2] = WHITE;
         }
     }
     {
-        const index: number = end << 2;
         if (DEBUG) {
-            buffer.data[index] = COLOR_R;
-            buffer.data[index + 1] = COLOR_G;
-            buffer.data[index + 2] = COLOR_B;
+            buffer.data[end] = COLOR_R;
+            buffer.data[end + 1] = COLOR_G;
+            buffer.data[end + 2] = COLOR_B;
         } else {
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+            buffer.data[end] = WHITE;
+            buffer.data[end + 1] = WHITE;
+            buffer.data[end + 2] = WHITE;
         }
     }
 }
@@ -304,12 +299,11 @@ window.onload = function() {
     const buffer: ImageData = ctx.createImageData(width, height);
     {
         console.time("for (let i: num...");
-        for (let i: number = (width * height) - 1; 0 <= i; --i) {
-            const index: number = i << 2;
-            buffer.data[index] = DARK_GRAY;
-            buffer.data[index + 1] = DARK_GRAY;
-            buffer.data[index + 2] = DARK_GRAY;
-            buffer.data[index + 3] = 255;
+        for (let i: number = ((width * height) - 1) << 2; 0 <= i; i -= 4) {
+            buffer.data[i] = DARK_GRAY;
+            buffer.data[i + 1] = DARK_GRAY;
+            buffer.data[i + 2] = DARK_GRAY;
+            buffer.data[i + 3] = 255;
         }
         console.timeEnd("for (let i: num...");
     }

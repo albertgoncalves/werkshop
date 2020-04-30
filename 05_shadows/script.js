@@ -50,13 +50,15 @@
         }
     }
     function setImage(ctx, image, buffer, mask) {
-        for (var i = buffer.length - 1; 0 <= i; --i) {
+        var n = buffer.length - 1;
+        var j = n << 2;
+        for (var i = n; 0 <= i; --i) {
             var color = buffer[i];
-            var index = i << 2;
-            image.data[index] = color;
-            image.data[index + 1] = color;
-            image.data[index + 2] = color;
-            image.data[index + 3] = mask[i];
+            image.data[j] = color;
+            image.data[j + 1] = color;
+            image.data[j + 2] = color;
+            image.data[j + 3] = mask[i];
+            j -= 4;
         }
         ctx.putImageData(image, 0, 0);
     }

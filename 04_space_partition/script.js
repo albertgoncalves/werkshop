@@ -22,75 +22,70 @@
     var PAD_DOUBLE = PAD << 1;
     var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
-        var start = ((yStart + 1) * width) + x;
-        var end = (yEnd * width) + x;
-        for (var i = start; i < end; i += width) {
-            var index = i << 2;
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+        var start = ((yStart * width) + x) << 2;
+        var end = ((yEnd * width) + x) << 2;
+        var widthColor = width << 2;
+        for (var i = start + widthColor; i < end; i += widthColor) {
+            buffer.data[i] = WHITE;
+            buffer.data[i + 1] = WHITE;
+            buffer.data[i + 2] = WHITE;
         }
         {
-            var index = ((yStart * width) + x) << 2;
             if (DEBUG) {
-                buffer.data[index] = COLOR_R;
-                buffer.data[index + 1] = COLOR_G;
-                buffer.data[index + 2] = COLOR_B;
+                buffer.data[start] = COLOR_R;
+                buffer.data[start + 1] = COLOR_G;
+                buffer.data[start + 2] = COLOR_B;
             }
             else {
-                buffer.data[index] = WHITE;
-                buffer.data[index + 1] = WHITE;
-                buffer.data[index + 2] = WHITE;
+                buffer.data[start] = WHITE;
+                buffer.data[start + 1] = WHITE;
+                buffer.data[start + 2] = WHITE;
             }
         }
         {
-            var index = end << 2;
             if (DEBUG) {
-                buffer.data[index] = COLOR_R;
-                buffer.data[index + 1] = COLOR_G;
-                buffer.data[index + 2] = COLOR_B;
+                buffer.data[end] = COLOR_R;
+                buffer.data[end + 1] = COLOR_G;
+                buffer.data[end + 2] = COLOR_B;
             }
             else {
-                buffer.data[index] = WHITE;
-                buffer.data[index + 1] = WHITE;
-                buffer.data[index + 2] = WHITE;
+                buffer.data[end] = WHITE;
+                buffer.data[end + 1] = WHITE;
+                buffer.data[end + 2] = WHITE;
             }
         }
     }
     function setHorizontalLine(buffer, width, xStart, xEnd, y) {
         var yWidth = y * width;
-        var start = yWidth + xStart;
-        var end = yWidth + xEnd;
-        for (var i = start + 1; i < end; ++i) {
-            var index = i << 2;
-            buffer.data[index] = WHITE;
-            buffer.data[index + 1] = WHITE;
-            buffer.data[index + 2] = WHITE;
+        var start = (yWidth + xStart) << 2;
+        var end = (yWidth + xEnd) << 2;
+        for (var i = start + 4; i < end; i += 4) {
+            buffer.data[i] = WHITE;
+            buffer.data[i + 1] = WHITE;
+            buffer.data[i + 2] = WHITE;
         }
         {
-            var index = start << 2;
             if (DEBUG) {
-                buffer.data[index] = COLOR_R;
-                buffer.data[index + 1] = COLOR_G;
-                buffer.data[index + 2] = COLOR_B;
+                buffer.data[start] = COLOR_R;
+                buffer.data[start + 1] = COLOR_G;
+                buffer.data[start + 2] = COLOR_B;
             }
             else {
-                buffer.data[index] = WHITE;
-                buffer.data[index + 1] = WHITE;
-                buffer.data[index + 2] = WHITE;
+                buffer.data[start] = WHITE;
+                buffer.data[start + 1] = WHITE;
+                buffer.data[start + 2] = WHITE;
             }
         }
         {
-            var index = end << 2;
             if (DEBUG) {
-                buffer.data[index] = COLOR_R;
-                buffer.data[index + 1] = COLOR_G;
-                buffer.data[index + 2] = COLOR_B;
+                buffer.data[end] = COLOR_R;
+                buffer.data[end + 1] = COLOR_G;
+                buffer.data[end + 2] = COLOR_B;
             }
             else {
-                buffer.data[index] = WHITE;
-                buffer.data[index + 1] = WHITE;
-                buffer.data[index + 2] = WHITE;
+                buffer.data[end] = WHITE;
+                buffer.data[end + 1] = WHITE;
+                buffer.data[end + 2] = WHITE;
             }
         }
     }
@@ -280,12 +275,11 @@
         var buffer = ctx.createImageData(width, height);
         {
             console.time("for (let i: num...");
-            for (var i = (width * height) - 1; 0 <= i; --i) {
-                var index = i << 2;
-                buffer.data[index] = DARK_GRAY;
-                buffer.data[index + 1] = DARK_GRAY;
-                buffer.data[index + 2] = DARK_GRAY;
-                buffer.data[index + 3] = 255;
+            for (var i = ((width * height) - 1) << 2; 0 <= i; i -= 4) {
+                buffer.data[i] = DARK_GRAY;
+                buffer.data[i + 1] = DARK_GRAY;
+                buffer.data[i + 2] = DARK_GRAY;
+                buffer.data[i + 3] = 255;
             }
             console.timeEnd("for (let i: num...");
         }

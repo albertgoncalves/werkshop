@@ -88,13 +88,15 @@ function setImage(ctx: CanvasRenderingContext2D,
                   image: ImageData,
                   buffer: Uint8ClampedArray,
                   mask: Uint8ClampedArray) {
-    for (let i: number = buffer.length - 1; 0 <= i; --i) {
+    const n: number = buffer.length - 1;
+    let j: number = n << 2;
+    for (let i: number = n; 0 <= i; --i) {
         const color: number = buffer[i];
-        const index: number = i << 2;
-        image.data[index] = color;
-        image.data[index + 1] = color;
-        image.data[index + 2] = color;
-        image.data[index + 3] = mask[i];
+        image.data[j] = color;
+        image.data[j + 1] = color;
+        image.data[j + 2] = color;
+        image.data[j + 3] = mask[i];
+        j -= 4;
     }
     ctx.putImageData(image, 0, 0);
 }
