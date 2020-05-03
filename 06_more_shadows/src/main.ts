@@ -13,7 +13,7 @@ import {
     getSplitEdges,
 } from "./space_partition";
 
-/* NOTE: `GLOBAL.empty == 0`! */
+/* NOTE: `GLOBAL.empty === 0`! */
 const PLAYER: number = 1;
 const BLOCK: number = 2;
 
