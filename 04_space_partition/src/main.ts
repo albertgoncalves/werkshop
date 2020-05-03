@@ -6,11 +6,12 @@ const COLOR_R: number = 75;
 const COLOR_G: number = 155;
 const COLOR_B: number = 250;
 
+const ITERATION_LIMIT: number = 100;
+
 const MIN_DELTA: number = 1 << 5;
 const MIN_SPLIT: number = (1 << 3) + 1;
 const PAD: number = MIN_SPLIT >> 1;
 const PAD_DOUBLE: number = PAD << 1;
-const N: number = 100;
 
 interface Partition {
     xLower: number;
@@ -107,7 +108,7 @@ function getPartitions(stack: Partition[]): Edge[] {
     while (partition) {
         if (partition.horizontal) {
             const yDelta: number = partition.yUpper - partition.yLower;
-            for (let i: number = N; 0 < i; --i) {
+            for (let i: number = ITERATION_LIMIT; 0 < i; --i) {
                 const y: number =
                     Math.floor(Math.random() * yDelta) + partition.yLower;
                 if (!(((y - MIN_SPLIT) < partition.yLower) ||
@@ -140,7 +141,7 @@ function getPartitions(stack: Partition[]): Edge[] {
             }
         } else {
             const xDelta: number = partition.xUpper - partition.xLower;
-            for (let i: number = N; 0 < i; --i) {
+            for (let i: number = ITERATION_LIMIT; 0 < i; --i) {
                 const x: number =
                     Math.floor(Math.random() * xDelta) + partition.xLower;
                 if (!(((x - MIN_SPLIT) < partition.xLower) ||

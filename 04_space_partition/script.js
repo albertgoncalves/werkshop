@@ -16,11 +16,11 @@
     var COLOR_R = 75;
     var COLOR_G = 155;
     var COLOR_B = 250;
+    var ITERATION_LIMIT = 100;
     var MIN_DELTA = 1 << 5;
     var MIN_SPLIT = (1 << 3) + 1;
     var PAD = MIN_SPLIT >> 1;
     var PAD_DOUBLE = PAD << 1;
-    var N = 100;
     function setVerticalLine(buffer, width, x, yStart, yEnd) {
         var start = ((yStart * width) + x) << 2;
         var end = ((yEnd * width) + x) << 2;
@@ -95,7 +95,7 @@
         while (partition) {
             if (partition.horizontal) {
                 var yDelta = partition.yUpper - partition.yLower;
-                for (var i = N; 0 < i; --i) {
+                for (var i = ITERATION_LIMIT; 0 < i; --i) {
                     var y = Math.floor(Math.random() * yDelta) + partition.yLower;
                     if (!(((y - MIN_SPLIT) < partition.yLower) ||
                         (partition.yUpper < (y + MIN_SPLIT)))) {
@@ -127,7 +127,7 @@
             }
             else {
                 var xDelta = partition.xUpper - partition.xLower;
-                for (var i = N; 0 < i; --i) {
+                for (var i = ITERATION_LIMIT; 0 < i; --i) {
                     var x = Math.floor(Math.random() * xDelta) + partition.xLower;
                     if (!(((x - MIN_SPLIT) < partition.xLower) ||
                         (partition.xUpper < (x + MIN_SPLIT)))) {
