@@ -9,7 +9,16 @@
         Object.defineProperty(exports, "__cjsModule", { value: true });
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
-    define("shadows", ["require", "exports"], function (require, exports) {
+    define("global", ["require", "exports"], function (require, exports) {
+        "use strict";
+        exports.__esModule = true;
+        exports.GLOBAL = {
+            width: 0,
+            height: 0,
+            empty: 0
+        };
+    });
+    define("shadows", ["require", "exports", "global"], function (require, exports, global_1) {
         "use strict";
         exports.__esModule = true;
         var VISIBLE = 255;
@@ -17,11 +26,12 @@
         var APERTURE = 0.5;
         var RADIUS = 182;
         var RADIUS_SQUARED = RADIUS * RADIUS;
-        function getBlocked(buffer, width, height, empty, x, y) {
-            return ((x < 0) || (y < 0) || (width <= x) || (height <= y) ||
-                (buffer[(width * y) + x] !== empty));
+        function getBlocked(buffer, x, y) {
+            return ((x < 0) || (y < 0) || (global_1.GLOBAL.width <= x) ||
+                (global_1.GLOBAL.height <= y) ||
+                (buffer[(global_1.GLOBAL.width * y) + x] !== global_1.GLOBAL.empty));
         }
-        function setMaskColRow(mask, buffer, width, height, empty, current, octal) {
+        function setMaskColRow(mask, buffer, current, octal) {
             if (octal.slopeStart < octal.slopeEnd) {
                 return;
             }
@@ -33,7 +43,7 @@
                 var y = current.y + (dY * octal.yMult);
                 var yDelta = y - current.y;
                 var yDeltaSquared = yDelta * yDelta;
-                var yWidth = y * width;
+                var yWidth = y * global_1.GLOBAL.width;
                 for (var dX = dY; 0 <= dX; --dX) {
                     var lSlope = (dX - APERTURE) / (dY + APERTURE);
                     if (octal.slopeStart < lSlope) {
@@ -46,12 +56,13 @@
                     var x = current.x + (dX * octal.xMult);
                     var xDelta = x - current.x;
                     if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
-                        (0 <= x) && (x < width) && (0 <= y) && (y < height)) {
+                        (0 <= x) && (x < global_1.GLOBAL.width) && (0 <= y) &&
+                        (y < global_1.GLOBAL.height)) {
                         mask[yWidth + x] = VISIBLE;
                         visible = true;
                     }
                     if (blocked) {
-                        if (getBlocked(buffer, width, height, empty, x, y)) {
+                        if (getBlocked(buffer, x, y)) {
                             nextStart = lSlope;
                             continue;
                         }
@@ -61,10 +72,9 @@
                         }
                     }
                     else {
-                        if ((getBlocked(buffer, width, height, empty, x, y)) &&
-                            (dY < RADIUS)) {
+                        if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
                             blocked = true;
-                            setMaskColRow(mask, buffer, width, height, empty, current, {
+                            setMaskColRow(mask, buffer, current, {
                                 xMult: octal.xMult,
                                 yMult: octal.yMult,
                                 loopStart: dY + 1,
@@ -80,7 +90,7 @@
                 }
             }
         }
-        function setMaskRowCol(mask, buffer, width, height, empty, current, octal) {
+        function setMaskRowCol(mask, buffer, current, octal) {
             if (octal.slopeStart < octal.slopeEnd) {
                 return;
             }
@@ -102,15 +112,16 @@
                         break;
                     }
                     var y = current.y + (dY * octal.yMult);
-                    var yWidth = y * width;
+                    var yWidth = y * global_1.GLOBAL.width;
                     var yDelta = y - current.y;
                     if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
-                        (0 <= x) && (x < width) && (0 <= y) && (y < height)) {
+                        (0 <= x) && (x < global_1.GLOBAL.width) && (0 <= y) &&
+                        (y < global_1.GLOBAL.height)) {
                         mask[yWidth + x] = VISIBLE;
                         visible = true;
                     }
                     if (blocked) {
-                        if (getBlocked(buffer, width, height, empty, x, y)) {
+                        if (getBlocked(buffer, x, y)) {
                             nextStart = lSlope;
                             continue;
                         }
@@ -120,10 +131,9 @@
                         }
                     }
                     else {
-                        if ((getBlocked(buffer, width, height, empty, x, y)) &&
-                            (dX < RADIUS)) {
+                        if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
                             blocked = true;
-                            setMaskRowCol(mask, buffer, width, height, empty, current, {
+                            setMaskRowCol(mask, buffer, current, {
                                 xMult: octal.xMult,
                                 yMult: octal.yMult,
                                 loopStart: dX + 1,
@@ -139,59 +149,59 @@
                 }
             }
         }
-        function setMask(mask, buffer, width, height, empty, current) {
+        function setMask(mask, buffer, current) {
             mask.fill(HIDDEN);
-            mask[(current.y * width) + current.x] = VISIBLE;
-            setMaskColRow(mask, buffer, width, height, empty, current, {
+            mask[(current.y * global_1.GLOBAL.width) + current.x] = VISIBLE;
+            setMaskColRow(mask, buffer, current, {
                 xMult: 1,
                 yMult: 1,
                 loopStart: 1,
                 slopeStart: 1.0,
                 slopeEnd: 0.0
             });
-            setMaskColRow(mask, buffer, width, height, empty, current, {
-                xMult: 1,
-                yMult: -1,
-                loopStart: 1,
-                slopeStart: 1.0,
-                slopeEnd: 0.0
-            });
-            setMaskColRow(mask, buffer, width, height, empty, current, {
-                xMult: -1,
-                yMult: 1,
-                loopStart: 1,
-                slopeStart: 1.0,
-                slopeEnd: 0.0
-            });
-            setMaskColRow(mask, buffer, width, height, empty, current, {
-                xMult: -1,
-                yMult: -1,
-                loopStart: 1,
-                slopeStart: 1.0,
-                slopeEnd: 0.0
-            });
-            setMaskRowCol(mask, buffer, width, height, empty, current, {
-                xMult: 1,
-                yMult: 1,
-                loopStart: 1,
-                slopeStart: 1.0,
-                slopeEnd: 0.0
-            });
-            setMaskRowCol(mask, buffer, width, height, empty, current, {
+            setMaskColRow(mask, buffer, current, {
                 xMult: 1,
                 yMult: -1,
                 loopStart: 1,
                 slopeStart: 1.0,
                 slopeEnd: 0.0
             });
-            setMaskRowCol(mask, buffer, width, height, empty, current, {
+            setMaskColRow(mask, buffer, current, {
                 xMult: -1,
                 yMult: 1,
                 loopStart: 1,
                 slopeStart: 1.0,
                 slopeEnd: 0.0
             });
-            setMaskRowCol(mask, buffer, width, height, empty, current, {
+            setMaskColRow(mask, buffer, current, {
+                xMult: -1,
+                yMult: -1,
+                loopStart: 1,
+                slopeStart: 1.0,
+                slopeEnd: 0.0
+            });
+            setMaskRowCol(mask, buffer, current, {
+                xMult: 1,
+                yMult: 1,
+                loopStart: 1,
+                slopeStart: 1.0,
+                slopeEnd: 0.0
+            });
+            setMaskRowCol(mask, buffer, current, {
+                xMult: 1,
+                yMult: -1,
+                loopStart: 1,
+                slopeStart: 1.0,
+                slopeEnd: 0.0
+            });
+            setMaskRowCol(mask, buffer, current, {
+                xMult: -1,
+                yMult: 1,
+                loopStart: 1,
+                slopeStart: 1.0,
+                slopeEnd: 0.0
+            });
+            setMaskRowCol(mask, buffer, current, {
                 xMult: -1,
                 yMult: -1,
                 loopStart: 1,
@@ -389,10 +399,9 @@
         }
         exports.getSplitEdges = getSplitEdges;
     });
-    define("main", ["require", "exports", "shadows", "space_partition"], function (require, exports, shadows_1, space_partition_1) {
+    define("main", ["require", "exports", "global", "shadows", "space_partition"], function (require, exports, global_2, shadows_1, space_partition_1) {
         "use strict";
         exports.__esModule = true;
-        var EMPTY = 0;
         var PLAYER = 1;
         var BLOCK = 2;
         var KEY_UP = "i";
@@ -401,19 +410,17 @@
         var KEY_RIGHT = "l";
         var FRAME_STEP = 8.0;
         var FRAME_SPEED = 0.475;
-        var WIDTH = 0;
-        var HEIGHT = 0;
         var WIDTH_BOUND = 0;
         var HEIGHT_BOUND = 0;
         function setVerticalLine(buffer, x, yStart, yEnd) {
-            var start = (yStart * WIDTH) + x;
-            var end = (yEnd * WIDTH) + x;
-            for (var i = start; i <= end; i += WIDTH) {
+            var start = (yStart * global_2.GLOBAL.width) + x;
+            var end = (yEnd * global_2.GLOBAL.width) + x;
+            for (var i = start; i <= end; i += global_2.GLOBAL.width) {
                 buffer[i] = BLOCK;
             }
         }
         function setHorizontalLine(buffer, xStart, xEnd, y) {
-            var yWidth = y * WIDTH;
+            var yWidth = y * global_2.GLOBAL.width;
             var start = yWidth + xStart;
             var end = yWidth + xEnd;
             for (var i = start; i <= end; ++i) {
@@ -425,7 +432,7 @@
             var j = n << 2;
             for (var i = n; 0 <= i; --i) {
                 switch (buffer[i]) {
-                    case EMPTY: {
+                    case global_2.GLOBAL.empty: {
                         image.data[j] = 240;
                         image.data[j + 1] = 240;
                         image.data[j + 2] = 240;
@@ -452,42 +459,43 @@
         function getKeyUp(buffer, keys, current) {
             return ((keys.up !== 0) && (keys.down === 0) && (keys.left < keys.up) &&
                 (keys.right < keys.up) && (0 < current.y) &&
-                (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY));
+                (buffer[((current.y - 1) * global_2.GLOBAL.width) + current.x] ===
+                    global_2.GLOBAL.empty));
         }
         function getKeyDown(buffer, keys, current) {
             return ((keys.down !== 0) && (keys.up === 0) && (keys.left < keys.down) &&
                 (keys.right < keys.down) && (current.y < HEIGHT_BOUND) &&
-                (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY));
+                (buffer[((current.y + 1) * global_2.GLOBAL.width) + current.x] ===
+                    global_2.GLOBAL.empty));
         }
         function getKeyLeft(buffer, keys, current) {
             return ((keys.left !== 0) && (keys.right === 0) && (keys.up < keys.left) &&
                 (keys.down < keys.left) && (0 < current.x) &&
-                (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY));
+                (buffer[(current.y * global_2.GLOBAL.width) + current.x - 1] === global_2.GLOBAL.empty));
         }
         function getKeyRight(buffer, keys, current) {
-            return ((keys.right !== 0) && (keys.left === 0) &&
-                (keys.up < keys.right) && (keys.down < keys.right) &&
-                (current.x < WIDTH_BOUND) &&
-                (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY));
+            return ((keys.right !== 0) && (keys.left === 0) && (keys.up < keys.right) &&
+                (keys.down < keys.right) && (current.x < WIDTH_BOUND) &&
+                (buffer[(current.y * global_2.GLOBAL.width) + current.x + 1] === global_2.GLOBAL.empty));
         }
         window.onload = function () {
             var canvas = document.getElementById("canvas");
-            WIDTH = canvas.width;
-            HEIGHT = canvas.height;
-            var n = WIDTH * HEIGHT;
+            global_2.GLOBAL.width = canvas.width;
+            global_2.GLOBAL.height = canvas.height;
+            var n = global_2.GLOBAL.width * global_2.GLOBAL.height;
             if (n === 0) {
                 return;
             }
-            WIDTH_BOUND = WIDTH - 1;
-            HEIGHT_BOUND = HEIGHT - 1;
+            WIDTH_BOUND = global_2.GLOBAL.width - 1;
+            HEIGHT_BOUND = global_2.GLOBAL.height - 1;
             canvas.setAttribute("tabindex", "0");
             canvas.focus();
             var ctx = canvas.getContext("2d");
             ctx.imageSmoothingEnabled = false;
-            var image = ctx.createImageData(WIDTH, HEIGHT);
+            var image = ctx.createImageData(global_2.GLOBAL.width, global_2.GLOBAL.height);
             var mask = new Uint8ClampedArray(n);
             var buffer = new Uint8ClampedArray(n);
-            buffer.fill(EMPTY);
+            buffer.fill(global_2.GLOBAL.empty);
             var current = {
                 x: 0,
                 y: 0
@@ -606,9 +614,9 @@
             {
                 var edges = space_partition_1.getSplitEdges(space_partition_1.getPartitions([{
                         xLower: 0,
-                        xUpper: WIDTH - 1,
+                        xUpper: WIDTH_BOUND,
                         yLower: 0,
-                        yUpper: HEIGHT - 1,
+                        yUpper: HEIGHT_BOUND,
                         horizontal: false
                     }]));
                 for (var i = edges.length - 1; 0 <= i; --i) {
@@ -621,10 +629,10 @@
                     }
                 }
                 for (var _ = 100; 0 < _; --_) {
-                    var x = Math.floor(Math.random() * WIDTH);
-                    var y = Math.floor(Math.random() * HEIGHT);
-                    var index = (y * WIDTH) + x;
-                    if (buffer[index] === EMPTY) {
+                    var x = Math.floor(Math.random() * global_2.GLOBAL.width);
+                    var y = Math.floor(Math.random() * global_2.GLOBAL.height);
+                    var index = (y * global_2.GLOBAL.width) + x;
+                    if (buffer[index] === global_2.GLOBAL.empty) {
                         buffer[index] = PLAYER;
                         current.x = x;
                         current.y = y;
@@ -635,7 +643,7 @@
                         break;
                     }
                 }
-                shadows_1.setMask(mask, buffer, WIDTH, HEIGHT, EMPTY, current);
+                shadows_1.setMask(mask, buffer, current);
                 setImage(ctx, image, buffer, mask);
             }
             var debugFPS = document.getElementById("debug-fps");
@@ -668,14 +676,14 @@
                         target.x = Math.round(move.x);
                     }
                     if ((target.x !== current.x) || (target.y !== current.y)) {
-                        buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                        buffer[(target.y * WIDTH) + target.x] = PLAYER;
+                        buffer[(current.y * global_2.GLOBAL.width) + current.x] = global_2.GLOBAL.empty;
+                        buffer[(target.y * global_2.GLOBAL.width) + target.x] = PLAYER;
                         current.x = target.x;
                         current.y = target.y;
                     }
                     state.frameIncrements -= FRAME_STEP;
                 }
-                shadows_1.setMask(mask, buffer, WIDTH, HEIGHT, EMPTY, target);
+                shadows_1.setMask(mask, buffer, target);
                 setImage(ctx, image, buffer, mask);
                 ++state.debugCount;
                 var debugElapsed = frameTime - state.debugPrevTime;

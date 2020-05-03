@@ -1,3 +1,7 @@
+import {
+    GLOBAL,
+} from "./global";
+
 const VISIBLE: number = 255;
 const HIDDEN: number = 48;
 
@@ -19,21 +23,14 @@ interface Octal {
     slopeEnd: number;
 }
 
-function getBlocked(buffer: Uint8ClampedArray,
-                    width: number,
-                    height: number,
-                    empty: number,
-                    x: number,
-                    y: number): boolean {
-    return ((x < 0) || (y < 0) || (width <= x) || (height <= y) ||
-            (buffer[(width * y) + x] !== empty));
+function getBlocked(buffer: Uint8ClampedArray, x: number, y: number): boolean {
+    return ((x < 0) || (y < 0) || (GLOBAL.width <= x) ||
+            (GLOBAL.height <= y) ||
+            (buffer[(GLOBAL.width * y) + x] !== GLOBAL.empty));
 }
 
 function setMaskColRow(mask: Uint8ClampedArray,
                        buffer: Uint8ClampedArray,
-                       width: number,
-                       height: number,
-                       empty: number,
                        current: Coords,
                        octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
@@ -47,7 +44,7 @@ function setMaskColRow(mask: Uint8ClampedArray,
         const y: number = current.y + (dY * octal.yMult);
         const yDelta: number = y - current.y;
         const yDeltaSquared: number = yDelta * yDelta;
-        const yWidth: number = y * width;
+        const yWidth: number = y * GLOBAL.width;
         for (let dX: number = dY; 0 <= dX; --dX) {
             const lSlope: number = (dX - APERTURE) / (dY + APERTURE);
             if (octal.slopeStart < lSlope) {
@@ -60,13 +57,14 @@ function setMaskColRow(mask: Uint8ClampedArray,
             const x: number = current.x + (dX * octal.xMult);
             const xDelta: number = x - current.x;
             if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
-                (0 <= x) && (x < width) && (0 <= y) && (y < height))
+                (0 <= x) && (x < GLOBAL.width) && (0 <= y) &&
+                (y < GLOBAL.height))
             {
                 mask[yWidth + x] = VISIBLE;
                 visible = true;
             }
             if (blocked) {
-                if (getBlocked(buffer, width, height, empty, x, y)) {
+                if (getBlocked(buffer, x, y)) {
                     nextStart = lSlope;
                     continue;
                 } else {
@@ -74,22 +72,15 @@ function setMaskColRow(mask: Uint8ClampedArray,
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(buffer, width, height, empty, x, y)) &&
-                    (dY < RADIUS)) {
+                if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
                     blocked = true;
-                    setMaskColRow(mask,
-                                  buffer,
-                                  width,
-                                  height,
-                                  empty,
-                                  current,
-                                  {
-                                      xMult: octal.xMult,
-                                      yMult: octal.yMult,
-                                      loopStart: dY + 1,
-                                      slopeStart: nextStart,
-                                      slopeEnd: rSlope,
-                                  });
+                    setMaskColRow(mask, buffer, current, {
+                        xMult: octal.xMult,
+                        yMult: octal.yMult,
+                        loopStart: dY + 1,
+                        slopeStart: nextStart,
+                        slopeEnd: rSlope,
+                    });
                     nextStart = lSlope;
                 }
             }
@@ -102,9 +93,6 @@ function setMaskColRow(mask: Uint8ClampedArray,
 
 function setMaskRowCol(mask: Uint8ClampedArray,
                        buffer: Uint8ClampedArray,
-                       width: number,
-                       height: number,
-                       empty: number,
                        current: Coords,
                        octal: Octal) {
     if (octal.slopeStart < octal.slopeEnd) {
@@ -128,16 +116,17 @@ function setMaskRowCol(mask: Uint8ClampedArray,
                 break;
             }
             const y: number = current.y + (dY * octal.yMult);
-            const yWidth: number = y * width;
+            const yWidth: number = y * GLOBAL.width;
             const yDelta: number = y - current.y;
             if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
-                (0 <= x) && (x < width) && (0 <= y) && (y < height))
+                (0 <= x) && (x < GLOBAL.width) && (0 <= y) &&
+                (y < GLOBAL.height))
             {
                 mask[yWidth + x] = VISIBLE;
                 visible = true;
             }
             if (blocked) {
-                if (getBlocked(buffer, width, height, empty, x, y)) {
+                if (getBlocked(buffer, x, y)) {
                     nextStart = lSlope;
                     continue;
                 } else {
@@ -145,22 +134,15 @@ function setMaskRowCol(mask: Uint8ClampedArray,
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(buffer, width, height, empty, x, y)) &&
-                    (dX < RADIUS)) {
+                if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
                     blocked = true;
-                    setMaskRowCol(mask,
-                                  buffer,
-                                  width,
-                                  height,
-                                  empty,
-                                  current,
-                                  {
-                                      xMult: octal.xMult,
-                                      yMult: octal.yMult,
-                                      loopStart: dX + 1,
-                                      slopeStart: octal.slopeStart,
-                                      slopeEnd: rSlope,
-                                  });
+                    setMaskRowCol(mask, buffer, current, {
+                        xMult: octal.xMult,
+                        yMult: octal.yMult,
+                        loopStart: dX + 1,
+                        slopeStart: octal.slopeStart,
+                        slopeEnd: rSlope,
+                    });
                     nextStart = lSlope;
                 }
             }
@@ -173,62 +155,59 @@ function setMaskRowCol(mask: Uint8ClampedArray,
 
 export function setMask(mask: Uint8ClampedArray,
                         buffer: Uint8ClampedArray,
-                        width: number,
-                        height: number,
-                        empty: number,
                         current: Coords) {
     mask.fill(HIDDEN);
-    mask[(current.y * width) + current.x] = VISIBLE;
-    setMaskColRow(mask, buffer, width, height, empty, current, {
+    mask[(current.y * GLOBAL.width) + current.x] = VISIBLE;
+    setMaskColRow(mask, buffer, current, {
         xMult: 1,
         yMult: 1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskColRow(mask, buffer, width, height, empty, current, {
-        xMult: 1,
-        yMult: -1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskColRow(mask, buffer, width, height, empty, current, {
-        xMult: -1,
-        yMult: 1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskColRow(mask, buffer, width, height, empty, current, {
-        xMult: -1,
-        yMult: -1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskRowCol(mask, buffer, width, height, empty, current, {
-        xMult: 1,
-        yMult: 1,
-        loopStart: 1,
-        slopeStart: 1.0,
-        slopeEnd: 0.0,
-    });
-    setMaskRowCol(mask, buffer, width, height, empty, current, {
+    setMaskColRow(mask, buffer, current, {
         xMult: 1,
         yMult: -1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskRowCol(mask, buffer, width, height, empty, current, {
+    setMaskColRow(mask, buffer, current, {
         xMult: -1,
         yMult: 1,
         loopStart: 1,
         slopeStart: 1.0,
         slopeEnd: 0.0,
     });
-    setMaskRowCol(mask, buffer, width, height, empty, current, {
+    setMaskColRow(mask, buffer, current, {
+        xMult: -1,
+        yMult: -1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: 1,
+        yMult: 1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: 1,
+        yMult: -1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
+        xMult: -1,
+        yMult: 1,
+        loopStart: 1,
+        slopeStart: 1.0,
+        slopeEnd: 0.0,
+    });
+    setMaskRowCol(mask, buffer, current, {
         xMult: -1,
         yMult: -1,
         loopStart: 1,

@@ -1,4 +1,8 @@
 import {
+    GLOBAL,
+} from "./global";
+
+import {
     Coords,
     setMask,
 } from "./shadows";
@@ -9,7 +13,7 @@ import {
     getSplitEdges,
 } from "./space_partition";
 
-const EMPTY: number = 0;
+/* NOTE: `GLOBAL.empty == 0`! */
 const PLAYER: number = 1;
 const BLOCK: number = 2;
 
@@ -21,8 +25,6 @@ const KEY_RIGHT: string = "l";
 const FRAME_STEP: number = 8.0;
 const FRAME_SPEED: number = 0.475;
 
-let WIDTH: number = 0;
-let HEIGHT: number = 0;
 let WIDTH_BOUND: number = 0;
 let HEIGHT_BOUND: number = 0;
 
@@ -45,9 +47,9 @@ function setVerticalLine(buffer: Uint8ClampedArray,
                          x: number,
                          yStart: number,
                          yEnd: number) {
-    const start: number = (yStart * WIDTH) + x;
-    const end: number = (yEnd * WIDTH) + x;
-    for (let i: number = start; i <= end; i += WIDTH) {
+    const start: number = (yStart * GLOBAL.width) + x;
+    const end: number = (yEnd * GLOBAL.width) + x;
+    for (let i: number = start; i <= end; i += GLOBAL.width) {
         buffer[i] = BLOCK;
     }
 }
@@ -56,7 +58,7 @@ function setHorizontalLine(buffer: Uint8ClampedArray,
                            xStart: number,
                            xEnd: number,
                            y: number) {
-    const yWidth: number = y * WIDTH;
+    const yWidth: number = y * GLOBAL.width;
     const start: number = yWidth + xStart;
     const end: number = yWidth + xEnd;
     for (let i: number = start; i <= end; ++i) {
@@ -72,7 +74,7 @@ function setImage(ctx: CanvasRenderingContext2D,
     let j: number = n << 2;
     for (let i: number = n; 0 <= i; --i) {
         switch (buffer[i]) {
-        case EMPTY: {
+        case GLOBAL.empty: {
             image.data[j] = 240;
             image.data[j + 1] = 240;
             image.data[j + 2] = 240;
@@ -102,7 +104,8 @@ function getKeyUp(buffer: Uint8ClampedArray,
                   current: Coords): boolean {
     return ((keys.up !== 0) && (keys.down === 0) && (keys.left < keys.up) &&
             (keys.right < keys.up) && (0 < current.y) &&
-            (buffer[((current.y - 1) * WIDTH) + current.x] === EMPTY));
+            (buffer[((current.y - 1) * GLOBAL.width) + current.x] ===
+             GLOBAL.empty));
 }
 
 function getKeyDown(buffer: Uint8ClampedArray,
@@ -110,46 +113,48 @@ function getKeyDown(buffer: Uint8ClampedArray,
                     current: Coords): boolean {
     return ((keys.down !== 0) && (keys.up === 0) && (keys.left < keys.down) &&
             (keys.right < keys.down) && (current.y < HEIGHT_BOUND) &&
-            (buffer[((current.y + 1) * WIDTH) + current.x] === EMPTY));
+            (buffer[((current.y + 1) * GLOBAL.width) + current.x] ===
+             GLOBAL.empty));
 }
 
 function getKeyLeft(buffer: Uint8ClampedArray,
                     keys: Directions,
                     current: Coords): boolean {
-    return ((keys.left !== 0) && (keys.right === 0) && (keys.up < keys.left) &&
-            (keys.down < keys.left) && (0 < current.x) &&
-            (buffer[(current.y * WIDTH) + current.x - 1] === EMPTY));
+    return (
+        (keys.left !== 0) && (keys.right === 0) && (keys.up < keys.left) &&
+        (keys.down < keys.left) && (0 < current.x) &&
+        (buffer[(current.y * GLOBAL.width) + current.x - 1] === GLOBAL.empty));
 }
 
 function getKeyRight(buffer: Uint8ClampedArray,
                      keys: Directions,
                      current: Coords): boolean {
-    return ((keys.right !== 0) && (keys.left === 0) &&
-            (keys.up < keys.right) && (keys.down < keys.right) &&
-            (current.x < WIDTH_BOUND) &&
-            (buffer[(current.y * WIDTH) + current.x + 1] === EMPTY));
+    return (
+        (keys.right !== 0) && (keys.left === 0) && (keys.up < keys.right) &&
+        (keys.down < keys.right) && (current.x < WIDTH_BOUND) &&
+        (buffer[(current.y * GLOBAL.width) + current.x + 1] === GLOBAL.empty));
 }
 
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
-    WIDTH = canvas.width;
-    HEIGHT = canvas.height;
-    const n: number = WIDTH * HEIGHT;
+    GLOBAL.width = canvas.width;
+    GLOBAL.height = canvas.height;
+    const n: number = GLOBAL.width * GLOBAL.height;
     if (n === 0) {
         return;
     }
-    WIDTH_BOUND = WIDTH - 1;
-    HEIGHT_BOUND = HEIGHT - 1;
+    WIDTH_BOUND = GLOBAL.width - 1;
+    HEIGHT_BOUND = GLOBAL.height - 1;
     canvas.setAttribute("tabindex", "0");
     canvas.focus();
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-    const image: ImageData = ctx.createImageData(WIDTH, HEIGHT);
+    const image: ImageData = ctx.createImageData(GLOBAL.width, GLOBAL.height);
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
     const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
-    buffer.fill(EMPTY);
+    buffer.fill(GLOBAL.empty);
     const current: Coords = {
         x: 0,
         y: 0,
@@ -270,9 +275,9 @@ window.onload = function() {
     {
         const edges: Edge[] = getSplitEdges(getPartitions([{
             xLower: 0,
-            xUpper: WIDTH - 1,
+            xUpper: WIDTH_BOUND,
             yLower: 0,
-            yUpper: HEIGHT - 1,
+            yUpper: HEIGHT_BOUND,
             horizontal: false,
         }]));
         for (let i: number = edges.length - 1; 0 <= i; --i) {
@@ -284,10 +289,10 @@ window.onload = function() {
             }
         }
         for (let _: number = 100; 0 < _; --_) {
-            const x: number = Math.floor(Math.random() * WIDTH);
-            const y: number = Math.floor(Math.random() * HEIGHT);
-            const index: number = (y * WIDTH) + x;
-            if (buffer[index] === EMPTY) {
+            const x: number = Math.floor(Math.random() * GLOBAL.width);
+            const y: number = Math.floor(Math.random() * GLOBAL.height);
+            const index: number = (y * GLOBAL.width) + x;
+            if (buffer[index] === GLOBAL.empty) {
                 buffer[index] = PLAYER;
                 current.x = x;
                 current.y = y;
@@ -298,7 +303,7 @@ window.onload = function() {
                 break;
             }
         }
-        setMask(mask, buffer, WIDTH, HEIGHT, EMPTY, current);
+        setMask(mask, buffer, current);
         setImage(ctx, image, buffer, mask);
     }
     const debugFPS: HTMLElement =
@@ -328,14 +333,14 @@ window.onload = function() {
                 target.x = Math.round(move.x);
             }
             if ((target.x !== current.x) || (target.y !== current.y)) {
-                buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                buffer[(target.y * WIDTH) + target.x] = PLAYER;
+                buffer[(current.y * GLOBAL.width) + current.x] = GLOBAL.empty;
+                buffer[(target.y * GLOBAL.width) + target.x] = PLAYER;
                 current.x = target.x;
                 current.y = target.y;
             }
             state.frameIncrements -= FRAME_STEP;
         }
-        setMask(mask, buffer, WIDTH, HEIGHT, EMPTY, target);
+        setMask(mask, buffer, target);
         setImage(ctx, image, buffer, mask);
         ++state.debugCount;
         const debugElapsed: number = frameTime - state.debugPrevTime;
