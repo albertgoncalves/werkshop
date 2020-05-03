@@ -1,0 +1,14 @@
+body {
+    background-color: hsl(0, 0%, 10%);
+    color: hsl(0, 0%, 98%);
+    text-align: center;
+}
+
+a {
+    color: hsl(0, 0%, 98%);
+}
+
+canvas {
+    width: 768px;
+    height: 768px;
+}
