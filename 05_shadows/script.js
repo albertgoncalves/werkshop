@@ -62,10 +62,6 @@
         }
         ctx.putImageData(image, 0, 0);
     }
-    function getBlocked(buffer, x, y) {
-        return ((x < 0) || (y < 0) || (WIDTH <= x) || (HEIGHT <= y) ||
-            (buffer[(WIDTH * y) + x] !== EMPTY));
-    }
     function setMaskColRow(mask, buffer, current, octal) {
         if (octal.slopeStart < octal.slopeEnd) {
             return;
@@ -73,7 +69,7 @@
         var nextStart = octal.slopeStart;
         var yEnd = RADIUS + 1;
         for (var dY = octal.loopStart; dY < yEnd; ++dY) {
-            var blocked = false;
+            var prevBlocked = false;
             var visible = false;
             var y = current.y + (dY * octal.yMult);
             var yDelta = y - current.y;
@@ -95,19 +91,21 @@
                     mask[yWidth + x] = VISIBLE;
                     visible = true;
                 }
-                if (blocked) {
-                    if (getBlocked(buffer, x, y)) {
+                var blocked = (x < 0) || (y < 0) || (WIDTH <= x) ||
+                    (HEIGHT <= y) || (buffer[(WIDTH * y) + x] !== EMPTY);
+                if (prevBlocked) {
+                    if (blocked) {
                         nextStart = lSlope;
                         continue;
                     }
                     else {
-                        blocked = false;
+                        prevBlocked = false;
                         octal.slopeStart = nextStart;
                     }
                 }
                 else {
-                    if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
-                        blocked = true;
+                    if (blocked && (dY < RADIUS)) {
+                        prevBlocked = true;
                         setMaskColRow(mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
@@ -119,7 +117,7 @@
                     }
                 }
             }
-            if (blocked || (!visible)) {
+            if (prevBlocked || (!visible)) {
                 return;
             }
         }
@@ -131,7 +129,7 @@
         var nextStart = octal.slopeStart;
         var xEnd = RADIUS + 1;
         for (var dX = octal.loopStart; dX < xEnd; ++dX) {
-            var blocked = false;
+            var prevBlocked = false;
             var visible = false;
             var x = current.x + (dX * octal.xMult);
             var xDelta = x - current.x;
@@ -153,19 +151,21 @@
                     mask[yWidth + x] = VISIBLE;
                     visible = true;
                 }
-                if (blocked) {
-                    if (getBlocked(buffer, x, y)) {
+                var blocked = (x < 0) || (y < 0) || (WIDTH <= x) ||
+                    (HEIGHT <= y) || (buffer[(WIDTH * y) + x] !== EMPTY);
+                if (prevBlocked) {
+                    if (blocked) {
                         nextStart = lSlope;
                         continue;
                     }
                     else {
-                        blocked = false;
+                        prevBlocked = false;
                         octal.slopeStart = nextStart;
                     }
                 }
                 else {
-                    if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
-                        blocked = true;
+                    if (blocked && (dX < RADIUS)) {
+                        prevBlocked = true;
                         setMaskRowCol(mask, buffer, current, {
                             xMult: octal.xMult,
                             yMult: octal.yMult,
@@ -177,7 +177,7 @@
                     }
                 }
             }
-            if (blocked || (!visible)) {
+            if (prevBlocked || (!visible)) {
                 return;
             }
         }

@@ -23,12 +23,6 @@ interface Octal {
     slopeEnd: number;
 }
 
-function getBlocked(buffer: Uint8ClampedArray, x: number, y: number): boolean {
-    return ((x < 0) || (y < 0) || (GLOBAL.width <= x) ||
-            (GLOBAL.height <= y) ||
-            (buffer[(GLOBAL.width * y) + x] !== GLOBAL.empty));
-}
-
 function setMaskColRow(mask: Uint8ClampedArray,
                        buffer: Uint8ClampedArray,
                        current: Coords,
@@ -39,7 +33,7 @@ function setMaskColRow(mask: Uint8ClampedArray,
     let nextStart: number = octal.slopeStart;
     const yEnd: number = RADIUS + 1;
     for (let dY: number = octal.loopStart; dY < yEnd; ++dY) {
-        let blocked: boolean = false;
+        let prevBlocked: boolean = false;
         let visible: boolean = false;
         const y: number = current.y + (dY * octal.yMult);
         const yDelta: number = y - current.y;
@@ -63,17 +57,20 @@ function setMaskColRow(mask: Uint8ClampedArray,
                 mask[yWidth + x] = VISIBLE;
                 visible = true;
             }
-            if (blocked) {
-                if (getBlocked(buffer, x, y)) {
+            const blocked: boolean = (x < 0) || (y < 0) ||
+                (GLOBAL.width <= x) || (GLOBAL.height <= y) ||
+                (buffer[(GLOBAL.width * y) + x] !== GLOBAL.empty);
+            if (prevBlocked) {
+                if (blocked) {
                     nextStart = lSlope;
                     continue;
                 } else {
-                    blocked = false;
+                    prevBlocked = false;
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(buffer, x, y)) && (dY < RADIUS)) {
-                    blocked = true;
+                if (blocked && (dY < RADIUS)) {
+                    prevBlocked = true;
                     setMaskColRow(mask, buffer, current, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
@@ -85,7 +82,7 @@ function setMaskColRow(mask: Uint8ClampedArray,
                 }
             }
         }
-        if (blocked || (!visible)) {
+        if (prevBlocked || (!visible)) {
             return;
         }
     }
@@ -101,7 +98,7 @@ function setMaskRowCol(mask: Uint8ClampedArray,
     let nextStart: number = octal.slopeStart;
     const xEnd: number = RADIUS + 1;
     for (let dX: number = octal.loopStart; dX < xEnd; ++dX) {
-        let blocked: boolean = false;
+        let prevBlocked: boolean = false;
         let visible: boolean = false;
         const x: number = current.x + (dX * octal.xMult);
         const xDelta: number = x - current.x;
@@ -125,17 +122,20 @@ function setMaskRowCol(mask: Uint8ClampedArray,
                 mask[yWidth + x] = VISIBLE;
                 visible = true;
             }
-            if (blocked) {
-                if (getBlocked(buffer, x, y)) {
+            const blocked: boolean = (x < 0) || (y < 0) ||
+                (GLOBAL.width <= x) || (GLOBAL.height <= y) ||
+                (buffer[(GLOBAL.width * y) + x] !== GLOBAL.empty);
+            if (prevBlocked) {
+                if (blocked) {
                     nextStart = lSlope;
                     continue;
                 } else {
-                    blocked = false;
+                    prevBlocked = false;
                     octal.slopeStart = nextStart;
                 }
             } else {
-                if ((getBlocked(buffer, x, y)) && (dX < RADIUS)) {
-                    blocked = true;
+                if (blocked && (dX < RADIUS)) {
+                    prevBlocked = true;
                     setMaskRowCol(mask, buffer, current, {
                         xMult: octal.xMult,
                         yMult: octal.yMult,
@@ -147,7 +147,7 @@ function setMaskRowCol(mask: Uint8ClampedArray,
                 }
             }
         }
-        if (blocked || (!visible)) {
+        if (prevBlocked || (!visible)) {
             return;
         }
     }
