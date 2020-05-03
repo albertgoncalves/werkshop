@@ -395,7 +395,6 @@
         var EMPTY = 0;
         var PLAYER = 1;
         var BLOCK = 2;
-        var CANVAS_SCALE = 3;
         var KEY_UP = "i";
         var KEY_DOWN = "k";
         var KEY_LEFT = "j";
@@ -512,19 +511,8 @@
                 frameIncrements: 0.0,
                 debugPrevTime: 0.0,
                 debugCount: 0,
-                keyCount: 0,
-                mouseClick: false
+                keyCount: 0
             };
-            canvas.addEventListener("mousedown", function (event) {
-                var x = (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
-                var y = (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
-                var index = (y * WIDTH) + x;
-                if (buffer[index] === EMPTY) {
-                    state.mouseClick = true;
-                    target.x = x;
-                    target.y = y;
-                }
-            }, false);
             var debugKeyAction = document.getElementById("debug-key-action");
             var debugKeysState = document.getElementById("debug-keys-state");
             canvas.addEventListener("keydown", function (event) {
@@ -652,51 +640,40 @@
             }
             var debugFPS = document.getElementById("debug-fps");
             var loop = function (frameTime) {
-                if (state.mouseClick) {
-                    buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                    buffer[(target.y * WIDTH) + target.x] = PLAYER;
-                    current.x = target.x;
-                    current.y = target.y;
-                    move.x = target.x;
-                    move.y = target.y;
-                    state.mouseClick = false;
-                }
-                else {
-                    state.frameIncrements += frameTime - state.framePrevTime;
-                    while (FRAME_STEP < state.frameIncrements) {
-                        if ((keys.up | keys.down | keys.left | keys.right) === 0) {
-                            move.x = current.x;
-                            move.y = current.y;
-                            state.keyCount = 0;
-                        }
-                        else if (getKeyUp(buffer, keys, current)) {
-                            move.x = current.x;
-                            move.y -= FRAME_SPEED;
-                            target.y = Math.round(move.y);
-                        }
-                        else if (getKeyDown(buffer, keys, current)) {
-                            move.x = current.x;
-                            move.y += FRAME_SPEED;
-                            target.y = Math.round(move.y);
-                        }
-                        else if (getKeyLeft(buffer, keys, current)) {
-                            move.x -= FRAME_SPEED;
-                            move.y = current.y;
-                            target.x = Math.round(move.x);
-                        }
-                        else if (getKeyRight(buffer, keys, current)) {
-                            move.x += FRAME_SPEED;
-                            move.y = current.y;
-                            target.x = Math.round(move.x);
-                        }
-                        if ((target.x !== current.x) || (target.y !== current.y)) {
-                            buffer[(current.y * WIDTH) + current.x] = EMPTY;
-                            buffer[(target.y * WIDTH) + target.x] = PLAYER;
-                            current.x = target.x;
-                            current.y = target.y;
-                        }
-                        state.frameIncrements -= FRAME_STEP;
+                state.frameIncrements += frameTime - state.framePrevTime;
+                while (FRAME_STEP < state.frameIncrements) {
+                    if ((keys.up | keys.down | keys.left | keys.right) === 0) {
+                        move.x = current.x;
+                        move.y = current.y;
+                        state.keyCount = 0;
                     }
+                    else if (getKeyUp(buffer, keys, current)) {
+                        move.x = current.x;
+                        move.y -= FRAME_SPEED;
+                        target.y = Math.round(move.y);
+                    }
+                    else if (getKeyDown(buffer, keys, current)) {
+                        move.x = current.x;
+                        move.y += FRAME_SPEED;
+                        target.y = Math.round(move.y);
+                    }
+                    else if (getKeyLeft(buffer, keys, current)) {
+                        move.x -= FRAME_SPEED;
+                        move.y = current.y;
+                        target.x = Math.round(move.x);
+                    }
+                    else if (getKeyRight(buffer, keys, current)) {
+                        move.x += FRAME_SPEED;
+                        move.y = current.y;
+                        target.x = Math.round(move.x);
+                    }
+                    if ((target.x !== current.x) || (target.y !== current.y)) {
+                        buffer[(current.y * WIDTH) + current.x] = EMPTY;
+                        buffer[(target.y * WIDTH) + target.x] = PLAYER;
+                        current.x = target.x;
+                        current.y = target.y;
+                    }
+                    state.frameIncrements -= FRAME_STEP;
                 }
                 shadows_1.setMask(mask, buffer, WIDTH, HEIGHT, EMPTY, target);
                 setImage(ctx, image, buffer, mask);
