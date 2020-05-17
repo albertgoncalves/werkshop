@@ -12,6 +12,7 @@
     define("quickselect", ["require", "exports"], function (require, exports) {
         "use strict";
         exports.__esModule = true;
+        exports.quickSelect = void 0;
         function swap(array, i, j) {
             var tmp = array[i];
             array[i] = array[j];
@@ -70,6 +71,7 @@
     define("kdtree", ["require", "exports", "quickselect"], function (require, exports, quickselect_1) {
         "use strict";
         exports.__esModule = true;
+        exports.radiusSearch = exports.pointInCircle = exports.makeTree = void 0;
         function xCompare(a, b) {
             return a.x - b.x;
         }

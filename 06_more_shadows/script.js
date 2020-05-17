@@ -12,6 +12,7 @@
     define("global", ["require", "exports"], function (require, exports) {
         "use strict";
         exports.__esModule = true;
+        exports.GLOBAL = void 0;
         exports.GLOBAL = {
             width: 0,
             height: 0,
@@ -21,6 +22,7 @@
     define("shadows", ["require", "exports", "global"], function (require, exports, global_1) {
         "use strict";
         exports.__esModule = true;
+        exports.setMask = void 0;
         var VISIBLE = 255;
         var HIDDEN = 48;
         var APERTURE = 0.5;
@@ -215,6 +217,7 @@
     define("space_partition", ["require", "exports"], function (require, exports) {
         "use strict";
         exports.__esModule = true;
+        exports.getSplitEdges = exports.getPartitions = void 0;
         var ITERATION_LIMIT = 100;
         var MIN_DELTA = 1 << 5;
         var MIN_SPLIT = (1 * 6) + 1;
