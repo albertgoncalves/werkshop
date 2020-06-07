@@ -54,7 +54,9 @@ function setMaskColRow(mask: Uint8ClampedArray,
                 (0 <= x) && (x < GLOBAL.width) && (0 <= y) &&
                 (y < GLOBAL.height))
             {
-                mask[yWidth + x] = VISIBLE;
+                if ((dX !== 0) || (octal.xMult === 1)) {
+                    mask[yWidth + x] = VISIBLE;
+                }
                 visible = true;
             }
             const blocked: boolean = (x < 0) || (y < 0) ||
@@ -119,7 +121,12 @@ function setMaskRowCol(mask: Uint8ClampedArray,
                 (0 <= x) && (x < GLOBAL.width) && (0 <= y) &&
                 (y < GLOBAL.height))
             {
-                mask[yWidth + x] = VISIBLE;
+                /* NOTE: We only need to modify `mask` cells *not* covered by
+                 * `setMaskColRow(...)`.
+                 */
+                if (((dY !== 0) || (octal.yMult === 1)) && (dX !== dY)) {
+                    mask[yWidth + x] = VISIBLE;
+                }
                 visible = true;
             }
             const blocked: boolean = (x < 0) || (y < 0) ||

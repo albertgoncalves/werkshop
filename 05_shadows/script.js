@@ -88,7 +88,9 @@
                 var xDelta = x - current.x;
                 if ((((xDelta * xDelta) + yDeltaSquared) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
-                    mask[yWidth + x] = VISIBLE;
+                    if ((dX !== 0) || (octal.xMult === 1)) {
+                        mask[yWidth + x] = VISIBLE;
+                    }
                     visible = true;
                 }
                 var blocked = (x < 0) || (y < 0) || (WIDTH <= x) ||
@@ -148,7 +150,9 @@
                 var yDelta = y - current.y;
                 if (((xDeltaSquared + (yDelta * yDelta)) < RADIUS_SQUARED) &&
                     (0 <= x) && (x < WIDTH) && (0 <= y) && (y < HEIGHT)) {
-                    mask[yWidth + x] = VISIBLE;
+                    if (((dY !== 0) || (octal.yMult === 1)) && (dX !== dY)) {
+                        mask[yWidth + x] = VISIBLE;
+                    }
                     visible = true;
                 }
                 var blocked = (x < 0) || (y < 0) || (WIDTH <= x) ||
