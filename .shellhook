@@ -21,29 +21,17 @@ sedtrailing () {
 export -f sedtrailing
 
 htmlall () {
-    find \
-        . \
-        -type f \
-        -name '*.html' \
-        -not -path "./node_modules/*" \
-        -exec bash -c '
-            echo "$1"
-            tidy -config "$WD/.tidyrc" -q -m "$1"
-            sedtrailing "$1"
-        ' bash {} \;
+    find . -type f -name '*.html' -not -path "./node_modules/*" | parallel "
+        echo {}
+        tidy -config $WD/.tidyrc -q -m {} && sedtrailing {}
+    "
 }
 
 tsall () {
-    # shellcheck disable=SC1004
-    find \
-        . \
-        -type f \
-        -name '*.ts' \
-        -not -path "./node_modules/*" \
-        -exec bash -c '
-            echo "$1"
-            npx tslint -c "$WD/.tslint.json" "$1" && clang-format -i "$1"
-        ' bash {} \;
+    find .  -type f -name '*.ts' -not -path "./node_modules/*" | parallel "
+        echo {}
+        npx tslint -c $WD/.tslint.json {} && clang-format -i {}
+    "
 }
 
 export -f htmlall
