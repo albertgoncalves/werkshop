@@ -1,0 +1,13 @@
+body {
+    background-color: hsl(0, 0%, 15%);
+    color: hsl(0, 0%, 98%);
+    text-align: center;
+}
+
+a {
+    color: hsl(0, 0%, 98%);
+}
+
+.dashed {
+    border-color: hsl(0, 0%, 98%);
+}
