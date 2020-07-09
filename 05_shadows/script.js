@@ -271,10 +271,6 @@
         var canvas = document.getElementById("canvas");
         WIDTH = canvas.width;
         HEIGHT = canvas.height;
-        var n = WIDTH * HEIGHT;
-        if (n === 0) {
-            return;
-        }
         WIDTH_BOUND = WIDTH - 1;
         HEIGHT_BOUND = HEIGHT - 1;
         canvas.setAttribute("tabindex", "0");
@@ -282,6 +278,7 @@
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
         var image = ctx.createImageData(WIDTH, HEIGHT);
+        var n = WIDTH * HEIGHT;
         var mask = new Uint8ClampedArray(n);
         var buffer = new Uint8ClampedArray(n);
         buffer.fill(EMPTY);

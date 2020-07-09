@@ -490,10 +490,6 @@
             var canvas = document.getElementById("canvas");
             global_2.GLOBAL.width = canvas.width;
             global_2.GLOBAL.height = canvas.height;
-            var n = global_2.GLOBAL.width * global_2.GLOBAL.height;
-            if (n === 0) {
-                return;
-            }
             WIDTH_BOUND = global_2.GLOBAL.width - 1;
             HEIGHT_BOUND = global_2.GLOBAL.height - 1;
             canvas.setAttribute("tabindex", "0");
@@ -501,6 +497,7 @@
             var ctx = canvas.getContext("2d");
             ctx.imageSmoothingEnabled = false;
             var image = ctx.createImageData(global_2.GLOBAL.width, global_2.GLOBAL.height);
+            var n = global_2.GLOBAL.width * global_2.GLOBAL.height;
             var mask = new Uint8ClampedArray(n);
             var buffer = new Uint8ClampedArray(n);
             buffer.fill(global_2.GLOBAL.empty);

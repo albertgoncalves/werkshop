@@ -25,15 +25,12 @@
         var canvas = document.getElementById("canvas");
         var ctx = canvas.getContext("2d");
         ctx.imageSmoothingEnabled = false;
-        var n = canvas.width * canvas.height * 4;
-        if (n === 0) {
-            return;
-        }
         var buffer = ctx.createImageData(canvas.width, canvas.height);
         var decay = 2;
         var spread = 4.0;
         var halfSpread = spread / 2.0;
         var epsilon = 0.015;
+        var n = canvas.width * canvas.height * 4;
         var initRect = {
             x: 20,
             y: 20,

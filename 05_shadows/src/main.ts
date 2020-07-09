@@ -335,10 +335,6 @@ window.onload = function() {
         document.getElementById("canvas") as HTMLCanvasElement;
     WIDTH = canvas.width;
     HEIGHT = canvas.height;
-    const n: number = WIDTH * HEIGHT;
-    if (n === 0) {
-        return;
-    }
     WIDTH_BOUND = WIDTH - 1;
     HEIGHT_BOUND = HEIGHT - 1;
     canvas.setAttribute("tabindex", "0");
@@ -347,6 +343,7 @@ window.onload = function() {
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     const image: ImageData = ctx.createImageData(WIDTH, HEIGHT);
+    const n: number = WIDTH * HEIGHT;
     const mask: Uint8ClampedArray = new Uint8ClampedArray(n);
     const buffer: Uint8ClampedArray = new Uint8ClampedArray(n);
     buffer.fill(EMPTY);

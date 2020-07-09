@@ -18,15 +18,12 @@ window.onload = function() {
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-    const n: number = canvas.width * canvas.height * 4;
-    if (n === 0) {
-        return;
-    }
     const buffer: ImageData = ctx.createImageData(canvas.width, canvas.height);
     const decay: number = 2;
     const spread: number = 4.0;
     const halfSpread: number = spread / 2.0;
     const epsilon: number = 0.015;
+    const n: number = canvas.width * canvas.height * 4;
     const initRect: Rect = {
         x: 20,
         y: 20,
