@@ -19,35 +19,29 @@ window.onload = function() {
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     const buffer: ImageData = ctx.createImageData(canvas.width, canvas.height);
-    const decay: number = 2;
-    const spread: number = 4.0;
+    const decay: number = 10;
+    const spread: number = 6.0;
     const halfSpread: number = spread / 2.0;
     const epsilon: number = 0.015;
     const n: number = canvas.width * canvas.height * 4;
     const initRect: Rect = {
-        x: 20,
-        y: 20,
-        width: 24,
-        height: 24,
+        x: 24,
+        y: 24,
+        width: 20,
+        height: 20,
     };
     let rect: Rect = {
         ...initRect,
     };
     const color: Color = {
-        red: 12,
-        green: 18,
-        blue: 24,
-        alpha: 4,
+        red: 32,
+        green: 64,
+        blue: 128,
+        alpha: 16,
     };
     function loop() {
         rect.x += Math.round((Math.random() * spread) - halfSpread - epsilon);
         rect.y += Math.round((Math.random() * spread) - halfSpread - epsilon);
-        for (let i: number = 0; i < n; i += 4) {
-            buffer.data[i] = Math.max(buffer.data[i] - decay, 0);
-            buffer.data[i + 1] = Math.max(buffer.data[i + 1] - decay, 0);
-            buffer.data[i + 2] = Math.max(buffer.data[i + 2] - decay, 0);
-            buffer.data[i + 3] = Math.max(buffer.data[i + 3] - decay, 0);
-        }
         let reset: boolean = true;
         for (let y: number = rect.y + rect.height - 1; rect.y <= y; --y) {
             if (y < 0) {
@@ -81,6 +75,12 @@ window.onload = function() {
             rect = {
                 ...initRect,
             };
+        }
+        for (let i: number = 0; i < n; i += 4) {
+            buffer.data[i] = Math.max(buffer.data[i] - decay, 0);
+            buffer.data[i + 1] = Math.max(buffer.data[i + 1] - decay, 0);
+            buffer.data[i + 2] = Math.max(buffer.data[i + 2] - decay, 0);
+            buffer.data[i + 3] = Math.max(buffer.data[i + 3] - decay, 0);
         }
         ctx.putImageData(buffer, 0, 0);
         window.requestAnimationFrame(loop);
