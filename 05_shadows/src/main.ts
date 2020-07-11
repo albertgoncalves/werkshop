@@ -375,9 +375,10 @@ window.onload = function() {
     };
     canvas.addEventListener("mousedown", function(event: MouseEvent) {
         const x: number =
-            (event.x + window.pageXOffset - canvas.offsetLeft) >> CANVAS_SCALE;
+            (event.x + window.pageXOffset - canvas.offsetLeft) >>>
+            CANVAS_SCALE;
         const y: number =
-            (event.y + window.pageYOffset - canvas.offsetTop) >> CANVAS_SCALE;
+            (event.y + window.pageYOffset - canvas.offsetTop) >>> CANVAS_SCALE;
         const index: number = (y * WIDTH) + x;
         if (buffer[index] === EMPTY) {
             state.mouseClick = true;

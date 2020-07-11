@@ -1,8 +1,10 @@
 const DEBUG: boolean = true;
+
 const ITERATION_LIMIT: number = 100;
+
 const MIN_DELTA: number = 1 << 5;
 const MIN_SPLIT: number = (1 << 3) + 1;
-const PAD: number = MIN_SPLIT >> 1;
+const PAD: number = MIN_SPLIT >>> 1;
 const PAD_DOUBLE: number = PAD << 1;
 
 interface Global {

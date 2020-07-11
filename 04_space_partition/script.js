@@ -14,7 +14,7 @@
     var ITERATION_LIMIT = 100;
     var MIN_DELTA = 1 << 5;
     var MIN_SPLIT = (1 << 3) + 1;
-    var PAD = MIN_SPLIT >> 1;
+    var PAD = MIN_SPLIT >>> 1;
     var PAD_DOUBLE = PAD << 1;
     var GLOBAL = {
         width: 0,
