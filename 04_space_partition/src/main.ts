@@ -1,17 +1,16 @@
 const DEBUG: boolean = true;
 
-const DARK_GRAY: number = 64;
-const WHITE: number = 255;
-const COLOR_R: number = 75;
-const COLOR_G: number = 155;
-const COLOR_B: number = 250;
-
 const ITERATION_LIMIT: number = 100;
 
 const MIN_DELTA: number = 1 << 5;
 const MIN_SPLIT: number = (1 << 3) + 1;
 const PAD: number = MIN_SPLIT >> 1;
 const PAD_DOUBLE: number = PAD << 1;
+
+interface Global {
+    width: number;
+    height: number;
+}
 
 interface Partition {
     xLower: number;
@@ -28,76 +27,120 @@ interface Edge {
     y2: number;
 }
 
+interface Point {
+    x: number;
+    y: number;
+    horizontal: boolean;
+}
+
+interface EdgesPoints {
+    edges: Edge[];
+    points: Point[];
+}
+
+interface Color {
+    red: number;
+    green: number;
+    blue: number;
+    alpha: number;
+}
+
+const GLOBAL: Global = {
+    width: 0,
+    height: 0,
+};
+const DARK_GRAY: Color = {
+    red: 64,
+    green: 64,
+    blue: 64,
+    alpha: 255,
+};
+const WHITE: Color = {
+    red: 255,
+    green: 255,
+    blue: 255,
+    alpha: 255,
+};
+const BLUE: Color = {
+    red: 75,
+    green: 155,
+    blue: 250,
+    alpha: 255,
+};
+const ORANGE: Color = {
+    red: 250,
+    green: 155,
+    blue: 75,
+    alpha: 255,
+};
+const MAROON: Color = {
+    red: 110,
+    green: 66,
+    blue: 86,
+    alpha: 255,
+};
+const PALE_BLUE: Color = {
+    red: 66,
+    green: 86,
+    blue: 110,
+    alpha: 255,
+};
+
+function setColor(buffer: ImageData, index: number, color: Color) {
+    buffer.data[index] = color.red;
+    buffer.data[index + 1] = color.green;
+    buffer.data[index + 2] = color.blue;
+    buffer.data[index + 3] = color.alpha;
+}
+
 function setVerticalLine(buffer: ImageData,
-                         width: number,
                          x: number,
                          yStart: number,
                          yEnd: number) {
-    const start: number = ((yStart * width) + x) << 2;
-    const end: number = ((yEnd * width) + x) << 2;
-    const widthColor: number = width << 2;
+    const start: number = ((yStart * GLOBAL.width) + x) << 2;
+    const end: number = ((yEnd * GLOBAL.width) + x) << 2;
+    const widthColor: number = GLOBAL.width << 2;
     for (let i: number = start + widthColor; i < end; i += widthColor) {
-        buffer.data[i] = WHITE;
-        buffer.data[i + 1] = WHITE;
-        buffer.data[i + 2] = WHITE;
+        setColor(buffer, i, WHITE);
     }
     {
         if (DEBUG) {
-            buffer.data[start] = COLOR_R;
-            buffer.data[start + 1] = COLOR_G;
-            buffer.data[start + 2] = COLOR_B;
+            setColor(buffer, start, BLUE);
         } else {
-            buffer.data[start] = WHITE;
-            buffer.data[start + 1] = WHITE;
-            buffer.data[start + 2] = WHITE;
+            setColor(buffer, start, WHITE);
         }
     }
     {
         if (DEBUG) {
-            buffer.data[end] = COLOR_R;
-            buffer.data[end + 1] = COLOR_G;
-            buffer.data[end + 2] = COLOR_B;
+            setColor(buffer, end, BLUE);
         } else {
-            buffer.data[end] = WHITE;
-            buffer.data[end + 1] = WHITE;
-            buffer.data[end + 2] = WHITE;
+            setColor(buffer, end, WHITE);
         }
     }
 }
 
 function setHorizontalLine(buffer: ImageData,
-                           width: number,
                            xStart: number,
                            xEnd: number,
                            y: number) {
-    const yWidth: number = y * width;
+    const yWidth: number = y * GLOBAL.width;
     const start: number = (yWidth + xStart) << 2;
     const end: number = (yWidth + xEnd) << 2;
     for (let i: number = start + 4; i < end; i += 4) {
-        buffer.data[i] = WHITE;
-        buffer.data[i + 1] = WHITE;
-        buffer.data[i + 2] = WHITE;
+        setColor(buffer, i, WHITE);
     }
     {
         if (DEBUG) {
-            buffer.data[start] = COLOR_R;
-            buffer.data[start + 1] = COLOR_G;
-            buffer.data[start + 2] = COLOR_B;
+            setColor(buffer, start, BLUE);
         } else {
-            buffer.data[start] = WHITE;
-            buffer.data[start + 1] = WHITE;
-            buffer.data[start + 2] = WHITE;
+            setColor(buffer, start, WHITE);
         }
     }
     {
         if (DEBUG) {
-            buffer.data[end] = COLOR_R;
-            buffer.data[end + 1] = COLOR_G;
-            buffer.data[end + 2] = COLOR_B;
+            setColor(buffer, end, BLUE);
         } else {
-            buffer.data[end] = WHITE;
-            buffer.data[end + 1] = WHITE;
-            buffer.data[end + 2] = WHITE;
+            setColor(buffer, end, WHITE);
         }
     }
 }
@@ -178,8 +221,9 @@ function getPartitions(stack: Partition[]): Edge[] {
     return edges;
 }
 
-function getSplitEdges(preEdges: Edge[]): Edge[] {
+function getSplitEdges(preEdges: Edge[]): EdgesPoints {
     const edges: Edge[] = [];
+    const points: Point[] = [];
     for (let i: number = preEdges.length - 1; 0 <= i; --i) {
         const edge: Edge = preEdges[i];
         if (edge.x1 === edge.x2) {
@@ -229,6 +273,11 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                             y1: ySplit + PAD,
                             x2: x,
                             y2,
+                        });
+                        points.push({
+                            x,
+                            y: ySplit,
+                            horizontal: true,
                         });
                     }
                 }
@@ -281,58 +330,110 @@ function getSplitEdges(preEdges: Edge[]): Edge[] {
                             x2,
                             y2: y,
                         });
+                        points.push({
+                            x: xSplit,
+                            y,
+                            horizontal: false,
+                        });
                     }
                 }
             }
         }
     }
-    return edges;
+    return {
+        edges,
+        points,
+    };
+}
+
+function setEdges(buffer: ImageData, edges: Edge[]) {
+    for (let i: number = edges.length - 1; 0 <= i; --i) {
+        const edge: Edge = edges[i];
+        if (edge.x1 === edge.x2) {
+            setVerticalLine(buffer, edge.x1, edge.y1, edge.y2);
+        } else if (edge.y1 === edge.y2) {
+            setHorizontalLine(buffer, edge.x1, edge.x2, edge.y1);
+        }
+    }
+}
+
+function setPoints(buffer: ImageData, points: Point[]) {
+    for (let i: number = points.length - 1; 0 <= i; --i) {
+        const point: Point = points[i];
+        let index: number = (point.x + (point.y * GLOBAL.width)) << 2;
+        setColor(buffer, index, ORANGE);
+        if (point.horizontal) {
+            for (let x: number = point.x - 1; 0 <= x; --x) {
+                index = (x + (point.y * GLOBAL.width)) << 2;
+                if ((buffer.data[index] !== DARK_GRAY.red) ||
+                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
+                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
+                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
+                {
+                    break;
+                }
+                setColor(buffer, index, MAROON);
+            }
+            for (let x: number = point.x + 1; x < GLOBAL.width; ++x) {
+                index = (x + (point.y * GLOBAL.width)) << 2;
+                if ((buffer.data[index] !== DARK_GRAY.red) ||
+                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
+                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
+                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
+                {
+                    break;
+                }
+                setColor(buffer, index, MAROON);
+            }
+        } else {
+            for (let y: number = point.y - 1; 0 <= y; --y) {
+                index = (point.x + (y * GLOBAL.width)) << 2;
+                if ((buffer.data[index] !== DARK_GRAY.red) ||
+                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
+                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
+                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
+                {
+                    break;
+                }
+                setColor(buffer, index, PALE_BLUE);
+            }
+            for (let y: number = point.y + 1; y < GLOBAL.height; ++y) {
+                index = (point.x + (y * GLOBAL.width)) << 2;
+                if ((buffer.data[index] !== DARK_GRAY.red) ||
+                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
+                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
+                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
+                {
+                    break;
+                }
+                setColor(buffer, index, PALE_BLUE);
+            }
+        }
+    }
 }
 
 window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
+    GLOBAL.width = canvas.width;
+    GLOBAL.height = canvas.height;
     const ctx: CanvasRenderingContext2D =
         canvas.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
-    const width: number = canvas.width;
-    const height: number = canvas.height;
-    const buffer: ImageData = ctx.createImageData(width, height);
-    {
-        console.time("for (let i: num...");
-        for (let i: number = ((width * height) - 1) << 2; 0 <= i; i -= 4) {
-            buffer.data[i] = DARK_GRAY;
-            buffer.data[i + 1] = DARK_GRAY;
-            buffer.data[i + 2] = DARK_GRAY;
-            buffer.data[i + 3] = 255;
-        }
-        console.timeEnd("for (let i: num...");
+    const buffer: ImageData = ctx.createImageData(GLOBAL.width, GLOBAL.height);
+    const n: number = (GLOBAL.width * GLOBAL.height) << 2;
+    for (let i: number = 0; i < n; i += 4) {
+        setColor(buffer, i, DARK_GRAY);
     }
-    {
-        console.time("getSplitEdges(...)");
-        const edges: Edge[] = getSplitEdges(getPartitions([{
-            xLower: 0,
-            xUpper: width - 1,
-            yLower: 0,
-            yUpper: height - 1,
-            horizontal: false,
-        }]));
-        console.timeEnd("getSplitEdges(...)");
-        console.time("for (let i: num...");
-        for (let i: number = edges.length - 1; 0 <= i; --i) {
-            const edge: Edge = edges[i];
-            if (edge.x1 === edge.x2) {
-                setVerticalLine(buffer, width, edge.x1, edge.y1, edge.y2);
-            } else if (edge.y1 === edge.y2) {
-                setHorizontalLine(buffer, width, edge.x1, edge.x2, edge.y1);
-            }
-        }
-        console.timeEnd("for (let i: num...");
-    }
-    {
-        console.time("ctx.putImageDat...");
-        ctx.putImageData(buffer, 0, 0);
-        console.timeEnd("ctx.putImageDat...");
-    }
+    const edgesPoints: EdgesPoints = getSplitEdges(getPartitions([{
+        xLower: 0,
+        xUpper: GLOBAL.width - 1,
+        yLower: 0,
+        yUpper: GLOBAL.height - 1,
+        horizontal: false,
+    }]));
+    setEdges(buffer, edgesPoints.edges);
+    setPoints(buffer, edgesPoints.points);
+    ctx.putImageData(buffer, 0, 0);
     console.log("Done!");
 };
