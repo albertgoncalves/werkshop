@@ -69,21 +69,17 @@
         for (var i = start + widthColor; i < end; i += widthColor) {
             setColor(buffer, i, WHITE);
         }
-        {
-            if (DEBUG) {
-                setColor(buffer, start, BLUE);
-            }
-            else {
-                setColor(buffer, start, WHITE);
-            }
+        if (DEBUG) {
+            setColor(buffer, start, BLUE);
         }
-        {
-            if (DEBUG) {
-                setColor(buffer, end, BLUE);
-            }
-            else {
-                setColor(buffer, end, WHITE);
-            }
+        else {
+            setColor(buffer, start, WHITE);
+        }
+        if (DEBUG) {
+            setColor(buffer, end, BLUE);
+        }
+        else {
+            setColor(buffer, end, WHITE);
         }
     }
     function setHorizontalLine(buffer, xStart, xEnd, y) {
@@ -93,21 +89,17 @@
         for (var i = start + 4; i < end; i += 4) {
             setColor(buffer, i, WHITE);
         }
-        {
-            if (DEBUG) {
-                setColor(buffer, start, BLUE);
-            }
-            else {
-                setColor(buffer, start, WHITE);
-            }
+        if (DEBUG) {
+            setColor(buffer, start, BLUE);
         }
-        {
-            if (DEBUG) {
-                setColor(buffer, end, BLUE);
-            }
-            else {
-                setColor(buffer, end, WHITE);
-            }
+        else {
+            setColor(buffer, start, WHITE);
+        }
+        if (DEBUG) {
+            setColor(buffer, end, BLUE);
+        }
+        else {
+            setColor(buffer, end, WHITE);
         }
     }
     function getPartitions(stack) {
@@ -312,55 +304,78 @@
             }
         }
     }
+    function getBufferColor(buffer, index) {
+        return {
+            red: buffer.data[index],
+            green: buffer.data[index + 1],
+            blue: buffer.data[index + 2],
+            alpha: buffer.data[index + 3]
+        };
+    }
+    function compareColors(a, b) {
+        return (a.red === b.red) && (a.green === b.green) && (a.blue === b.blue) &&
+            (a.alpha === b.alpha);
+    }
+    function getBlocked(buffer, a, b) {
+        return (!compareColors(getBufferColor(buffer, a), DARK_GRAY)) ||
+            compareColors(getBufferColor(buffer, b), WHITE) ||
+            compareColors(getBufferColor(buffer, b), BLUE);
+    }
+    function setPointToLine(buffer, point) {
+        if (point.horizontal) {
+            var offset = point.y * GLOBAL.width;
+            for (var x = point.x - 1; 0 <= x; --x) {
+                var index = (x + offset) << 2;
+                var xPad = x - PAD;
+                if ((xPad < 0) ||
+                    (getBlocked(buffer, index, (xPad + offset) << 2))) {
+                    break;
+                }
+                setColor(buffer, index, MAROON);
+            }
+            for (var x = point.x + 1; x < GLOBAL.width; ++x) {
+                var index = (x + offset) << 2;
+                var xPad = x + PAD;
+                if ((GLOBAL.width <= xPad) ||
+                    (getBlocked(buffer, index, (xPad + offset) << 2))) {
+                    break;
+                }
+                setColor(buffer, index, MAROON);
+            }
+        }
+        else {
+            for (var y = point.y - 1; 0 <= y; --y) {
+                var index = (point.x + (y * GLOBAL.width)) << 2;
+                var yPad = y - PAD;
+                if (yPad < 0) {
+                    break;
+                }
+                var padIndex = (point.x + (yPad * GLOBAL.width)) << 2;
+                if (getBlocked(buffer, index, padIndex)) {
+                    break;
+                }
+                setColor(buffer, index, PALE_BLUE);
+            }
+            for (var y = point.y + 1; y < GLOBAL.height; ++y) {
+                var index = (point.x + (y * GLOBAL.width)) << 2;
+                var yPad = y + PAD;
+                if (GLOBAL.height <= yPad) {
+                    break;
+                }
+                var padIndex = (point.x + (yPad * GLOBAL.width)) << 2;
+                if (getBlocked(buffer, index, padIndex)) {
+                    break;
+                }
+                setColor(buffer, index, PALE_BLUE);
+            }
+        }
+    }
     function setPoints(buffer, points) {
         for (var i = points.length - 1; 0 <= i; --i) {
             var point = points[i];
             var index = (point.x + (point.y * GLOBAL.width)) << 2;
             setColor(buffer, index, ORANGE);
-            if (point.horizontal) {
-                for (var x = point.x - 1; 0 <= x; --x) {
-                    index = (x + (point.y * GLOBAL.width)) << 2;
-                    if ((buffer.data[index] !== DARK_GRAY.red) ||
-                        (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                        (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                        (buffer.data[index + 3] !== DARK_GRAY.alpha)) {
-                        break;
-                    }
-                    setColor(buffer, index, MAROON);
-                }
-                for (var x = point.x + 1; x < GLOBAL.width; ++x) {
-                    index = (x + (point.y * GLOBAL.width)) << 2;
-                    if ((buffer.data[index] !== DARK_GRAY.red) ||
-                        (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                        (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                        (buffer.data[index + 3] !== DARK_GRAY.alpha)) {
-                        break;
-                    }
-                    setColor(buffer, index, MAROON);
-                }
-            }
-            else {
-                for (var y = point.y - 1; 0 <= y; --y) {
-                    index = (point.x + (y * GLOBAL.width)) << 2;
-                    if ((buffer.data[index] !== DARK_GRAY.red) ||
-                        (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                        (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                        (buffer.data[index + 3] !== DARK_GRAY.alpha)) {
-                        break;
-                    }
-                    setColor(buffer, index, PALE_BLUE);
-                }
-                for (var y = point.y + 1; y < GLOBAL.height; ++y) {
-                    index = (point.x + (y * GLOBAL.width)) << 2;
-                    if ((buffer.data[index] !== DARK_GRAY.red) ||
-                        (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                        (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                        (buffer.data[index + 3] !== DARK_GRAY.alpha)) {
-                        break;
-                    }
-                    setColor(buffer, index, PALE_BLUE);
-                }
-            }
+            setPointToLine(buffer, point);
         }
     }
     window.onload = function () {
@@ -371,19 +386,37 @@
         ctx.imageSmoothingEnabled = false;
         var buffer = ctx.createImageData(GLOBAL.width, GLOBAL.height);
         var n = (GLOBAL.width * GLOBAL.height) << 2;
-        for (var i = 0; i < n; i += 4) {
-            setColor(buffer, i, DARK_GRAY);
+        {
+            console.time("setColor(buffer, ..., DARK_GRAY)  ");
+            for (var i = 0; i < n; i += 4) {
+                setColor(buffer, i, DARK_GRAY);
+            }
+            console.timeEnd("setColor(buffer, ..., DARK_GRAY)  ");
         }
-        var edgesPoints = getSplitEdges(getPartitions([{
+        console.time("getSplitEdges(getPartitions(...)) ");
+        var tuple = getSplitEdges(getPartitions([{
                 xLower: 0,
                 xUpper: GLOBAL.width - 1,
                 yLower: 0,
                 yUpper: GLOBAL.height - 1,
                 horizontal: false
             }]));
-        setEdges(buffer, edgesPoints.edges);
-        setPoints(buffer, edgesPoints.points);
-        ctx.putImageData(buffer, 0, 0);
+        console.timeEnd("getSplitEdges(getPartitions(...)) ");
+        {
+            console.time("setEdges(buffer, tuple.edges)     ");
+            setEdges(buffer, tuple.edges);
+            console.timeEnd("setEdges(buffer, tuple.edges)     ");
+        }
+        {
+            console.time("setPoints(buffer, tuple.points)   ");
+            setPoints(buffer, tuple.points);
+            console.timeEnd("setPoints(buffer, tuple.points)   ");
+        }
+        {
+            console.time("ctx.putImageData(buffer, 0, 0)    ");
+            ctx.putImageData(buffer, 0, 0);
+            console.timeEnd("ctx.putImageData(buffer, 0, 0)    ");
+        }
         console.log("Done!");
     };
     

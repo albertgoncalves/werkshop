@@ -1,7 +1,5 @@
 const DEBUG: boolean = true;
-
 const ITERATION_LIMIT: number = 100;
-
 const MIN_DELTA: number = 1 << 5;
 const MIN_SPLIT: number = (1 << 3) + 1;
 const PAD: number = MIN_SPLIT >> 1;
@@ -33,7 +31,7 @@ interface Point {
     horizontal: boolean;
 }
 
-interface EdgesPoints {
+interface Tuple {
     edges: Edge[];
     points: Point[];
 }
@@ -103,19 +101,15 @@ function setVerticalLine(buffer: ImageData,
     for (let i: number = start + widthColor; i < end; i += widthColor) {
         setColor(buffer, i, WHITE);
     }
-    {
-        if (DEBUG) {
-            setColor(buffer, start, BLUE);
-        } else {
-            setColor(buffer, start, WHITE);
-        }
+    if (DEBUG) {
+        setColor(buffer, start, BLUE);
+    } else {
+        setColor(buffer, start, WHITE);
     }
-    {
-        if (DEBUG) {
-            setColor(buffer, end, BLUE);
-        } else {
-            setColor(buffer, end, WHITE);
-        }
+    if (DEBUG) {
+        setColor(buffer, end, BLUE);
+    } else {
+        setColor(buffer, end, WHITE);
     }
 }
 
@@ -129,19 +123,15 @@ function setHorizontalLine(buffer: ImageData,
     for (let i: number = start + 4; i < end; i += 4) {
         setColor(buffer, i, WHITE);
     }
-    {
-        if (DEBUG) {
-            setColor(buffer, start, BLUE);
-        } else {
-            setColor(buffer, start, WHITE);
-        }
+    if (DEBUG) {
+        setColor(buffer, start, BLUE);
+    } else {
+        setColor(buffer, start, WHITE);
     }
-    {
-        if (DEBUG) {
-            setColor(buffer, end, BLUE);
-        } else {
-            setColor(buffer, end, WHITE);
-        }
+    if (DEBUG) {
+        setColor(buffer, end, BLUE);
+    } else {
+        setColor(buffer, end, WHITE);
     }
 }
 
@@ -221,7 +211,7 @@ function getPartitions(stack: Partition[]): Edge[] {
     return edges;
 }
 
-function getSplitEdges(preEdges: Edge[]): EdgesPoints {
+function getSplitEdges(preEdges: Edge[]): Tuple {
     const edges: Edge[] = [];
     const points: Point[] = [];
     for (let i: number = preEdges.length - 1; 0 <= i; --i) {
@@ -357,58 +347,82 @@ function setEdges(buffer: ImageData, edges: Edge[]) {
     }
 }
 
+function getBufferColor(buffer: ImageData, index: number): Color {
+    return {
+        red: buffer.data[index],
+        green: buffer.data[index + 1],
+        blue: buffer.data[index + 2],
+        alpha: buffer.data[index + 3],
+    };
+}
+
+function compareColors(a: Color, b: Color): boolean {
+    return (a.red === b.red) && (a.green === b.green) && (a.blue === b.blue) &&
+        (a.alpha === b.alpha);
+}
+
+function getBlocked(buffer: ImageData, a: number, b: number): boolean {
+    return (!compareColors(getBufferColor(buffer, a), DARK_GRAY)) ||
+        compareColors(getBufferColor(buffer, b), WHITE) ||
+        compareColors(getBufferColor(buffer, b), BLUE);
+}
+
+function setPointToLine(buffer: ImageData, point: Point) {
+    if (point.horizontal) {
+        const offset: number = point.y * GLOBAL.width;
+        for (let x: number = point.x - 1; 0 <= x; --x) {
+            const index: number = (x + offset) << 2;
+            const xPad: number = x - PAD;
+            if ((xPad < 0) ||
+                (getBlocked(buffer, index, (xPad + offset) << 2))) {
+                break;
+            }
+            setColor(buffer, index, MAROON);
+        }
+        for (let x: number = point.x + 1; x < GLOBAL.width; ++x) {
+            const index: number = (x + offset) << 2;
+            const xPad: number = x + PAD;
+            if ((GLOBAL.width <= xPad) ||
+                (getBlocked(buffer, index, (xPad + offset) << 2)))
+            {
+                break;
+            }
+            setColor(buffer, index, MAROON);
+        }
+    } else {
+        for (let y: number = point.y - 1; 0 <= y; --y) {
+            const index: number = (point.x + (y * GLOBAL.width)) << 2;
+            const yPad: number = y - PAD;
+            if (yPad < 0) {
+                break;
+            }
+            const padIndex: number = (point.x + (yPad * GLOBAL.width)) << 2;
+            if (getBlocked(buffer, index, padIndex)) {
+                break;
+            }
+            setColor(buffer, index, PALE_BLUE);
+        }
+        for (let y: number = point.y + 1; y < GLOBAL.height; ++y) {
+            const index: number = (point.x + (y * GLOBAL.width)) << 2;
+            const yPad: number = y + PAD;
+            if (GLOBAL.height <= yPad) {
+                break;
+            }
+            const padIndex: number = (point.x + (yPad * GLOBAL.width)) << 2;
+            if (getBlocked(buffer, index, padIndex)) {
+                break;
+            }
+            setColor(buffer, index, PALE_BLUE);
+        }
+    }
+}
+
 function setPoints(buffer: ImageData, points: Point[]) {
     for (let i: number = points.length - 1; 0 <= i; --i) {
         const point: Point = points[i];
-        let index: number = (point.x + (point.y * GLOBAL.width)) << 2;
+        const index: number = (point.x + (point.y * GLOBAL.width)) << 2;
         setColor(buffer, index, ORANGE);
-        if (point.horizontal) {
-            for (let x: number = point.x - 1; 0 <= x; --x) {
-                index = (x + (point.y * GLOBAL.width)) << 2;
-                if ((buffer.data[index] !== DARK_GRAY.red) ||
-                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
-                {
-                    break;
-                }
-                setColor(buffer, index, MAROON);
-            }
-            for (let x: number = point.x + 1; x < GLOBAL.width; ++x) {
-                index = (x + (point.y * GLOBAL.width)) << 2;
-                if ((buffer.data[index] !== DARK_GRAY.red) ||
-                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
-                {
-                    break;
-                }
-                setColor(buffer, index, MAROON);
-            }
-        } else {
-            for (let y: number = point.y - 1; 0 <= y; --y) {
-                index = (point.x + (y * GLOBAL.width)) << 2;
-                if ((buffer.data[index] !== DARK_GRAY.red) ||
-                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
-                {
-                    break;
-                }
-                setColor(buffer, index, PALE_BLUE);
-            }
-            for (let y: number = point.y + 1; y < GLOBAL.height; ++y) {
-                index = (point.x + (y * GLOBAL.width)) << 2;
-                if ((buffer.data[index] !== DARK_GRAY.red) ||
-                    (buffer.data[index + 1] !== DARK_GRAY.green) ||
-                    (buffer.data[index + 2] !== DARK_GRAY.blue) ||
-                    (buffer.data[index + 3] !== DARK_GRAY.alpha))
-                {
-                    break;
-                }
-                setColor(buffer, index, PALE_BLUE);
-            }
-        }
+        setPointToLine(buffer, point);
     }
 }
 
@@ -422,18 +436,36 @@ window.onload = function() {
     ctx.imageSmoothingEnabled = false;
     const buffer: ImageData = ctx.createImageData(GLOBAL.width, GLOBAL.height);
     const n: number = (GLOBAL.width * GLOBAL.height) << 2;
-    for (let i: number = 0; i < n; i += 4) {
-        setColor(buffer, i, DARK_GRAY);
+    {
+        console.time("setColor(buffer, ..., DARK_GRAY)  ");
+        for (let i: number = 0; i < n; i += 4) {
+            setColor(buffer, i, DARK_GRAY);
+        }
+        console.timeEnd("setColor(buffer, ..., DARK_GRAY)  ");
     }
-    const edgesPoints: EdgesPoints = getSplitEdges(getPartitions([{
+    console.time("getSplitEdges(getPartitions(...)) ");
+    const tuple: Tuple = getSplitEdges(getPartitions([{
         xLower: 0,
         xUpper: GLOBAL.width - 1,
         yLower: 0,
         yUpper: GLOBAL.height - 1,
         horizontal: false,
     }]));
-    setEdges(buffer, edgesPoints.edges);
-    setPoints(buffer, edgesPoints.points);
-    ctx.putImageData(buffer, 0, 0);
+    console.timeEnd("getSplitEdges(getPartitions(...)) ");
+    {
+        console.time("setEdges(buffer, tuple.edges)     ");
+        setEdges(buffer, tuple.edges);
+        console.timeEnd("setEdges(buffer, tuple.edges)     ");
+    }
+    {
+        console.time("setPoints(buffer, tuple.points)   ");
+        setPoints(buffer, tuple.points);
+        console.timeEnd("setPoints(buffer, tuple.points)   ");
+    }
+    {
+        console.time("ctx.putImageData(buffer, 0, 0)    ");
+        ctx.putImageData(buffer, 0, 0);
+        console.timeEnd("ctx.putImageData(buffer, 0, 0)    ");
+    }
     console.log("Done!");
 };
