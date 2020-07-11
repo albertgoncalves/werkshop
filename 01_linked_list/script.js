@@ -10,7 +10,7 @@
         Object.defineProperty(exports, "default", { value: function (name) { return resolve(name); } });
     });
     "use strict";
-    function main() {
+    window.onload = function () {
         var canvas = document.getElementById("canvas");
         var n = (Math.floor(Math.random() * 4) + 3);
         var nodes = new Array(n);
@@ -93,8 +93,7 @@
                 ctx.stroke();
             }
         }
-    }
-    main();
+    };
     
     'marker:resolver';
 

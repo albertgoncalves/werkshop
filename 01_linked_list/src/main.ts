@@ -4,7 +4,7 @@ interface Node_ {
     y: number;
 }
 
-function main() {
+window.onload = function() {
     const canvas: HTMLCanvasElement =
         document.getElementById("canvas") as HTMLCanvasElement;
     const n: number = (Math.floor(Math.random() * 4) + 3);
@@ -98,6 +98,4 @@ function main() {
             ctx.stroke();
         }
     }
-}
-
-main();
+};
