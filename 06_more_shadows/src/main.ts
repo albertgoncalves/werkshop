@@ -305,7 +305,7 @@ window.onload = function() {
     }
     const debugFPS: HTMLElement =
         document.getElementById("debug-fps") as HTMLElement;
-    const loop: (frameTime: number) => void = function(frameTime: number) {
+    function loop(frameTime: number): void {
         state.frameIncrements += frameTime - state.framePrevTime;
         while (FRAME_STEP < state.frameIncrements) {
             if ((keys.up | keys.down | keys.left | keys.right) === 0) {
@@ -350,6 +350,6 @@ window.onload = function() {
         }
         state.framePrevTime = frameTime;
         requestAnimationFrame(loop);
-    };
+    }
     loop(0);
 };

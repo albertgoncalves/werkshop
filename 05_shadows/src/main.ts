@@ -519,7 +519,7 @@ window.onload = function() {
     }
     const debugFPS: HTMLElement =
         document.getElementById("debug-fps") as HTMLElement;
-    const loop: (frameTime: number) => void = function(frameTime: number) {
+    function loop(frameTime: number): void {
         if (state.mouseClick) {
             buffer[(current.y * WIDTH) + current.x] = EMPTY;
             buffer[(target.y * WIDTH) + target.x] = PLAYER;
@@ -574,6 +574,6 @@ window.onload = function() {
         }
         state.framePrevTime = frameTime;
         requestAnimationFrame(loop);
-    };
+    }
     loop(0);
 };

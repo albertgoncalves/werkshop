@@ -39,7 +39,7 @@ window.onload = function() {
         blue: 128,
         alpha: 16,
     };
-    function loop() {
+    function loop(): void {
         rect.x += Math.round((Math.random() * spread) - halfSpread - epsilon);
         rect.y += Math.round((Math.random() * spread) - halfSpread - epsilon);
         let reset: boolean = true;

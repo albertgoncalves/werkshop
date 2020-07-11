@@ -652,7 +652,7 @@
                 setImage(ctx, image, buffer, mask);
             }
             var debugFPS = document.getElementById("debug-fps");
-            var loop = function (frameTime) {
+            function loop(frameTime) {
                 state.frameIncrements += frameTime - state.framePrevTime;
                 while (FRAME_STEP < state.frameIncrements) {
                     if ((keys.up | keys.down | keys.left | keys.right) === 0) {
@@ -701,7 +701,7 @@
                 }
                 state.framePrevTime = frameTime;
                 requestAnimationFrame(loop);
-            };
+            }
             loop(0);
         };
     });

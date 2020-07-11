@@ -449,7 +449,7 @@
             setImage(ctx, image, buffer, mask);
         }
         var debugFPS = document.getElementById("debug-fps");
-        var loop = function (frameTime) {
+        function loop(frameTime) {
             if (state.mouseClick) {
                 buffer[(current.y * WIDTH) + current.x] = EMPTY;
                 buffer[(target.y * WIDTH) + target.x] = PLAYER;
@@ -509,7 +509,7 @@
             }
             state.framePrevTime = frameTime;
             requestAnimationFrame(loop);
-        };
+        }
         loop(0);
     };
     
