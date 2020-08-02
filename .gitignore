@@ -2,6 +2,7 @@
 !.gitignore
 !shell.nix
 !.shellhook
+!README.md
 !.tidyrc
 !.clang-format
 !.jshintrc
