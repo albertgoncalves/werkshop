@@ -144,7 +144,7 @@
                                 xMult: octal.xMult,
                                 yMult: octal.yMult,
                                 loopStart: dX + 1,
-                                slopeStart: octal.slopeStart,
+                                slopeStart: nextStart,
                                 slopeEnd: rSlope
                             });
                             nextStart = lSlope;
